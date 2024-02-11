@@ -1,0 +1,54 @@
+{
+    "tasks": [
+        {
+            "label": "Build Engine",
+            "type": "shell",
+            "windows": {
+                "command": "${workspaceFolder}/fracture/build.bat"
+            },
+            "group":"build",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/fracture"
+            },
+        },
+        {
+            "label": "Build testbed",
+            "type": "shell",
+            "windows": {
+                "command": "${workspaceFolder}/testbed/build.bat"
+            },
+            "group":"build",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/fracture"
+            },
+        },
+        {
+            "label": "Build Everything",
+            "dependsOn": [
+                "Build Engine",
+                "Build testbed"
+            ],
+            "type": "shell",
+            "windows": {
+                "command": "${workspaceFolder}/build-all.bat"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true,
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        }
+    ],
+    "version": "2.0.0"
+}
