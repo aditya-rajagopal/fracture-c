@@ -1,6 +1,6 @@
 /**
  * @file defines.h
- * @author Aditya Rajagopal ()
+ * @author Aditya Rajagopal
  * @brief Defines all the types and macros used in the Fracture Game Engine
  * @version 0.0.1
  * @date 2024-02-10
@@ -66,7 +66,7 @@ STATIC_ASSERT(sizeof(b32) == 4, "b32 is not 4 bytes");
 STATIC_ASSERT(sizeof(b8) == 1, "b8 is not 1 byte");
 
 #if defined (WIN32) || defined (_WIN32) || defined (__WIN32__)
-    #define FR_PLATFORM_WINDOWS
+    #define FR_PLATFORM_WINDOWS  1
     #ifndef _WIN64
         #error "64-bit Windows is required"
     #endif
@@ -91,16 +91,16 @@ STATIC_ASSERT(sizeof(b8) == 1, "b8 is not 1 byte");
         #define FR_API __declspec(dllimport)
     #else
         #define FR_API
-#endif
+    #endif
 #endif
 
 // Define debug macro
 #ifdef _DEBUG
-    #define DEBUG
+    #define FR_DEBUG
 #endif
 
 // Define debug break
-#ifdef DEBUG
+#ifdef FR_DEBUG
     #define DEBUG_BREAK __debugbreak()
 #else
     #define DEBUG_BREAK

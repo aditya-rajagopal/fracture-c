@@ -114,10 +114,10 @@
     "doxdocgen.file.copyrightTag": [
         "@copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-{year}"
     ],
-    "doxdocgen.file.versionTag": "@version 1.0",
+    "doxdocgen.file.versionTag": "@version 0.0.1",
     "doxdocgen.generic.authorEmail": "",
     "doxdocgen.generic.authorName": "Aditya Rajagopal",
-    "doxdocgen.generic.authorTag": "@author {author} ({email})",
+    "doxdocgen.generic.authorTag": "@author {author}",
     // The order to use for the file comment. Values can be used multiple times. Valid values are shown in default setting.
     "doxdocgen.file.fileOrder": [
         "file",
