@@ -12,7 +12,7 @@ REM echo "Files: " %cFileNames%
 SET assembly=base
 SET compilerFlags=-g
 REM -Wall -Werror
-SET includeFlags=-Isrc
+SET includeFlags=-I..\base\src
 SET linkerFlags=
 SET defines=-D_DEBUG -D_CRT_SECURE_NO_WARNINGS
 
