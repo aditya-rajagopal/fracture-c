@@ -3,6 +3,11 @@ REM Build Everything
 
 ECHO "Building everything...."
 
+PUSHD base
+CALL build.bat
+POPD
+IF %ERRORLEVEL% NEQ 0 GOTO :error
+
 PUSHD fracture
 CALL build.bat
 POPD
