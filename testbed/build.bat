@@ -12,8 +12,8 @@ REM echo "Files: " %cFileNames%
 SET assembly=testbed
 SET comilerFlags=-g
 REM -Wall -Werror
-SET includeFlags=-Isrc -I..\fracture\src
-SET linkerFlags=-L../bin/ -lfracture.lib
+SET includeFlags=-Isrc -I..\fracture\src -I..\base\src
+SET linkerFlags=-L../bin/ -lfracture.lib -lbase.lib
 SET defines=-D_DEBUG -DFR_IMPORT
 
 ECHO "Buildin %assembly%...."

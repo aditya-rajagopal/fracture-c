@@ -205,7 +205,7 @@ The items in this list are not in any particular order. This list will be update
 - [ ] FBX model imports 
 
 ## Other items:
-- [ ] Split off "core" items (defines, memory, strings, containers, etc.) into a "core" or "foundation" library so they may be used without having to pull in all of the engine.
+- [x] Split off "core" items (defines, memory, strings, containers, etc.) into a "core" or "foundation" library so they may be used without having to pull in all of the engine.
 - [ ] Split off platform layers into separate libraries outside the engine.
 - [ ] Auto-Generated API documentation
 - [ ] Documentation

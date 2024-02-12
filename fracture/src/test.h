@@ -1,6 +1,6 @@
 #pragma once
 
-#include "defines.h"
+#include "core.h"
 
 // Test function
-FR_API void print_func(i32 num);
+FR_API void fr_print_function(i32 num);

@@ -1,6 +1,8 @@
 #include "test.h"
 #include <stdio.h>
 
-void print_func(i32 num) {
-    printf("The number is: %d\n", num);
+#include <core/printfun.h>
+
+void fr_print_function(i32 num) {
+    print_func(num);
 }

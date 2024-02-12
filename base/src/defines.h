@@ -37,6 +37,16 @@ typedef char b8;
 #define TRUE 1
 #define FALSE 0
 
+// kibibytes, mebibytes, gibibytes
+#define KiB(x) (x * 1024)
+#define MiB(x) (x * 1024 * 1024)
+#define GiB(x) (x * 1024 * 1024 * 1024)
+
+// kilobytes, megabytes, gigabytes
+#define KB(x) (x * 1000)
+#define MB(x) (x * 1000 * 1000)
+#define GB(x) (x * 1000 * 1000 * 1000)
+
 // Pi
 #define PI 3.14159265359f
 
@@ -64,44 +74,3 @@ STATIC_ASSERT(sizeof(f64) == 8, "f64 is not 8 bytes");
 
 STATIC_ASSERT(sizeof(b32) == 4, "b32 is not 4 bytes");
 STATIC_ASSERT(sizeof(b8) == 1, "b8 is not 1 byte");
-
-#if defined (WIN32) || defined (_WIN32) || defined (__WIN32__)
-    #define FR_PLATFORM_WINDOWS  1
-    #ifndef _WIN64
-        #error "64-bit Windows is required"
-    #endif
-#elif defined (__linux__) || defined (__gnu_linux__)
-    #define FR_PLATFORM_LINUX
-    #ifndef __x86_64__
-        #error "64-bit Linux is required"
-    #endif
-#else
-    #error "Unsupported platform"
-#endif
-
-// Define export macro
-#ifdef FR_EXPORT
-    #ifdef _MSC_VER
-        #define FR_API __declspec(dllexport)
-    #else
-        #define FR_API __attribute__((visibility("default")))
-    #endif
-#else
-    #ifdef _MSC_VER
-        #define FR_API __declspec(dllimport)
-    #else
-        #define FR_API
-    #endif
-#endif
-
-// Define debug macro
-#ifdef _DEBUG
-    #define FR_DEBUG
-#endif
-
-// Define debug break
-#ifdef FR_DEBUG
-    #define DEBUG_BREAK __debugbreak()
-#else
-    #define DEBUG_BREAK
-#endif

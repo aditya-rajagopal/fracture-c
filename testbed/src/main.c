@@ -1,6 +1,6 @@
 #include <test.h>
 
 int main() {
-    print_func(5);
+    fr_print_function(5);
     return 0;
 }
