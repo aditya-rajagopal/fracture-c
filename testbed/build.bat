@@ -14,7 +14,7 @@ SET comilerFlags=-g
 REM -Wall -Werror
 SET includeFlags=-Isrc -I..\fracture\src -I..\base\src
 SET linkerFlags=-L../bin/ -lfracture.lib -lbase.lib
-SET defines=-D_DEBUG -DFR_IMPORT
+SET defines=-D_DEBUG -DFR_IMPORT -D_ENABLE_ASSERTS
 
 ECHO "Buildin %assembly%...."
 clang %cFileNames% %comilerFlags% -o ../bin/%assembly%.exe %defines% %includeFlags% %linkerFlags%

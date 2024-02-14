@@ -37,6 +37,15 @@ typedef char b8;
 #define TRUE 1
 #define FALSE 0
 
+// Bit shifting
+#define BIT(x) (1 << x)
+
+// Bit manipulation
+#define SET_BIT(x, y) (x |= BIT(y))
+#define CLEAR_BIT(x, y) (x &= ~BIT(y))
+#define TOGGLE_BIT(x, y) (x ^= BIT(y))
+#define CHECK_BIT(x, y) (x & BIT(y))
+
 // kibibytes, mebibytes, gibibytes
 #define KiB(x) (x * 1024)
 #define MiB(x) (x * 1024 * 1024)

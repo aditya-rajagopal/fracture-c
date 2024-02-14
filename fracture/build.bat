@@ -12,9 +12,9 @@ REM echo "Files: " %cFileNames%
 SET assembly=fracture
 SET comilerFlags=-g -shared -Wvarargs -Wall -Werror
 REM -Wall -Werror
-SET includeFlags=-Isrc -I%VULKAN_SDK%\Include -I..\base\src
+SET includeFlags=-I..\fracture\src -I%VULKAN_SDK%\Include -I..\base\src
 SET linkerFlags=-luser32 -lvulkan-1 -L%VULKAN_SDK%/Lib -L..\bin\ -lbase.lib
-SET defines=-D_DEBUG -DFR_EXPORT -D_CRT_SECURE_NO_WARNINGS
+SET defines=-D_DEBUG -DFR_EXPORT -D_CRT_SECURE_NO_WARNINGS -D_ENABLE_ASSERTS
 
 ECHO %VULKAN_SDK%
 

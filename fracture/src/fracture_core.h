@@ -33,22 +33,33 @@
     #else
         #define FR_API __attribute__((visibility("default")))
     #endif
-#else
+#elif FR_IMPORT
     #ifdef _MSC_VER
         #define FR_API __declspec(dllimport)
     #else
         #define FR_API
     #endif
+#else
+    #error "FR_EXPORT or FR_IMPORT must be defined"
 #endif
 
 // Define debug macro
 #ifdef _DEBUG
-    #define FR_DEBUG
+    #define FR_DEBUG 1
+#else
+    #define FR_DEBUG 0
+#endif
+
+#ifdef _RELEASE
+    #define FR_RELEASE 1
+#else
+    #define FR_RELEASE 0
 #endif
 
 // Define debug break
-#ifdef FR_DEBUG
-    #define DEBUG_BREAK __debugbreak()
+#ifdef _ENABLE_ASSERTS
+    #define DEBUG_BREAK() __debugbreak()
+    #define FR_ENABLE_ASSERTS 1
 #else
-    #define DEBUG_BREAK
+    #define DEBUG_BREAK()
 #endif

@@ -25,4 +25,3 @@ GOTO :end
 ECHO Error: %ERRORLEVEL%
 ECHO "Build failed!"
 :end
-PAUSE
