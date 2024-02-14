@@ -19,6 +19,11 @@ int main() {
     
     logging_level_set(LOG_LEVEL_INFO, FALSE);
     FR_CORE_INFO("This is an info message: %f", PI);
+
+    while(TRUE) {
+        application_loop();
+    }
+
     shutdown_logging();
     return 0;
 }

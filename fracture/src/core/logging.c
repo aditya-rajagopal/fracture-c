@@ -1,5 +1,7 @@
 #include "logging.h"
 
+#include <platform.h>
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,29 +15,27 @@ static const char* log_level_strings[] = {
     "ASSERTION FAILED"
 };
 
-static const char* log_level_colors[] = {
-    COLOR_FATAL,
-    COLOR_ERROR,
-    COLOR_WARN,
-    COLOR_INFO,
-    COLOR_TRACE,
-    COLOR_ASSERT
-};
-
 static logging_config* state = NULL_PTR;
+static platform_state* plat_state = NULL_PTR;
 
 b8 initialize_logging(logging_config* config) {
     if (state != NULL_PTR) {
         return TRUE;
     }
 
-    state = (logging_config*)malloc(sizeof(logging_config));
+    state = (logging_config*)platform_allocate(sizeof(logging_config), TRUE);
     state->enable_console = config->enable_console;
     state->enable_file = config->enable_file;
     state->logging_flags = config->logging_flags;
     state->filename = config->filename;
 
     // TODO: Setup file logging
+
+    // HACK: Setup platform here
+    plat_state = (platform_state*)platform_allocate(sizeof(platform_state), TRUE);
+    if (!platform_startup(plat_state, "Fracture Test", 1280, 720, 100, 100)) {
+        return FALSE;
+    }
 
     return TRUE;
 }
@@ -45,7 +45,18 @@ void shutdown_logging() {
         return;
     }
 
-    free(state);
+    platform_shutdown(plat_state);
+    platform_free(plat_state, TRUE);
+    platform_free(state, TRUE);
+}
+
+void application_loop() {
+    // HACK: Pump messages here
+    if (state == NULL_PTR) {
+        return;
+    }
+
+    platform_pump_messages(plat_state);
 }
  
 void log_message(log_level level, const char* message, ...) {
@@ -57,6 +68,8 @@ void log_message(log_level level, const char* message, ...) {
         return;
     }
 
+    b8 is_error = level <= LOG_LEVEL_ERROR;
+
     char buffer[32000];
     __builtin_va_list vargs;
     va_start(vargs, message);
@@ -64,11 +77,16 @@ void log_message(log_level level, const char* message, ...) {
     va_end(vargs);
 
     char log_message[32000];
-    snprintf(log_message, 32000, "%s[%s] %s%s\n", log_level_colors[level], log_level_strings[level], buffer, COLOR_RESET);    
+    snprintf(log_message, 32000, "[%s] %s\n", log_level_strings[level], buffer);    
 
     if (state->enable_console) {
-        printf("%s", log_message);
+        if (is_error) {
+            platform_console_write_error(log_message, (u8)level);
+        } else {
+            platform_console_write(log_message, (u8)level);
+        }
     }
+
 
     // TODO: Write to file
 }
@@ -82,6 +100,8 @@ void log_message_detailed(log_level level, const char *file, int line, const cha
         return;
     }
 
+    b8 is_error = level <= LOG_LEVEL_ERROR;
+
     char buffer[32000];
     __builtin_va_list vargs;
     va_start(vargs, format);
@@ -89,10 +109,14 @@ void log_message_detailed(log_level level, const char *file, int line, const cha
     va_end(vargs);
 
     char log_message[32000];
-    snprintf(log_message, 32000, "%s[%s] %s:%d %s%s\n", log_level_colors[level], log_level_strings[level], file, line, buffer, COLOR_RESET);
+    snprintf(log_message, 32000, "[%s] %s:%d %s\n", log_level_strings[level], file, line, buffer);
 
     if (state->enable_console) {
-        printf("%s", log_message);
+        if (is_error) {
+            platform_console_write_error(log_message, (u8)level);
+        } else {
+            platform_console_write(log_message, (u8)level);
+        }
     }
 
     // TODO: Write to file

@@ -9,12 +9,12 @@ FOR /R %%f in (*.c) do (
 )
 
 REM echo "Files: " %cFileNames%
-SET assembly=base
+SET assembly=platform
 SET compilerFlags=-g
 REM -Wall -Werror
-SET includeFlags=-I..\base\src
-SET linkerFlags=
-SET defines=-D_DEBUG -D_CRT_SECURE_NO_WARNINGS
+SET includeFlags=-I..\platform\src -I..\base\src
+SET linkerFlags=-L..\base\bin -lbase.lib
+SET defines=-D_DEBUG -D_CRT_SECURE_NO_WARNINGS -DPLATFORM_WINDOWS
 
 ECHO "Buildin %assembly%..."
 REM Compile C files to object files

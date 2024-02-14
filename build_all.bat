@@ -8,6 +8,11 @@ CALL build.bat
 POPD
 IF %ERRORLEVEL% NEQ 0 GOTO :error
 
+PUSHD platform
+CALL build.bat
+POPD
+IF %ERRORLEVEL% NEQ 0 GOTO :error
+
 PUSHD fracture
 CALL build.bat
 POPD

@@ -11,15 +11,6 @@
 #pragma once
 #include "fracture_core.h"
 
-// Colour codes for ANSI escape sequences (optional)
-#define COLOR_RESET "\x1b[0m"
-#define COLOR_FATAL "\x1b[31m"  // Red
-#define COLOR_ERROR "\x1b[31m"  // Red
-#define COLOR_WARN  "\x1b[33m"  // Yellow
-#define COLOR_INFO  "\x1b[36m"  // Cyan
-#define COLOR_TRACE "\x1b[37m"  // Gray
-#define COLOR_ASSERT "\x1b[31m" // Red
-
 /**
  * @brief Flags to enable or disable logging levels at bit position corresponding to the log level.
  * 
@@ -76,6 +67,9 @@ typedef struct logging_config {
     /** @brief Flags to enable or disable logging levels at bit position corresponding to the log level. */
     b8 logging_flags;
 } logging_config;
+
+// HACK: This is just to test platform layer
+FR_API void application_loop();
 
 /**
  * @brief Initialize the logging system with the given configuration. The amount of memory required for the logging system is returned in the memory_required parameter if the config pointer passed is null.
