@@ -160,11 +160,11 @@ void platform_console_write(const char *message, u8 color) {
     HANDLE console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     // FATAL, ERROR, WARN, INFO, TRACE, ASSERTION
     static const u8 colors[] = {
-        FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | BACKGROUND_RED, // FATAL - White text on red background
+        FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | BACKGROUND_RED | FOREGROUND_INTENSITY, // FATAL - White text on red background
         FOREGROUND_RED, // ERROR - Red
         FOREGROUND_RED | FOREGROUND_GREEN, // WARN - Yellow
         FOREGROUND_GREEN | FOREGROUND_BLUE, // INFO - Green
-        FOREGROUND_BLUE | FOREGROUND_BLUE | FOREGROUND_RED, // TRACE - Grey
+        FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED, // TRACE - Grey
         FOREGROUND_RED | FOREGROUND_BLUE | BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED // ASSERTION - Red text on white background
     };
     SetConsoleTextAttribute(console_handle, colors[color]);
@@ -187,7 +187,7 @@ void platform_console_write_error(const char *message, u8 color) {
         FOREGROUND_RED, // ERROR - Red
         FOREGROUND_RED | FOREGROUND_GREEN, // WARN - Yellow
         FOREGROUND_GREEN | FOREGROUND_BLUE, // INFO - Green
-        FOREGROUND_BLUE | FOREGROUND_BLUE | FOREGROUND_RED, // TRACE - Grey
+        FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED, // TRACE - Grey
         FOREGROUND_RED | BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED // ASSERTION - Red text on white background
     };
     SetConsoleTextAttribute(console_handle, colors[color]);
