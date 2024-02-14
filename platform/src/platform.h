@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#include <defines.h>
+#include <core.h>
 
 /**
  * @brief A typeless pointer to a platform state that will be implemented by the platform layer per platform. 

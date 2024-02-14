@@ -28,6 +28,7 @@ typedef enum log_level_flag {
 #define FR_LOG_LEVEL_ALL (FATAL_FLAG | ERROR_FLAG | WARN_FLAG | INFO_FLAG | TRACE_FLAG | ASSERT_FLAG)
 #define FR_LOG_LEVEL_NONE 0
 #define FR_LOG_LEVEL_DEFAULT (FATAL_FLAG | ERROR_FLAG | WARN_FLAG | INFO_FLAG)
+#define FR_LOG_LEVEL_ERROR (FATAL_FLAG | ERROR_FLAG)
 
 typedef enum log_level {
     LOG_LEVEL_FATAL = 0,
@@ -40,7 +41,6 @@ typedef enum log_level {
 } log_level;
 
 #define ENABLE_WARN_LOGGING 1
-
 
 #if FR_RELEASE == 1
     #define ENABLE_INFO_LOGGING 0

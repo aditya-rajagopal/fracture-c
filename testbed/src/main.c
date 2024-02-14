@@ -1,4 +1,4 @@
-#include <core/logging.h>
+#include <fracture.h>
 
 int main() {
     logging_config config = {0};
@@ -10,15 +10,17 @@ int main() {
         return 1;
     }
 
-    FR_CORE_FATAL("This is a fatal message: %f", PI);
-    FR_CORE_ERROR("This is an error message: %f", PI);
-    FR_CORE_WARN("This is a warning message: %f", PI);
-    FR_CORE_INFO("This is an info message: %f", PI);
-    FR_CORE_TRACE("This is a trace message: %f", PI);
+    f32 local_pi = PI;
+
+    FR_CORE_FATAL("This is a fatal message: %f", local_pi);
+    FR_CORE_ERROR("This is an error message: %f", local_pi);
+    FR_CORE_WARN("This is a warning message: %f", local_pi);
+    FR_CORE_INFO("This is an info message: %f", local_pi);
+    FR_CORE_TRACE("This is a trace message: %f", local_pi);
     FR_CORE_ASSERT(1 == 1);
     
     logging_level_set(LOG_LEVEL_INFO, FALSE);
-    FR_CORE_INFO("This is an info message: %f", PI);
+    FR_CORE_INFO("This is an info message: %f", local_pi);
 
     while(TRUE) {
         application_loop();

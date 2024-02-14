@@ -9,10 +9,10 @@ FOR /R %%f in (*.c) do (
 )
 
 REM echo "Files: " %cFileNames%
-SET assembly=base
+SET assembly=core
 SET compilerFlags=-g
 REM -Wall -Werror
-SET includeFlags=-I..\base\src
+SET includeFlags=-I..\core\src
 SET linkerFlags=
 SET defines=-D_DEBUG -D_CRT_SECURE_NO_WARNINGS
 

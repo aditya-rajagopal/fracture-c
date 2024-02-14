@@ -12,8 +12,8 @@ REM echo "Files: " %cFileNames%
 SET assembly=platform
 SET compilerFlags=-g
 REM -Wall -Werror
-SET includeFlags=-I..\platform\src -I..\base\src
-SET linkerFlags=-L..\base\bin -lbase.lib
+SET includeFlags=-I..\platform\src -I..\core\src
+SET linkerFlags=-L..\base\bin -lcore.lib
 SET defines=-D_DEBUG -D_CRT_SECURE_NO_WARNINGS -DPLATFORM_WINDOWS
 
 ECHO "Buildin %assembly%..."

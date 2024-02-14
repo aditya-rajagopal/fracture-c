@@ -3,7 +3,7 @@ REM Build Everything
 
 ECHO "Building everything...."
 
-PUSHD base
+PUSHD core
 CALL build.bat
 POPD
 IF %ERRORLEVEL% NEQ 0 GOTO :error

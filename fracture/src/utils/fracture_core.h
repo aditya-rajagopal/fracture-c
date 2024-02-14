@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#include <defines.h>
+#include <core.h>
 
 #if defined (WIN32) || defined (_WIN32) || defined (__WIN32__)
     #define FR_PLATFORM_WINDOWS  1
