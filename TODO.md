@@ -4,6 +4,7 @@ The items in this list are not in any particular order. This list will be update
 
 ## Engine general:
 - [ ] logging
+  - [x] Basic logging and asserts
   - [ ] Async logging
   - [ ] Logging to ingame/ineditor consoles
 - [ ] platform layer for now windows only
