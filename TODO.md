@@ -195,7 +195,7 @@ The items in this list are not in any particular order. This list will be update
   * [ ] textbox/textarea
   * [ ] In-game debug console
 
-## Editor 
+## Editor: mosaic
 - [ ] Editor application and 'runtime' executable
   - [ ] World editor
   - [ ] UI editor
@@ -205,9 +205,15 @@ The items in this list are not in any particular order. This list will be update
 - [ ] DDS/KTX texture format imports
 - [ ] FBX model imports 
 
+## Level Generator: tessel
+- [ ] Level Generation tool made using Fracture to generate proc generated levels
+  - [ ] It can be a module that is loaded into the editor
+  - [ ] Takes in 3D/2D tiles and allows rules to generate levels
+  - [ ] Produces a binary format file that can be loaded up with the game engine to populate scenes.
+
 ## Other items:
 - [x] Split off "core" items (defines, memory, strings, containers, etc.) into a "core" or "foundation" library so they may be used without having to pull in all of the engine.
-- [ ] Split off platform layers into separate libraries outside the engine.
+- [x] Split off platform layers into separate libraries outside the engine.
 - [ ] Auto-Generated API documentation
 - [ ] Documentation
 - [ ] Continuous Integration

@@ -11,6 +11,6 @@
 
 #pragma once
 
-#include "utils/fracture_core.h"
+#include "fracture/fracture_core.h"
 
-#include "utils/logging.h"
+#include "fracture/utils/logging.h"

@@ -9,7 +9,7 @@
  * 
  */
 #pragma once
-#include "fracture_core.h"
+#include "fracture/fracture_core.h"
 
 /**
  * @brief Flags to enable or disable logging levels at bit position corresponding to the log level.
