@@ -1,12 +1,12 @@
 #include "testbed.h"
 
 b8 testbed_initialize(application_handle *app_handle) {
-    FR_CORE_INFO("Client Application initialized: %s", app_handle->app_config.name);
+    FR_INFO("Client Application initialized: %s", app_handle->app_config.name);
     return TRUE;
 }
 
 b8 testbed_shutdown(application_handle *app_handle) {
-    FR_CORE_INFO("Client Application shutdown: %s", app_handle->app_config.name);
+    FR_INFO("Client Application shutdown: %s", app_handle->app_config.name);
     return TRUE;
 }
 

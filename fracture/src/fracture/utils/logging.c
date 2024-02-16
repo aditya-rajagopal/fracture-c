@@ -15,6 +15,11 @@ static const char* log_level_strings[] = {
     "ASSERTION FAILED"
 };
 
+static const char* log_source_strings[] = {
+    "ENGINE",
+    "GAME"
+};
+
 static logging_config* state = NULL_PTR;
 
 b8 initialize_logging(logging_config* config) {
@@ -42,7 +47,7 @@ void shutdown_logging() {
 }
 
  
-void log_message(log_level level, const char* message, ...) {
+void log_message(log_level level, log_source source, const char* message, ...) {
     if (state == NULL_PTR) {
         return;
     }
@@ -60,7 +65,7 @@ void log_message(log_level level, const char* message, ...) {
     va_end(vargs);
 
     char log_message[32000];
-    snprintf(log_message, 32000, "[%s] %s\n", log_level_strings[level], buffer);    
+    snprintf(log_message, 32000, "%s[%s] %s\n", log_source_strings[source], log_level_strings[level], buffer);
 
     if (state->enable_console) {
         if (is_error) {
@@ -74,7 +79,7 @@ void log_message(log_level level, const char* message, ...) {
     // TODO: Write to file
 }
 
-void log_message_detailed(log_level level, const char *file, int line, const char *format, ...) {
+void log_message_detailed(log_level level, log_source source, const char *file, int line, const char *format, ...) {
     if (state == NULL_PTR) {
         return;
     }
@@ -92,7 +97,7 @@ void log_message_detailed(log_level level, const char *file, int line, const cha
     va_end(vargs);
 
     char log_message[32000];
-    snprintf(log_message, 32000, "[%s] %s:%d %s\n", log_level_strings[level], file, line, buffer);
+    snprintf(log_message, 32000, "%s[%s] %s:%d %s\n", log_source_strings[source], log_level_strings[level], file, line, buffer);
 
     if (state->enable_console) {
         if (is_error) {

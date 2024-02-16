@@ -2,6 +2,9 @@
 
 #include <fracture/application/entry.h>
 
+#include <stdlib.h>
+#include <string.h>
+
 b8 create_client_application(application_handle* app_handle) {
 
     app_handle->app_config.name = "Testbed";
@@ -23,6 +26,8 @@ b8 create_client_application(application_handle* app_handle) {
     app_handle->render = testbed_render;
     app_handle->on_resize = testbed_on_resize;
 
+    app_handle->application_data = malloc(sizeof(testbed_state));
+    memset(app_handle->application_data, 1, sizeof(testbed_state));
     return TRUE;
 }
 

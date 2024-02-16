@@ -3,6 +3,10 @@
 #include <core/defines.h>
 #include <fracture.h>
 
+typedef struct testbed_state {
+    b8 is_running;
+} testbed_state;
+
 b8 testbed_initialize(application_handle* app_handle);
 
 b8 testbed_shutdown(application_handle* app_handle);
