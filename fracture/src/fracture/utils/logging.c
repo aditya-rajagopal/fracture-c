@@ -16,7 +16,6 @@ static const char* log_level_strings[] = {
 };
 
 static logging_config* state = NULL_PTR;
-static platform_state* plat_state = NULL_PTR;
 
 b8 initialize_logging(logging_config* config) {
     if (state != NULL_PTR) {
@@ -31,12 +30,6 @@ b8 initialize_logging(logging_config* config) {
 
     // TODO: Setup file logging
 
-    // HACK: Setup platform here
-    plat_state = (platform_state*)platform_allocate(sizeof(platform_state), TRUE);
-    if (!platform_startup(plat_state, "Fracture Test", 1280, 720, 100, 100)) {
-        return FALSE;
-    }
-
     return TRUE;
 }
 
@@ -45,19 +38,9 @@ void shutdown_logging() {
         return;
     }
 
-    platform_shutdown(plat_state);
-    platform_free(plat_state, TRUE);
     platform_free(state, TRUE);
 }
 
-void application_loop() {
-    // HACK: Pump messages here
-    if (state == NULL_PTR) {
-        return;
-    }
-
-    platform_pump_messages(plat_state);
-}
  
 void log_message(log_level level, const char* message, ...) {
     if (state == NULL_PTR) {
