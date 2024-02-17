@@ -26,11 +26,12 @@ b8 create_client_application(application_handle* app_handle) {
     app_handle->render = testbed_render;
     app_handle->on_resize = testbed_on_resize;
 
-    app_handle->application_data = malloc(sizeof(testbed_state));
+    app_handle->application_data = fr_memory_allocate(sizeof(testbed_state), MEMORY_TYPE_APPLICATION);
     memset(app_handle->application_data, 1, sizeof(testbed_state));
     return TRUE;
 }
 
 b8 destroy_client_application(application_handle *app_handle) {
+    fr_memory_free(app_handle->application_data, sizeof(testbed_state), MEMORY_TYPE_APPLICATION);
     return TRUE;
 }

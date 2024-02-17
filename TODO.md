@@ -7,12 +7,12 @@ The items in this list are not in any particular order. This list will be update
   - [x] Basic logging and asserts
   - [ ] Async logging
   - [ ] Logging to ingame/ineditor consoles
-- [ ] platform layer for now windows only
+- [x] platform layer for now windows only
 - [ ] event system
 - [ ] clock
 - [ ] testing framework
 - [ ] math library (vector math, etc)
-- [ ] Memory system 
+- [x] Memory system 
 - [ ] Generic sorting function/library.
 - [ ] Allocators:
   - [ ] linear allocator

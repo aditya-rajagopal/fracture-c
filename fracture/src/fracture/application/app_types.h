@@ -11,7 +11,7 @@
 #pragma once
 
 #include "fracture/fracture_core.h"
-#include "fracture/utils/logging.h"
+#include "fracture/systems/logging.h"
 
 /**
  * @brief Application configuration struct 

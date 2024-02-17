@@ -1,10 +1,12 @@
 #include "application.h"
 
-#include "fracture/utils/logging.h"
+#include "fracture/systems/logging.h"
+#include "fracture/systems/fracture_memory.h"
 
 #include <platform.h>
 
 typedef struct application_state {
+    application_handle* app_handle;
     b8 is_running;
     b8 is_minimized;
     platform_state plat_state;
@@ -17,16 +19,22 @@ static application_state state;
 
 b8 application_initialize(application_handle* app_handle) {
     if (is_initialized) {
-        FR_CORE_FATAL("An application has already been intialized: %s but initializing a new one: %s", state.name, app_handle->app_config.name);
-        return FALSE;
+      FR_CORE_FATAL("An application has already been intialized: %s but "
+                    "initializing a new one: %s",
+                    state.name, app_handle->app_config.name);
+      return FALSE;
     }
 
     state.name = app_handle->app_config.name;
     state.is_running = TRUE;
     state.is_minimized = FALSE;
     state.last_frame_time = 0.0;
+    state.app_handle = app_handle;
 
-    if (!platform_startup(&state.plat_state, app_handle->app_config.name, app_handle->app_config.width, app_handle->app_config.height, app_handle->app_config.x_pos, app_handle->app_config.y_pos)) {
+    if (!platform_startup(
+            &state.plat_state, app_handle->app_config.name,
+            app_handle->app_config.width, app_handle->app_config.height,
+            app_handle->app_config.x_pos, app_handle->app_config.y_pos)) {
         FR_CORE_FATAL("Failed to initialize platform");
         return FALSE;
     }
@@ -44,7 +52,8 @@ b8 application_initialize(application_handle* app_handle) {
         FR_CORE_FATAL("Failed to initialize client application");
         return FALSE;
     }
-    FR_CORE_INFO("Client Application initialized: %s", app_handle->app_config.name);
+    FR_CORE_INFO("Client Application initialized: %s",
+                 app_handle->app_config.name);
 
     is_initialized = TRUE;
     return TRUE;
@@ -80,6 +89,8 @@ b8 application_run(application_handle* app_handle) {
     FR_CORE_INFO("This is an info message: %f", local_pi);
     FR_CORE_TRACE("This is a trace message: %f", local_pi);
     FR_CORE_ASSERT(1 == 1);
+
+    FR_CORE_INFO(fr_memory_get_stats());
     
     logging_level_set(LOG_LEVEL_INFO, FALSE);
     FR_CORE_INFO("This is an info message: %f", local_pi);

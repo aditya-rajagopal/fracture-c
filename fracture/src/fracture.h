@@ -14,4 +14,5 @@
 #include "fracture/fracture_core.h"
 #include "fracture/application/app_types.h"
 
-#include "fracture/utils/logging.h"
+#include "fracture/systems/logging.h"
+#include "fracture/systems/fracture_memory.h"
