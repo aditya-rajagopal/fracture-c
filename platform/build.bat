@@ -13,13 +13,15 @@ SET assembly=platform
 SET compilerFlags=-g
 REM -Wall -Werror
 SET includeFlags=-I..\platform\src -I..\core\src
-SET linkerFlags=-L..\base\bin -lcore.lib
+SET linkerFlags=
 SET defines=-D_DEBUG -D_CRT_SECURE_NO_WARNINGS -DPLATFORM_WINDOWS
 
 ECHO "Buildin %assembly%..."
-REM Compile C files to object files
-clang -c %compilerFlags% %defines% %includeFlags% %cFileNames% -o ../obj/%assembly%.obj
-lib ../obj/%assembly%.obj /OUT:../bin/%assembly%.lib
+REM Compile C files to object file
+FOR %%f in (%cFileNames%) do (
+    clang -c %compilerFlags% %%f %defines% %includeFlags% -o ../obj/%%~nf.obj
+)
+clang -fuse-ld=llvm-lib -o ..\bin\%assembly%.lib ../obj/*.obj %linkerFlags%
 
 
 REM "Writing the compile_flags.txt file"

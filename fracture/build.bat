@@ -19,7 +19,7 @@ SET defines=-D_DEBUG -DFR_EXPORT -D_CRT_SECURE_NO_WARNINGS -D_ENABLE_ASSERTS -DP
 ECHO %VULKAN_SDK%
 
 ECHO "Buildin %assembly%..."
-clang %cFileNames% %comilerFlags% -o ../bin/%assembly%.dll %defines% %includeFlags% %linkerFlags%
+clang %cFileNames% %comilerFlags% -o ../bin/%assembly%.dll %defines% %includeFlags% %linkerFlags% -MTd
 
 REM "Writing the compile_flags.txt file"
 ECHO "Writing the compile_flags.txt file"

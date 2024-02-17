@@ -16,6 +16,7 @@ static const char* log_level_strings[] = {
 };
 
 static const char* log_source_strings[] = {
+    "CORE",
     "ENGINE",
     "GAME"
 };

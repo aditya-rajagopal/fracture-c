@@ -12,15 +12,16 @@ REM echo "Files: " %cFileNames%
 SET assembly=core
 SET compilerFlags=-g
 REM -Wall -Werror
-SET includeFlags=-I..\core\src
-SET linkerFlags=
-SET defines=-D_DEBUG -D_CRT_SECURE_NO_WARNINGS
+SET includeFlags=-I..\core\src -I..\platform\src
+SET linkerFlags=-L..\bin\ -lplatform
+SET defines=-D_DEBUG -D_CRT_SECURE_NO_WARNINGS -DPLATFORM_WINDOWS
 
 ECHO "Buildin %assembly%..."
 REM Compile C files to object files
-clang -c %compilerFlags% %defines% %includeFlags% %cFileNames% -o ../obj/%assembly%.obj
-lib ../obj/%assembly%.obj /OUT:../bin/%assembly%.lib
-
+FOR %%f in (%cFileNames%) do (
+    clang -c %compilerFlags% %%f %defines% %includeFlags% -o ../obj/%%~nf.obj
+)
+clang -fuse-ld=llvm-lib -o ..\bin\%assembly%.lib ../obj/*.obj %linkerFlags%
 
 REM "Writing the compile_flags.txt file"
 ECHO "Writing the compile_flags.txt file"

@@ -13,3 +13,4 @@
 
 #include "core/defines.h"
 #include "core/printfun.h"
+#include "core/systems/logging.h"

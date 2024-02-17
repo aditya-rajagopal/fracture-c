@@ -3,12 +3,12 @@ REM Build Everything
 
 ECHO "Building everything...."
 
-PUSHD core
+PUSHD platform
 CALL build.bat
 POPD
 IF %ERRORLEVEL% NEQ 0 GOTO :error
 
-PUSHD platform
+PUSHD core
 CALL build.bat
 POPD
 IF %ERRORLEVEL% NEQ 0 GOTO :error
