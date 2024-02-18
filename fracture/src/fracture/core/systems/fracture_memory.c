@@ -1,5 +1,5 @@
 #include "fracture_memory.h"
-#include "fracture/systems/logging.h"
+#include "fracture/core/systems/logging.h"
 
 #include <excpt.h>
 #include <platform.h>

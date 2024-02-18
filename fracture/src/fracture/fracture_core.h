@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#include <core/defines.h>
+#include "fracture/core/defines.h"
 
 #if defined (WIN32) || defined (_WIN32) || defined (__WIN32__)
     #define FR_PLATFORM_WINDOWS  1
@@ -39,6 +39,8 @@
     #else
         #define FR_API
     #endif
+#elif FR_CORE_EXPORT
+    #define FR_API
 #else
     #error "FR_EXPORT or FR_IMPORT must be defined"
 #endif

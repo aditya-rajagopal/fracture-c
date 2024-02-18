@@ -1,7 +1,7 @@
 #include "application.h"
 
-#include "fracture/systems/logging.h"
-#include "fracture/systems/fracture_memory.h"
+#include "fracture/core/systems/logging.h"
+#include "fracture/core/systems/fracture_memory.h"
 
 #include <platform.h>
 

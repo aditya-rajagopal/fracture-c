@@ -14,5 +14,7 @@
 #include "fracture/fracture_core.h"
 #include "fracture/application/app_types.h"
 
-#include "fracture/systems/logging.h"
-#include "fracture/systems/fracture_memory.h"
+#include "fracture/core/systems/logging.h"
+#include "fracture/core/systems/fracture_memory.h"
+
+#include "fracture/core/containers/darrays.h"

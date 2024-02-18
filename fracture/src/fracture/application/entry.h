@@ -3,7 +3,7 @@
 #include "fracture/fracture_core.h"
 #include "fracture/application/app_types.h"
 #include "fracture/application/application.h"
-#include "fracture/systems/fracture_memory.h"
+#include "fracture/core/systems/fracture_memory.h"
 
 extern b8 create_client_application(application_handle* app_handle);
 

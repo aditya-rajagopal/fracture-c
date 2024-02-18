@@ -83,3 +83,9 @@ STATIC_ASSERT(sizeof(f64) == 8, "f64 is not 8 bytes");
 
 STATIC_ASSERT(sizeof(b32) == 4, "b32 is not 4 bytes");
 STATIC_ASSERT(sizeof(b8) == 1, "b8 is not 1 byte");
+
+#ifdef _DEBUG
+    #define CORE_DEBUG 1
+#else
+    #define CORE_DEBUG 0
+#endif

@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#include <core.h>
+#include "fracture/core/defines.h"
 
 /**
  * @brief A typeless pointer to a platform state that will be implemented by the platform layer per platform. 
