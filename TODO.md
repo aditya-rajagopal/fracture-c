@@ -9,6 +9,9 @@ The items in this list are not in any particular order. This list will be update
   - [ ] Logging to ingame/ineditor consoles
 - [x] platform layer for now windows only
 - [ ] event system
+  - [x] Immediate mode event system
+  - [ ] Deferred event system
+  - [ ] Multithreaded event system
 - [ ] clock
 - [ ] testing framework
 - [ ] math library (vector math, etc)

@@ -2,11 +2,19 @@
  * @file darrays.h
  * @author Aditya Rajagopal
  * @brief Contains an implementation of a dynamic array data structure.
+ * @details The dynamic array is a data structure that can grow and shrink in
+ * size as needed. It is a contiguous block of memory that can be accessed using
+ * an index. The dynamic array is useful for storing a collection of elements of
+ * the same type. The dynamic array is returned as a void pointer to the block
+ * of memory that contains the array. Before this block of memory the length of
+ * the array, the capacity of the array, and the size of each element in the
+ * array are stored continuously. The dynamic array is a generic data structure
+ * and can store elements of any type.
  * @version 0.0.1
  * @date 2024-02-17
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
@@ -15,6 +23,7 @@
 
 /**
  * @brief A dynamic array data structure.
+ * NOTE: This is currently not used in the engine and is a work in progress.
  * 
  */
 typedef struct darray {

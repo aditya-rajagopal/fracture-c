@@ -2,6 +2,7 @@
 
 #include "fracture/core/systems/logging.h"
 #include "fracture/core/systems/fracture_memory.h"
+#include "fracture/systems/event.h"
 
 #include <platform.h>
 
@@ -46,6 +47,12 @@ b8 application_initialize(application_handle* app_handle) {
     }
     FR_CORE_INFO("Logging initialized: %s", app_handle->app_config.name);
 
+    // Initialize the event system
+    if (!fr_event_initialize()) {
+        FR_CORE_FATAL("Failed to initialize event system");
+        return FALSE;
+    }
+    FR_CORE_INFO("Event system initialized: %s", app_handle->app_config.name);
 
     // Initialize the application
     if (!app_handle->initialize(app_handle)) {
@@ -59,7 +66,6 @@ b8 application_initialize(application_handle* app_handle) {
     return TRUE;
 }
 
-
 b8 application_shutdown(application_handle* app_handle) {
     if (!is_initialized) {
         FR_CORE_FATAL("No application has been initialized");
@@ -68,6 +74,7 @@ b8 application_shutdown(application_handle* app_handle) {
 
     app_handle->shutdown(app_handle);
 
+    fr_event_shutdown();
     shutdown_logging();
     platform_shutdown(&state.plat_state);
     is_initialized = FALSE;
