@@ -72,7 +72,9 @@ void fr_input_process_keypress(keys key, b8 pressed) {
         e.data.du16[1] = is_repeated ? 1 : 0;
         e.data.du16[2] = state_ptr->button_current_state.x;
         e.data.du16[3] = state_ptr->button_current_state.y;
+        e.data.du16[4] = pressed;
         fr_event_dispatch(pressed ? EVENT_CODE_KEY_PRESS : EVENT_CODE_KEY_RELEASE, 0, e);
+        fr_event_dispatch(key, 0, e);
     }
 }
 
@@ -142,7 +144,11 @@ void fr_input_process_mouse_button(mouse_button button, b8 pressed) {
         e.data.du16[1] = is_repeated ? 1 : 0;
         e.data.du16[2] = state_ptr->button_current_state.x;
         e.data.du16[3] = state_ptr->button_current_state.y;
+        e.data.du16[4] = pressed;
+        // Dispatch general mouse event
         fr_event_dispatch(pressed ? EVENT_CODE_MOUSE_BUTTON_PRESS : EVENT_CODE_MOUSE_BUTTON_RELEASE, 0, e);
+        // Dipatch button specific event
+        fr_event_dispatch(button, 0, e);
     }
 
 }

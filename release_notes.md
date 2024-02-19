@@ -9,3 +9,4 @@
  * Added darray container API
  * Added an immediate mode events system
  * Added an input system to handle processing platform messages and to store states of mouse and keyboard for polling
+ * Added key and button specific events so you dont have to listen to all key presses and releases.

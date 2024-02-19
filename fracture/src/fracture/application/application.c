@@ -5,6 +5,7 @@
 #include "fracture/core/systems/event.h"
 #include "fracture/core/systems/input.h"
 #include "fracture/application/application_events.h"
+#include "fracture/core/types/system_event_codes.h"
 
 #include <platform.h>
 

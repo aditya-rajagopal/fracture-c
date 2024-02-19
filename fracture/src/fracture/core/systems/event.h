@@ -16,6 +16,7 @@
 #pragma once
 
 #include "fracture/fracture_core.h"
+#include "fracture/core/types/system_event_codes.h"
 
 typedef struct event_data {
     // 128 bytes of data
@@ -91,85 +92,3 @@ FR_API b8 fr_event_deregister_handler(u16 event_code, void* listener_instance, P
  */
 FR_API b8 fr_event_dispatch(u16 event_code, void* sender, event_data data);
 
-typedef enum system_event_code {
-  // Event to shut down the application in the next frame
-  EVENT_CODE_APPLICATION_QUIT = 0x01,
-
-  /**
-   * @brief Key press event
-   * @details context: u16 key_code = data.data.du16[0]
-   *                   u16 is_repeated = data.data.du16[1]
-   *                   u16 mouse_x = data.data.du16[2]
-   *                   u16 mouse_y = data.data.du16[3]
-   */
-  EVENT_CODE_KEY_PRESS = 0x02,
-
-  /**
-   * @brief Key release event
-   * @details context: u16 key_code = data.data.du16[0]
-   *                   u16 is_repeated = data.data.du16[1]
-   *                   u16 mouse_x = data.data.du16[2]
-   *                   u16 mouse_y = data.data.du16[3]
-   */
-  EVENT_CODE_KEY_RELEASE = 0x03,
-
-  /**
-   * @brief Mouse button press event
-   * @details context: u16 button_code = data.data.du16[0]
-   *                   u16 mouse_x = data.data.du16[1]
-   *                   u16 mouse_y = data.data.du16[2]
-   */
-  EVENT_CODE_MOUSE_BUTTON_PRESS = 0x04,
-
-  /**
-   * @brief Mouse button release event
-   * @details context: u16 button_code = data.data.du16[0]
-   *                  u16 mouse_x = data.data.du16[1]
-   *                  u16 mouse_y = data.data.du16[2]
-   */
-  EVENT_CODE_MOUSE_BUTTON_RELEASE = 0x05,
-
-  /**
-   * @brief Mouse move event
-   * @details context: i16 x = data.data.di16[0], f32 y = data.data.di16[1]
-   */
-  EVENT_CODE_MOUSE_MOVE = 0x06,
-
-  /**
-   * @brief Mouse scroll event
-   * @details context: z_delta = data.data.u8[0]
-   *                  u16 mouse_x = data.data.du16[1]
-   *                  u16 mouse_y = data.data.du16[2]
-   */
-  EVENT_CODE_MOUSE_SCROLL = 0x07,
-
-  /**
-   * @brief Window resize event
-   * @details context: u16 width = data.data.du16[0], u16 height =
-   * data.data.du16[1]
-   */
-  EVENT_CODE_WINDOW_RESIZE = 0x08,
-
-  // Engine event signals
-  EVENT_CODE_ENGINE_MAIN_LOOP_BEGIN = 0x09,
-
-  EVENT_CODE_ENGINE_MAIN_LOOP_END = 0x0A,
-
-  EVENT_CODE_ENGINE_FRAME_BEGIN = 0x0B,
-
-  EVENT_CODE_ENGINE_FRAME_END = 0x0C,
-
-  EVENT_CODE_ENGINE_RENDER_BEGIN = 0x0D,
-
-  EVENT_CODE_ENGINE_RENDER_END = 0x0E,
-
-  EVENT_CODE_ENGINE_UPDATE_BEGIN = 0x0F,
-
-  EVENT_CODE_ENGINE_UPDATE_END = 0x10,
-
-  EVENT_CODE_ENGINE_PHYSICS_BEGIN = 0x11,
-
-  EVENT_CODE_ENGINE_PHYSICS_END = 0x12,
-
-  MAX_SYSTEM_EVENT_CODE = 0xFF
-} system_event_code;
