@@ -39,10 +39,8 @@
     #else
         #define FR_API
     #endif
-#elif FR_CORE_EXPORT
-    #define FR_API
 #else
-    #error "FR_EXPORT or FR_IMPORT must be defined"
+    #define FR_API
 #endif
 
 // Define debug macro

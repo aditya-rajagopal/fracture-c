@@ -68,7 +68,7 @@ b8 fr_event_register_handler(u16 event_code, void* listener_instance, PFN_on_eve
     // Check if the listener instance and callback are already registered
     for (u64 i = 0; i < length; i++) {
         event_callback* handler = &callbacks[i];
-        if (handler->listener == listener_instance) {
+        if (handler->listener == listener_instance && handler->callback == callback) {
             FR_CORE_WARN(
                 "Listener instance: %p with callback: %p already registered for event code: %d",
                 listener_instance, handler->callback, event_code);
@@ -96,7 +96,8 @@ b8 fr_event_deregister_handler(u16 event_code, void* listener_instance, PFN_on_e
     for (u32 i = 0; i < length; i++) {
         event_callback* handler = &handlers[i];
         if (handler->listener == listener_instance && handler->callback == callback) {
-            darray_pop_at(handlers, NULL_PTR, i);
+            event_callback* removed;
+            darray_pop_at(handlers, &removed, i);
             return TRUE;
         }
     }

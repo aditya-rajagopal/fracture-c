@@ -66,7 +66,7 @@ b8 fr_event_shutdown();
  * @param callback A function pointer to the event handler function.
  * @return b8 True if the event handler was successfully registered, false otherwise.
  */
-b8 fr_event_register_handler(u16 event_code, void* listener_instance, PFN_on_event_callback callback);
+FR_API b8 fr_event_register_handler(u16 event_code, void* listener_instance, PFN_on_event_callback callback);
 
 /**
  * @brief Deregisters an event handler from the event system.
@@ -78,7 +78,7 @@ b8 fr_event_register_handler(u16 event_code, void* listener_instance, PFN_on_eve
  * @param callback A function pointer to the event handler function.
  * @return b8 True if the event handler was successfully deregistered, false otherwise.
  */
-b8 fr_event_deregister_handler(u16 event_code, void* listener_instance, PFN_on_event_callback callback);
+FR_API b8 fr_event_deregister_handler(u16 event_code, void* listener_instance, PFN_on_event_callback callback);
 
 /**
  * @brief Dispatches an event to all registered event handlers.
@@ -89,53 +89,87 @@ b8 fr_event_deregister_handler(u16 event_code, void* listener_instance, PFN_on_e
  * @param data The data associated with the event.
  * @return b8 True if the event was successfully dispatched, false otherwise.
  */
-b8 fr_event_dispatch(u16 event_code, void* sender, event_data data);
+FR_API b8 fr_event_dispatch(u16 event_code, void* sender, event_data data);
 
 typedef enum system_event_code {
-    // Event to shut down the application in the next frame
-    EVENT_CODE_APPLICATION_QUIT = 0x01,
+  // Event to shut down the application in the next frame
+  EVENT_CODE_APPLICATION_QUIT = 0x01,
 
-    /**
-     * @brief Key press event 
-     * @details context: u16 key_code = data.data.du16[0]
-     */
-    EVENT_CODE_KEY_PRESS = 0x02,
+  /**
+   * @brief Key press event
+   * @details context: u16 key_code = data.data.du16[0]
+   *                   u16 is_repeated = data.data.du16[1]
+   *                   u16 mouse_x = data.data.du16[2]
+   *                   u16 mouse_y = data.data.du16[3]
+   */
+  EVENT_CODE_KEY_PRESS = 0x02,
 
-    /**
-     * @brief Key release event 
-     * @details context: u16 key_code = data.data.du16[0]
-     */
-    EVENT_CODE_KEY_RELEASE = 0x03,
+  /**
+   * @brief Key release event
+   * @details context: u16 key_code = data.data.du16[0]
+   *                   u16 is_repeated = data.data.du16[1]
+   *                   u16 mouse_x = data.data.du16[2]
+   *                   u16 mouse_y = data.data.du16[3]
+   */
+  EVENT_CODE_KEY_RELEASE = 0x03,
 
-    /**
-     * @brief Mouse button press event 
-     * @details context: u16 button_code = data.data.du16[0]
-     */
-    EVENT_CODE_MOUSE_BUTTON_PRESS = 0x04,
+  /**
+   * @brief Mouse button press event
+   * @details context: u16 button_code = data.data.du16[0]
+   *                   u16 mouse_x = data.data.du16[1]
+   *                   u16 mouse_y = data.data.du16[2]
+   */
+  EVENT_CODE_MOUSE_BUTTON_PRESS = 0x04,
 
-    /**
-     * @brief Mouse button release event 
-     * @details context: u16 button_code = data.data.du16[0]
-     */
-    EVENT_CODE_MOUSE_BUTTON_RELEASE = 0x05,
+  /**
+   * @brief Mouse button release event
+   * @details context: u16 button_code = data.data.du16[0]
+   *                  u16 mouse_x = data.data.du16[1]
+   *                  u16 mouse_y = data.data.du16[2]
+   */
+  EVENT_CODE_MOUSE_BUTTON_RELEASE = 0x05,
 
-    /**
-     * @brief Mouse move event 
-     * @details context: f32 x = data.data.df32[0], f32 y = data.data.df32[1]
-     */
-    EVENT_CODE_MOUSE_MOVE = 0x06,
+  /**
+   * @brief Mouse move event
+   * @details context: i16 x = data.data.di16[0], f32 y = data.data.di16[1]
+   */
+  EVENT_CODE_MOUSE_MOVE = 0x06,
 
-    /**
-     * @brief Mouse scroll event 
-     * @details context: z_delta = data.data.u8[0]
-     */
-    EVENT_CODE_MOUSE_SCROLL = 0x07,
+  /**
+   * @brief Mouse scroll event
+   * @details context: z_delta = data.data.u8[0]
+   *                  u16 mouse_x = data.data.du16[1]
+   *                  u16 mouse_y = data.data.du16[2]
+   */
+  EVENT_CODE_MOUSE_SCROLL = 0x07,
 
-    /**
-     * @brief Window resize event 
-     * @details context: u16 width = data.data.du16[0], u16 height = data.data.du16[1]
-     */
-    EVENT_CODE_WINDOW_RESIZE = 0x08,
+  /**
+   * @brief Window resize event
+   * @details context: u16 width = data.data.du16[0], u16 height =
+   * data.data.du16[1]
+   */
+  EVENT_CODE_WINDOW_RESIZE = 0x08,
 
-    MAX_SYSTEM_EVENT_CODE = 0xFF
+  // Engine event signals
+  EVENT_CODE_ENGINE_MAIN_LOOP_BEGIN = 0x09,
+
+  EVENT_CODE_ENGINE_MAIN_LOOP_END = 0x0A,
+
+  EVENT_CODE_ENGINE_FRAME_BEGIN = 0x0B,
+
+  EVENT_CODE_ENGINE_FRAME_END = 0x0C,
+
+  EVENT_CODE_ENGINE_RENDER_BEGIN = 0x0D,
+
+  EVENT_CODE_ENGINE_RENDER_END = 0x0E,
+
+  EVENT_CODE_ENGINE_UPDATE_BEGIN = 0x0F,
+
+  EVENT_CODE_ENGINE_UPDATE_END = 0x10,
+
+  EVENT_CODE_ENGINE_PHYSICS_BEGIN = 0x11,
+
+  EVENT_CODE_ENGINE_PHYSICS_END = 0x12,
+
+  MAX_SYSTEM_EVENT_CODE = 0xFF
 } system_event_code;

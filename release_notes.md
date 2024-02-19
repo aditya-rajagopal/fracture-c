@@ -8,3 +8,4 @@
  * Add a basic memory system into the engine that tracks memory usage by tagged allocation.
  * Added darray container API
  * Added an immediate mode events system
+ * Added an input system to handle processing platform messages and to store states of mouse and keyboard for polling

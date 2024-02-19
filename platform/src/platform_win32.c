@@ -4,6 +4,7 @@
 
 #if PLATFORM_WINDOWS
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <windowsx.h> // For GET_X_LPARAM and GET_Y_LPARAM
 #include <stdlib.h>
@@ -23,11 +24,21 @@ typedef struct internal_state {
 static f64 clock_frequency;
 static LARGE_INTEGER start_time;
 
+static platform_state* plat_state;
+
 LRESULT CALLBACK _win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param);
 
 b8 platform_startup(platform_state *platform_state, const char *window_title, u32 width, u32 height, u32 x_pos, u32 y_pos) {
     platform_state->internal_state = malloc(sizeof(internal_state));
+    plat_state = platform_state;
     internal_state* state = (internal_state*)platform_state->internal_state;
+
+    if (platform_state->on_key_event == NULL_PTR ||
+        platform_state->on_mouse_move == NULL_PTR ||
+        platform_state->on_mouse_button_event == NULL_PTR ||
+        platform_state->on_mouse_scroll == NULL_PTR) {
+      return FALSE;
+    }
 
     // Get the handle of a module that is cuurently running. 0 here indicates that you are asking for the handle of the current application that is running.
     state->hInstance = GetModuleHandleA(0);
@@ -118,6 +129,8 @@ void platform_shutdown(platform_state *platform_state) {
         DestroyWindow(state->hWnd);
         state->hWnd = 0;
     }
+
+    plat_state = NULL_PTR;
 }
 
 b8 platform_pump_messages(platform_state *platform_state) {
@@ -218,10 +231,10 @@ LRESULT CALLBACK _win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPAR
             // This message is sent when the window background must be erased (for example, when a window is resized).
             // Return 1 tells the OS that we will handle this message and it should not do anything.
             return 1;
-        case WM_CLOSE:
-            // TODO: Create an event for the application to handle this and quit
-            PostQuitMessage(0);
+        case WM_CLOSE: {
+            plat_state->on_window_close();
             return 0;
+        } break;
         case WM_DESTROY:
             PostQuitMessage(0);
             return 0;
@@ -237,7 +250,7 @@ LRESULT CALLBACK _win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPAR
             // Mouse move event
             i32 x = GET_X_LPARAM(l_param);
             i32 y = GET_Y_LPARAM(l_param);
-            // TODO: We need to deal with mouse move events
+            plat_state->on_mouse_move(x, y);
         } break;
         case WM_KEYDOWN:
         case WM_KEYUP:
@@ -245,7 +258,28 @@ LRESULT CALLBACK _win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPAR
         case WM_SYSKEYUP: {
             // Check if key pressed or released
             b8 pressed = (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN);
-            // TODO: We need to deal with key events
+            keys key = (u16)w_param;
+            b8 is_extended = (HIWORD(l_param) & KF_EXTENDED) != KF_EXTENDED;
+
+            if (w_param == VK_MENU) {
+                key = is_extended ? KEY_RALT : KEY_LALT;
+            } else if (w_param == VK_SHIFT) {
+                u32 left_shift = MapVirtualKeyA(VK_LSHIFT, MAPVK_VK_TO_VSC);
+                u32 scan_code = ((l_param & (0xFF << 16)) >> 16);
+                key = (scan_code == left_shift) ? KEY_RSHIFT : KEY_LSHIFT;
+            } else if (w_param == VK_CONTROL) {
+                key = is_extended ? KEY_RCONTROL : KEY_LCONTROL;
+            }
+    
+            if (key == VK_OEM_1) {
+                key = KEY_SEMICOLON;
+            }
+
+            // Process the event
+            plat_state->on_key_event(key, pressed);
+
+            // Return 0 to indicate that we have handled the message and it should not be processed further
+            return 0;
         }break;
         case WM_LBUTTONDOWN:
         case WM_LBUTTONUP:
@@ -255,7 +289,20 @@ LRESULT CALLBACK _win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPAR
         case WM_MBUTTONUP: {
             // Check if button pressed or released
             b8 pressed = (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MBUTTONDOWN);
-            // TODO: We need to deal with mouse button events
+            switch (msg) {
+                case WM_LBUTTONDOWN:
+                case WM_LBUTTONUP:
+                    plat_state->on_mouse_button_event(MOUSE_BUTTON_LEFT, pressed);
+                    break;
+                case WM_RBUTTONDOWN:
+                case WM_RBUTTONUP:
+                    plat_state->on_mouse_button_event(MOUSE_BUTTON_RIGHT, pressed);
+                    break;
+                case WM_MBUTTONDOWN:
+                case WM_MBUTTONUP:
+                    plat_state->on_mouse_button_event(MOUSE_BUTTON_MIDDLE, pressed);
+                    break;
+            }
         } break;
         case WM_MOUSEWHEEL: {
             i32 z_delta = GET_WHEEL_DELTA_WPARAM(w_param);
@@ -263,7 +310,7 @@ LRESULT CALLBACK _win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPAR
                 // Normalize the delta to 1 or -1
                 z_delta = z_delta / abs(z_delta);
             }
-            // TODO: Deal with mouse scroll events
+            plat_state->on_mouse_scroll(z_delta);
         } break;
     }
 

@@ -2,7 +2,9 @@
 
 #include "fracture/core/systems/logging.h"
 #include "fracture/core/systems/fracture_memory.h"
-#include "fracture/systems/event.h"
+#include "fracture/core/systems/event.h"
+#include "fracture/core/systems/input.h"
+#include "fracture/application/application_events.h"
 
 #include <platform.h>
 
@@ -18,6 +20,9 @@ typedef struct application_state {
 static b8 is_initialized = FALSE;
 static application_state state;
 
+b8 application_on_event(u16 event_code, void* sendeer, void* listener_instance, event_data data);
+b8 application_on_key_event(u16 event_code, void* sender, void* listener_instance, event_data data);
+
 b8 application_initialize(application_handle* app_handle) {
     if (is_initialized) {
       FR_CORE_FATAL("An application has already been intialized: %s but "
@@ -31,6 +36,13 @@ b8 application_initialize(application_handle* app_handle) {
     state.is_minimized = FALSE;
     state.last_frame_time = 0.0;
     state.app_handle = app_handle;
+
+    // Initialize the platform
+    state.plat_state.on_key_event = fr_input_process_keypress;
+    state.plat_state.on_mouse_move = fr_input_process_mouse_move;
+    state.plat_state.on_mouse_button_event = fr_input_process_mouse_button;
+    state.plat_state.on_mouse_scroll = fr_input_process_mouse_wheel;
+    state.plat_state.on_window_close = fr_application_process_window_close;
 
     if (!platform_startup(
             &state.plat_state, app_handle->app_config.name,
@@ -54,6 +66,17 @@ b8 application_initialize(application_handle* app_handle) {
     }
     FR_CORE_INFO("Event system initialized: %s", app_handle->app_config.name);
 
+    // Initialize the input system
+    if (!fr_input_initialize()) {
+        FR_CORE_FATAL("Failed to initialize input system");
+        return FALSE;
+    }
+
+    // Register the application to listen for events
+    fr_event_register_handler(EVENT_CODE_APPLICATION_QUIT, 0, application_on_event);
+    fr_event_register_handler(EVENT_CODE_KEY_PRESS, 0, application_on_key_event);
+    fr_event_register_handler(EVENT_CODE_KEY_RELEASE, 0, application_on_key_event);
+
     // Initialize the application
     if (!app_handle->initialize(app_handle)) {
         FR_CORE_FATAL("Failed to initialize client application");
@@ -74,6 +97,11 @@ b8 application_shutdown(application_handle* app_handle) {
 
     app_handle->shutdown(app_handle);
 
+    fr_event_deregister_handler(EVENT_CODE_APPLICATION_QUIT, 0, application_on_event);
+    fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, 0, application_on_key_event);
+    fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, 0, application_on_key_event);
+
+    fr_input_shutdown();
     fr_event_shutdown();
     shutdown_logging();
     platform_shutdown(&state.plat_state);
@@ -99,8 +127,6 @@ b8 application_run(application_handle* app_handle) {
 
     FR_CORE_INFO(fr_memory_get_stats());
     
-    logging_level_set(LOG_LEVEL_INFO, FALSE);
-    FR_CORE_INFO("This is an info message: %f", local_pi);
 
     while(state.is_running) {
         f64 current_time = platform_get_absolute_time();
@@ -117,11 +143,60 @@ b8 application_run(application_handle* app_handle) {
           return FALSE;
         }
 
+        fr_input_update(0.0);
+
         if(!platform_pump_messages(&state.plat_state)) {
             state.is_running = FALSE;
         }
+
     }
 
     state.is_running = FALSE;
     return TRUE;
+}
+
+b8 application_on_event(u16 event_code, void* sender, void* listener_instance, event_data data) {
+    switch (event_code) {
+        case EVENT_CODE_APPLICATION_QUIT:
+            state.is_running = FALSE;
+            return TRUE;
+    }
+    return FALSE;
+}
+
+b8 application_on_key_event(u16 event_code, void* sender, void* listener_instance, event_data data) {
+    if (event_code == EVENT_CODE_KEY_PRESS) {
+        keys key = (keys)data.data.du16[0];
+        b8 is_repeated = (b8)data.data.du16[1];
+        i16 mouse_x = (i16)data.data.du16[2];
+        i16 mouse_y = (i16)data.data.du16[3];
+
+        switch (key) {
+            case KEY_ESCAPE:
+                FR_CORE_INFO("Escape key pressed at position: (%d, %d)", mouse_x, mouse_y);
+                event_data data = {0};
+                fr_event_dispatch(EVENT_CODE_APPLICATION_QUIT, 0, data);
+                return FALSE;
+            case KEY_A:
+                FR_CORE_INFO(
+                    "A key pressed at position: (%d, %d) and is %s repeated",
+                    mouse_x, mouse_y, is_repeated ? "" : "not");
+                return FALSE;
+            default:
+                break;
+        }
+    } else if (event_code == EVENT_CODE_KEY_RELEASE) {
+        keys key = (keys)data.data.du16[0];
+        i16 mouse_x = (i16)data.data.du16[1];
+        i16 mouse_y = (i16)data.data.du16[2];
+
+        switch (key) {
+            case KEY_A:
+                FR_CORE_INFO("A key released at position: (%d, %d)", mouse_x, mouse_y);
+                return FALSE;
+            default:
+                break;
+        }
+    }
+    return FALSE;
 }

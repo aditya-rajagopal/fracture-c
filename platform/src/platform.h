@@ -11,6 +11,16 @@
 #pragma once
 
 #include "fracture/core/defines.h"
+#include "fracture/core/types/input_codes.h"
+
+// Function pointers to handle input event callbacks
+typedef void (*PFN_on_key_event)(keys key_code, b8 is_pressed);
+typedef void (*PFN_on_mouse_move)(i16 x_pos, i16 y_pos);
+typedef void (*PFN_on_mouse_button_event)(mouse_button button, b8 is_pressed);
+typedef void (*PFN_on_mouse_scroll)(i8 z_delta);
+
+// Function pointers to handle window event callbacks
+typedef void (*PFN_on_window_close)();
 
 /**
  * @brief A typeless pointer to a platform state that will be implemented by the platform layer per platform. 
@@ -18,6 +28,15 @@
  */
 typedef struct platform_state {
     void* internal_state;
+
+    // Function pointers to handle input event callbacks
+    PFN_on_key_event on_key_event;
+    PFN_on_mouse_move on_mouse_move;
+    PFN_on_mouse_button_event on_mouse_button_event;
+    PFN_on_mouse_scroll on_mouse_scroll;
+
+    // Function pointers to handle window event callbacks
+    PFN_on_window_close on_window_close;
 } platform_state;
 
 /**

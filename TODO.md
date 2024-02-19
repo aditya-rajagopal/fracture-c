@@ -62,7 +62,7 @@ The items in this list are not in any particular order. This list will be update
   - [ ] desktop
   - [ ] touch
   - [ ] gamepad
-  - [ ] keymaps/keybindings
+  - [x] keymaps/keybindings
     - [ ] I18n / keyboard layouts
 - [ ] In-game/In-editor Conosole
   - [ ] Console consumer interface
