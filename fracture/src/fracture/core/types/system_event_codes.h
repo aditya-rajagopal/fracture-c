@@ -1,7 +1,7 @@
 /**
  * @file system_event_codes.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief Contains all the system event codes for the Fracture Game Engine.
  * @version 0.0.1
  * @date 2024-02-19
  * 

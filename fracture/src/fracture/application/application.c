@@ -54,7 +54,7 @@ b8 application_initialize(application_handle* app_handle) {
     }
 
     // Initialize the logger
-    if (!initialize_logging(&app_handle->app_config.logging_config)) {
+    if (!fr_logging_initialize(&app_handle->app_config.logging_config)) {
         FR_CORE_FATAL("Failed to initialize logging");
         return FALSE;
     }
@@ -104,7 +104,7 @@ b8 application_shutdown(application_handle* app_handle) {
 
     fr_input_shutdown();
     fr_event_shutdown();
-    shutdown_logging();
+    fr_logging_shutdown();
     platform_shutdown(&state.plat_state);
     is_initialized = FALSE;
     return TRUE;
