@@ -1,6 +1,6 @@
 #include "testbed.h"
 
-#include <fracture/application/entry.h>
+#include <fracture/engine/entry.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -12,6 +12,8 @@ b8 create_client_application(application_handle* app_handle) {
     app_handle->app_config.height = 720;
     app_handle->app_config.x_pos = 100;
     app_handle->app_config.y_pos = 100;
+    app_handle->app_config.target_frame_rate = 60;
+    app_handle->app_config.lock_frame_rate = FALSE;
 
     logging_config config = {0};
     config.enable_console = TRUE;

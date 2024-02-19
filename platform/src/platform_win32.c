@@ -214,11 +214,11 @@ void platform_console_write_error(const char *message, u8 color) {
 f64 platform_get_absolute_time() {
     LARGE_INTEGER current_time;
     QueryPerformanceCounter(&current_time);
-    return (f64)(current_time.QuadPart - start_time.QuadPart) * clock_frequency;
+    return (f64)current_time.QuadPart * clock_frequency;
 }
 
 void platform_sleep(u64 milliseconds) {
-    Sleep((DWORD)milliseconds);
+    Sleep(milliseconds);
 }
 
 //*********************************************************************************************************************

@@ -47,17 +47,17 @@ typedef char b8;
 #define CHECK_BIT(x, y) (x & BIT(y))
 
 // kibibytes, mebibytes, gibibytes
-#define KiB(x) (x * 1024)
-#define MiB(x) (x * 1024 * 1024)
-#define GiB(x) (x * 1024 * 1024 * 1024)
+#define KiB(x) (x * 1024ULL)
+#define MiB(x) (x * 1024ULL * 1024ULL)
+#define GiB(x) (x * 1024ULL * 1024ULL * 1024ULL)
 
 // kilobytes, megabytes, gigabytes
-#define KB(x) (x * 1000)
-#define MB(x) (x * 1000 * 1000)
-#define GB(x) (x * 1000 * 1000 * 1000)
+#define KB(x) (x * 1000ULL)
+#define MB(x) (x * 1000ULL * 1000ULL)
+#define GB(x) (x * 1000ULL * 1000ULL * 1000ULL)
 
 // Pi
-#define PI 3.14159265359f
+#define PI 3.14159265359F
 
 // Define static assert
 #if defined (__clang__) || defined (__gcc__)

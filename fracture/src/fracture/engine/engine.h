@@ -11,7 +11,7 @@
 #pragma once
 
 #include <fracture/fracture_core.h>
-#include <fracture/application/app_types.h>
+#include <fracture/engine/application_types.h>
 
 /**
  * @brief Initializes the application with the given configuration
@@ -19,7 +19,7 @@
  * @param app_handle The handle for the application
  * @return b8 True if the application was initialized successfully, false otherwise
  */
-FR_API b8 application_initialize(application_handle* app_handle);
+FR_API b8 engine_initialize(application_handle* app_handle);
 
 /**
  * @brief Shuts down the application and cleans up all the resources
@@ -27,7 +27,7 @@ FR_API b8 application_initialize(application_handle* app_handle);
  * @param app_handle The handle for the application 
  * @return b8 True if the application was shut down successfully, false otherwise
  */
-FR_API b8 application_shutdown(application_handle* aapp_handle);
+FR_API b8 engine_shutdown(application_handle* aapp_handle);
 
 /**
  * @brief Starts the application's main loop
@@ -35,4 +35,4 @@ FR_API b8 application_shutdown(application_handle* aapp_handle);
  * @param app_handle The handle for the application
  * @return b8 True if the application ran successfully, false otherwise
  */
-FR_API b8 application_run(application_handle* app_handle);
+FR_API b8 engine_run(application_handle* app_handle);

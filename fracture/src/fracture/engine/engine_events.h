@@ -15,4 +15,4 @@
 /**
  * @brief Function called by the platform layer to process window close events.
  */
-void fr_application_process_window_close();
+void fr_engine_process_window_close();

@@ -74,7 +74,7 @@ b8 testbed_shutdown(application_handle *app_handle) {
     return TRUE;
 }
 
-b8 testbed_update(application_handle *app_handle, f32 delta_time) {
+b8 testbed_update(application_handle *app_handle, f64 delta_time) {
 
     if (fr_input_is_key_pressed_this_frame(KEY_G)) {
         FR_INFO("G key was pressed this frame");
@@ -87,7 +87,7 @@ b8 testbed_update(application_handle *app_handle, f32 delta_time) {
     return TRUE;
 }
 
-b8 testbed_render(application_handle *app_handle, f32 delta_time) {
+b8 testbed_render(application_handle *app_handle, f64 delta_time) {
     return TRUE;
 }
 

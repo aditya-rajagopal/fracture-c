@@ -35,6 +35,12 @@ typedef struct application_config {
 
     /** @brief Logging module config */
     logging_config logging_config;
+
+    /** @brief Target frame rate for the application*/
+    f32 target_frame_rate;
+
+    /** @brief Lock frame rate*/
+    b8 lock_frame_rate;
 } application_config;
 
 /**
@@ -49,10 +55,10 @@ typedef struct application_handle {
     b8 (*initialize)(struct application_handle* app_config);
 
     /** @brief Function pointer to update the application */
-    b8 (*update)(struct application_handle* app_config, f32 delta_time);
+    b8 (*update)(struct application_handle* app_config, f64 delta_time);
 
     /** @brief Function pointer to applications render function */
-    b8 (*render)(struct application_handle* app_config, f32 delta_time);
+    b8 (*render)(struct application_handle* app_config, f64 delta_time);
 
     /** @brief Application's on resize function */
     b8 (*on_resize)(struct application_handle* app_config, u32 width, u32 height);

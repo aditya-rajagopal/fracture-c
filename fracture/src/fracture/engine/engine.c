@@ -1,30 +1,34 @@
-#include "application.h"
+#include "engine.h"
 
 #include "fracture/core/systems/logging.h"
 #include "fracture/core/systems/fracture_memory.h"
 #include "fracture/core/systems/event.h"
 #include "fracture/core/systems/input.h"
-#include "fracture/application/application_events.h"
+#include "fracture/core/systems/clock.h"
+
+#include "fracture/engine/engine_events.h"
 #include "fracture/core/types/system_event_codes.h"
 
 #include <platform.h>
 
-typedef struct application_state {
+typedef struct engine_state {
     application_handle* app_handle;
     b8 is_running;
     b8 is_minimized;
+    b8 is_supended;
     platform_state plat_state;
+    clock app_clock;
     f64 last_frame_time;
     const char* name;
-} application_state;
+} engine_state;
 
 static b8 is_initialized = FALSE;
-static application_state state;
+static engine_state state;
 
-b8 application_on_event(u16 event_code, void* sendeer, void* listener_instance, event_data data);
-b8 application_on_key_event(u16 event_code, void* sender, void* listener_instance, event_data data);
+b8 engine_on_event(u16 event_code, void* sendeer, void* listener_instance, event_data data);
+b8 engine_on_key_event(u16 event_code, void* sender, void* listener_instance, event_data data);
 
-b8 application_initialize(application_handle* app_handle) {
+b8 engine_initialize(application_handle* app_handle) {
     if (is_initialized) {
       FR_CORE_FATAL("An application has already been intialized: %s but "
                     "initializing a new one: %s",
@@ -35,6 +39,7 @@ b8 application_initialize(application_handle* app_handle) {
     state.name = app_handle->app_config.name;
     state.is_running = TRUE;
     state.is_minimized = FALSE;
+    state.is_supended = FALSE;
     state.last_frame_time = 0.0;
     state.app_handle = app_handle;
 
@@ -43,7 +48,7 @@ b8 application_initialize(application_handle* app_handle) {
     state.plat_state.on_mouse_move = fr_input_process_mouse_move;
     state.plat_state.on_mouse_button_event = fr_input_process_mouse_button;
     state.plat_state.on_mouse_scroll = fr_input_process_mouse_wheel;
-    state.plat_state.on_window_close = fr_application_process_window_close;
+    state.plat_state.on_window_close = fr_engine_process_window_close;
 
     if (!platform_startup(
             &state.plat_state, app_handle->app_config.name,
@@ -74,9 +79,9 @@ b8 application_initialize(application_handle* app_handle) {
     }
 
     // Register the application to listen for events
-    fr_event_register_handler(EVENT_CODE_APPLICATION_QUIT, 0, application_on_event);
-    fr_event_register_handler(EVENT_CODE_KEY_PRESS, 0, application_on_key_event);
-    fr_event_register_handler(EVENT_CODE_KEY_RELEASE, 0, application_on_key_event);
+    fr_event_register_handler(EVENT_CODE_APPLICATION_QUIT, 0, engine_on_event);
+    fr_event_register_handler(EVENT_CODE_KEY_PRESS, 0, engine_on_key_event);
+    fr_event_register_handler(EVENT_CODE_KEY_RELEASE, 0, engine_on_key_event);
 
     // Initialize the application
     if (!app_handle->initialize(app_handle)) {
@@ -90,7 +95,7 @@ b8 application_initialize(application_handle* app_handle) {
     return TRUE;
 }
 
-b8 application_shutdown(application_handle* app_handle) {
+b8 engine_shutdown(application_handle* app_handle) {
     if (!is_initialized) {
         FR_CORE_FATAL("No application has been initialized");
         return FALSE;
@@ -98,9 +103,9 @@ b8 application_shutdown(application_handle* app_handle) {
 
     app_handle->shutdown(app_handle);
 
-    fr_event_deregister_handler(EVENT_CODE_APPLICATION_QUIT, 0, application_on_event);
-    fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, 0, application_on_key_event);
-    fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, 0, application_on_key_event);
+    fr_event_deregister_handler(EVENT_CODE_APPLICATION_QUIT, 0, engine_on_event);
+    fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, 0, engine_on_key_event);
+    fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, 0, engine_on_key_event);
 
     fr_input_shutdown();
     fr_event_shutdown();
@@ -110,11 +115,18 @@ b8 application_shutdown(application_handle* app_handle) {
     return TRUE;
 }
 
-b8 application_run(application_handle* app_handle) {
+b8 engine_run(application_handle* app_handle) {
     if (!is_initialized) {
         FR_CORE_FATAL("No application has been initialized");
         return FALSE;
     }
+    fr_clock_start(&state.app_clock);
+    fr_clock_update(&state.app_clock);
+    state.last_frame_time = state.app_clock.elapsed_time;
+    // f64 total_run_time = 0.0;
+    // u64 frame_count = 0;
+    f64 target_frame_seconds = 1.0F / app_handle->app_config.target_frame_rate;
+
     FR_CORE_INFO("Running application: %s", app_handle->app_config.name);
 
     f32 local_pi = PI;
@@ -130,24 +142,43 @@ b8 application_run(application_handle* app_handle) {
     
 
     while(state.is_running) {
-        f64 current_time = platform_get_absolute_time();
-        f32 delta_time = (f32)(current_time - state.last_frame_time);
-        state.last_frame_time = current_time;
-
-        if (!app_handle->update(app_handle, delta_time)) {
-          FR_CORE_FATAL("Failed to update client application");
-          return FALSE;
-        }
-
-        if (!app_handle->render(app_handle, delta_time)) {
-          FR_CORE_FATAL("Failed to render client application");
-          return FALSE;
-        }
-
-        fr_input_update(0.0);
-
-        if(!platform_pump_messages(&state.plat_state)) {
+        if (!platform_pump_messages(&state.plat_state)) {
             state.is_running = FALSE;
+        }
+
+        if (!state.is_supended) {
+            fr_clock_update(&state.app_clock);
+            f64 delta_time = state.app_clock.elapsed_time - state.last_frame_time;
+            f64 frame_start_time = platform_get_absolute_time();
+
+            if (!app_handle->update(app_handle, delta_time)) {
+                FR_CORE_FATAL("Failed to update client application");
+                state.is_running = FALSE;
+                return FALSE;
+            }
+
+            if (!app_handle->render(app_handle, delta_time)) {
+                FR_CORE_FATAL("Failed to render client application");
+                state.is_running = FALSE;
+                return FALSE;
+            }
+
+            f64 frame_end_time = platform_get_absolute_time();
+            f64 frame_time = frame_end_time - frame_start_time;
+            // total_run_time += frame_time;
+            f64 sleep_time = target_frame_seconds - frame_time;
+
+
+            if (sleep_time > 0.0 && app_handle->app_config.lock_frame_rate) {
+                u64 sleep_time_ms = (u64)(sleep_time * 1000);
+
+                platform_sleep(sleep_time_ms - 1);
+            }
+
+            fr_input_update(delta_time);
+            // frame_count++;
+            state.last_frame_time = state.app_clock.elapsed_time;
+
         }
 
     }
@@ -156,7 +187,7 @@ b8 application_run(application_handle* app_handle) {
     return TRUE;
 }
 
-b8 application_on_event(u16 event_code, void* sender, void* listener_instance, event_data data) {
+b8 engine_on_event(u16 event_code, void* sender, void* listener_instance, event_data data) {
     switch (event_code) {
         case EVENT_CODE_APPLICATION_QUIT:
             state.is_running = FALSE;
@@ -165,7 +196,7 @@ b8 application_on_event(u16 event_code, void* sender, void* listener_instance, e
     return FALSE;
 }
 
-b8 application_on_key_event(u16 event_code, void* sender, void* listener_instance, event_data data) {
+b8 engine_on_key_event(u16 event_code, void* sender, void* listener_instance, event_data data) {
     if (event_code == EVENT_CODE_KEY_PRESS) {
         keys key = (keys)data.data.du16[0];
         b8 is_repeated = (b8)data.data.du16[1];

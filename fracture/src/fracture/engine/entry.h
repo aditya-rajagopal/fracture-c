@@ -1,8 +1,8 @@
 #pragma once
 
 #include "fracture/fracture_core.h"
-#include "fracture/application/app_types.h"
-#include "fracture/application/application.h"
+#include "fracture/engine/application_types.h"
+#include "fracture/engine/engine.h"
 #include "fracture/core/systems/fracture_memory.h"
 
 extern b8 create_client_application(application_handle* app_handle);
@@ -21,15 +21,15 @@ int main() {
         return FR_EXIT_APPLICATION_CREATE_FAILURE;
     }
 
-    if(!application_initialize(&app_handle)) {
+    if(!engine_initialize(&app_handle)) {
         return FR_EXIT_APPLICATION_INIT_FAILURE;
     }
 
-    if(!application_run(&app_handle)) {
+    if(!engine_run(&app_handle)) {
         return FR_EXIT_APPLICATION_RUN_FAILURE;
     }
 
-    if(!application_shutdown(&app_handle)) {
+    if(!engine_shutdown(&app_handle)) {
         return FR_EXIT_APPLICATION_SHUTDOWN_FAILURE;
     }
 
