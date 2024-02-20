@@ -46,6 +46,7 @@ void fr_logging_shutdown() {
     }
 
     fr_memory_free(state, sizeof(logging_config), MEMORY_TYPE_SYSTEM);
+    state = NULL_PTR;
 }
 
  

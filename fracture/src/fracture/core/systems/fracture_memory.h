@@ -134,6 +134,14 @@ FR_API void* fr_memory_set(void* dest, i32 value, u64 size);
 FR_API char* fr_memory_get_stats();
 
 /**
+ * @brief Prints the current memory statistics for the Fracture Game Engine.
+ * @details Function logs the memory statistics to the console at the INFO
+ * level. This exists to handle the memory deallocation of the string returned
+ * by fr_memory_get_stats.
+ */
+FR_API void fr_memory_print_stats();
+
+/**
  * @brief Gets the current memory usage for the Fracture Game Engine.
  * 
  * @return u64 The current memory usage.

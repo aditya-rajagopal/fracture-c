@@ -1,10 +1,10 @@
 #include "fracture_memory.h"
-#include "fracture/core/systems/logging.h"
 
-#include <excpt.h>
+#include "fracture/core/systems/logging.h"
+#include "fracture/core/library/fracture_string.h"
+
 #include <platform.h>
 #include <stdio.h>
-#include <string.h>
 
 typedef struct memory_statictics {
     u64 current_allocated;
@@ -168,7 +168,7 @@ char* fr_memory_get_stats() {
     const f32 gib = 1024.0f * mib;
 
     char buffer[10000] = "\nSystem Memory usage Statistics: \n";
-    u32 offset = strlen(buffer);
+    u32 offset = (u32)fr_string_length(buffer);
     for (u32 i = 0; i < TOTAL_MEMORY_TYPES; ++i) {
         char current_value_unit[4] = "XiB";
         char peak_value_unit[4] = "XiB";
@@ -261,8 +261,14 @@ char* fr_memory_get_stats() {
     }
 
     offset += snprintf(buffer + offset, 10000 - offset, "\t(Peak: %.2f%s)\n", peak_value, peak_value_unit);
-    char* result = _strdup(buffer);
+    char* result = fr_string_duplicate(buffer);
     return result;
+}
+
+void fr_memory_print_stats() {
+    char* stats = fr_memory_get_stats();
+    FR_CORE_INFO(stats);
+    fr_memory_free(stats, fr_string_length(stats) + 1, MEMORY_TYPE_STRING);
 }
 
 u64 fr_memory_get_current_usage() {

@@ -11,11 +11,24 @@
 
 #pragma once
 
-#include "fracture/core/defines.h"
+#include "fracture/fracture_core.h"
 
 #include <vulkan/vulkan.h>
+
+#define VK_CHECK_RESULT(f)                                                     \
+  {                                                                            \
+    VkResult res = (f);                                                        \
+    if (res != VK_SUCCESS) {                                                   \
+      FR_CORE_FATAL("Vulkan error %s : %d", #f, res);                          \
+      return FALSE;                                                            \
+    }                                                                          \
+  }
 
 typedef struct vulkan_context {
     VkInstance instance;
     VkAllocationCallbacks* allocator;
+
+#if defined(FR_DEBUG)
+    VkDebugUtilsMessengerEXT debug_messenger;
+#endif
 } vulkan_context;

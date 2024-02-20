@@ -15,6 +15,9 @@ void* _darray_create(u64 capacity, u64 element_size) {
 }
 
 void darray_destroy(void* darray) {
+    if (darray == NULL_PTR) {
+        return;
+    }
     u64* darray_header = (u64*)darray - DARRAY_FIELDS_LENGTH;
     fr_memory_free(darray_header, darray_header[DARRAY_CAPACITY] * darray_header[DARRAY_ELEMENT_SIZE] + sizeof(u64) * DARRAY_FIELDS_LENGTH, MEMORY_TYPE_DARRAY);
 }

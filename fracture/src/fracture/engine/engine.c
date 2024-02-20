@@ -5,6 +5,7 @@
 #include "fracture/core/systems/event.h"
 #include "fracture/core/systems/input.h"
 #include "fracture/core/systems/clock.h"
+#include "fracture/core/library/fracture_string.h"
 
 #include "fracture/engine/engine_events.h"
 #include "fracture/core/types/system_event_codes.h"
@@ -111,16 +112,22 @@ b8 engine_shutdown(application_handle* app_handle) {
     }
 
     app_handle->shutdown(app_handle);
+    FR_CORE_INFO("Shut down application: %s", app_handle->app_config.name);
 
     fr_event_deregister_handler(EVENT_CODE_APPLICATION_QUIT, 0, engine_on_event);
     fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, 0, engine_on_key_event);
     fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, 0, engine_on_key_event);
 
     fr_input_shutdown();
+    FR_CORE_INFO("Input system shutdown: %s", app_handle->app_config.name);
     fr_event_shutdown();
+    FR_CORE_INFO("Event system shutdown: %s", app_handle->app_config.name);
     fr_logging_shutdown();
+    FR_CORE_INFO("Logging shutdown: %s", app_handle->app_config.name);
     fr_renderer_shutdown();
+    FR_CORE_INFO("Renderer shutdown: %s", app_handle->app_config.name);
     platform_shutdown(&state.plat_state);
+    FR_CORE_INFO("Platform shutdown: %s", app_handle->app_config.name);
     is_initialized = FALSE;
     return TRUE;
 }
@@ -138,8 +145,8 @@ b8 engine_run(application_handle* app_handle) {
     f64 target_frame_seconds = 1.0F / app_handle->app_config.target_frame_rate;
 
     FR_CORE_INFO("Running application: %s", app_handle->app_config.name);
-
-    FR_CORE_INFO(fr_memory_get_stats());
+    
+    fr_memory_print_stats();
 
     while(state.is_running) {
         if (!platform_pump_messages(&state.plat_state)) {
