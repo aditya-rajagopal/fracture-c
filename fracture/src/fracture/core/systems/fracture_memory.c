@@ -31,6 +31,7 @@ static const char* memory_type_strings[] = {
     "APPLICATION",
     "JOB",
     "THREAD",
+    "RENDERER",
     "TEXTURE",
     "MATERIAL_INSTANCE",
     "MESH",

@@ -18,7 +18,6 @@
  */
 #pragma once
 
-#include "fracture/core/defines.h"
 #include "fracture/fracture_core.h"
 
 /**

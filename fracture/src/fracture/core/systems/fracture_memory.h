@@ -37,6 +37,7 @@ typedef enum memory_types {
     MEMORY_TYPE_THREAD,
 
     // Memory types for rendering
+    MEMORY_TYPE_RENDERER,
     MEMORY_TYPE_TEXTURE,
     MEMORY_TYPE_MATERIAL_INSTANCE,
     MEMORY_TYPE_MESH,

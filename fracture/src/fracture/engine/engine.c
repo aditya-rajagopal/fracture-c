@@ -9,6 +9,8 @@
 #include "fracture/engine/engine_events.h"
 #include "fracture/core/types/system_event_codes.h"
 
+#include "fracture/renderer/renderer_frontend.h"
+
 #include <platform.h>
 
 typedef struct engine_state {
@@ -57,6 +59,7 @@ b8 engine_initialize(application_handle* app_handle) {
         FR_CORE_FATAL("Failed to initialize platform");
         return FALSE;
     }
+    FR_CORE_INFO("Platform initialized: %s", app_handle->app_config.name);
 
     // Initialize the logger
     if (!fr_logging_initialize(&app_handle->app_config.logging_config)) {
@@ -82,6 +85,12 @@ b8 engine_initialize(application_handle* app_handle) {
     fr_event_register_handler(EVENT_CODE_APPLICATION_QUIT, 0, engine_on_event);
     fr_event_register_handler(EVENT_CODE_KEY_PRESS, 0, engine_on_key_event);
     fr_event_register_handler(EVENT_CODE_KEY_RELEASE, 0, engine_on_key_event);
+
+    // Intialize the renderer
+    if (!fr_renderer_initialize(app_handle->app_config.name, &state.plat_state)) {
+        FR_CORE_FATAL("Failed to initialize renderer");
+        return FALSE;
+    }
 
     // Initialize the application
     if (!app_handle->initialize(app_handle)) {
@@ -110,6 +119,7 @@ b8 engine_shutdown(application_handle* app_handle) {
     fr_input_shutdown();
     fr_event_shutdown();
     fr_logging_shutdown();
+    fr_renderer_shutdown();
     platform_shutdown(&state.plat_state);
     is_initialized = FALSE;
     return TRUE;
@@ -129,17 +139,7 @@ b8 engine_run(application_handle* app_handle) {
 
     FR_CORE_INFO("Running application: %s", app_handle->app_config.name);
 
-    f32 local_pi = PI;
-
-    FR_CORE_FATAL("This is a fatal message: %f", local_pi);
-    FR_CORE_ERROR("This is an error message: %f", local_pi);
-    FR_CORE_WARN("This is a warning message: %f", local_pi);
-    FR_CORE_INFO("This is an info message: %f", local_pi);
-    FR_CORE_TRACE("This is a trace message: %f", local_pi);
-    FR_CORE_ASSERT(1 == 1);
-
     FR_CORE_INFO(fr_memory_get_stats());
-    
 
     while(state.is_running) {
         if (!platform_pump_messages(&state.plat_state)) {
@@ -161,6 +161,16 @@ b8 engine_run(application_handle* app_handle) {
                 FR_CORE_FATAL("Failed to render client application");
                 state.is_running = FALSE;
                 return FALSE;
+            }
+
+            // Trigger the renderer to draw the frame
+            {
+                // TODO: We dont want to create the packet here every frame.
+                renderer_packet packet = {0};
+                packet.delta_time = delta_time;
+                if(!fr_renderer_draw_frame(&packet)) {
+                    FR_CORE_ERROR("Failed to draw frame");
+                }
             }
 
             f64 frame_end_time = platform_get_absolute_time();

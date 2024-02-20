@@ -24,36 +24,6 @@ b8 testbed_initialize(application_handle *app_handle) {
     state = fr_memory_allocate(sizeof(testbed_internal_state), MEMORY_TYPE_APPLICATION);
     transform_array = fr_memory_allocate(4 * 4 * sizeof(u32), MEMORY_TYPE_TRANSFORM);
 
-    // darray test
-    u32* darray = darray_reserve(20, u32);
-    for (u32 i = 0; i < 20; i++) {
-        darray_push(darray, i);
-    }
-    FR_INFO("Darray length: %d", darray_length(darray));
-    FR_INFO("Darray capacity: %d", darray_capacity(darray));
-    FR_INFO("Darray element size: %d", darray_element_size(darray));
-    u32 length = darray_length(darray);
-    for (u32 i = 0; i < length; i++) {
-        u32 value = 0;
-        darray_pop(darray, &value);
-        FR_INFO("Darray[%d]: %d", i, value);
-    }
-    darray_destroy(darray);
-
-    u32* darray2 = darray_reserve(1, u32);
-    for (u32 i = 0; i < 20; i++) {
-        darray_push(darray2, i);
-    }
-    u32 value = 0;
-    FR_INFO("Darray2 length: %d", darray_length(darray2));
-    FR_INFO("Darray2 capacity: %d", darray_capacity(darray2));
-    FR_INFO("Darray2 element size: %d", darray_element_size(darray2));
-    darray_pop_at(darray2, &value, 5);
-    FR_INFO("Darray2 pop at 5: %d", value);
-    darray_pop(darray2, &value);
-    FR_INFO("Darray2 pop: %d", value);
-    darray_destroy(darray2);
-
     // Event test
     fr_event_register_handler(EVENT_CODE_KEY_PRESS, NULL_PTR, testbed_on_key_pressed);
     fr_event_register_handler(EVENT_CODE_KEY_RELEASE, NULL_PTR, testbed_on_key_pressed);
