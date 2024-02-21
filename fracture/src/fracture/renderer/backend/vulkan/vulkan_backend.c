@@ -2,13 +2,11 @@
 
 #include "fracture/renderer/backend/vulkan/vulkan_types.h"
 #include "fracture/renderer/backend/vulkan/platform/vulkan_platform.h"
+#include "fracture/renderer/backend/vulkan/vulkan_device.h"
 
 #include "fracture/core/systems/logging.h"
 #include "fracture/core/containers/darrays.h"
 #include "fracture/core/library/fracture_string.h"
-
-#include "vulkan/vk_platform.h"
-#include "vulkan/vulkan_core.h"
 
 #include <platform.h>
 
@@ -53,6 +51,19 @@ b8 vulkan_backend_initialize(renderer_backend* backend, const char* app_name, st
         return FALSE;
     }
     FR_CORE_INFO("Vulkan debugger created successfully");
+
+    // Create the surface
+    if (!vulkan_platform_create_surface(&context)) {
+        FR_CORE_ERROR("Failed to create vulkan surface");
+        return FALSE;
+    }
+
+    // Create device
+    if (!vulkan_create_device(&context)) {
+        FR_CORE_ERROR("Failed to create vulkan device");
+        return FALSE;
+    }
+    FR_CORE_INFO("Device created successfully");
     
     backend->is_initialized = TRUE;
     FR_CORE_INFO("Vulkan backend initialized successfully");
@@ -66,6 +77,13 @@ void vulkan_backend_shutdown(renderer_backend* backend) {
     if (!backend->is_initialized) {
         return;
     }
+
+    // Destroy vulkan devices
+    vulkan_destroy_device(&context);
+
+    // Destroy the surface
+    FR_CORE_INFO("Destroying Vulkan surface...");
+    vkDestroySurfaceKHR(context.instance, context.surface, context.allocator);
 
     // Destroy the debugger
     _vulkan_destroy_debugger();

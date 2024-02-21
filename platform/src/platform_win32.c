@@ -25,6 +25,7 @@ static f64 clock_frequency;
 static LARGE_INTEGER start_time;
 
 static platform_state* plat_state;
+static internal_state* state_ptr;
 
 LRESULT CALLBACK _win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param);
 
@@ -32,6 +33,7 @@ b8 platform_startup(platform_state *platform_state, const char *window_title, u3
     platform_state->internal_state = malloc(sizeof(internal_state));
     plat_state = platform_state;
     internal_state* state = (internal_state*)platform_state->internal_state;
+    state_ptr = state;
 
     if (platform_state->on_key_event == NULL_PTR ||
         platform_state->on_mouse_move == NULL_PTR ||
@@ -219,6 +221,15 @@ f64 platform_get_absolute_time() {
 
 void platform_sleep(u64 milliseconds) {
     Sleep(milliseconds);
+}
+
+void platform_get_handle_info(u64* out_size, void *memory) {
+    *out_size = sizeof(internal_state);
+    if (!memory) {
+        return;
+    }
+
+    memcpy(memory, state_ptr, *out_size);
 }
 
 //*********************************************************************************************************************

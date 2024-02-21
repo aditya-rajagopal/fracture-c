@@ -118,14 +118,15 @@ b8 engine_shutdown(application_handle* app_handle) {
     fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, 0, engine_on_key_event);
     fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, 0, engine_on_key_event);
 
+    fr_renderer_shutdown();
+    FR_CORE_INFO("Renderer shutdown: %s", app_handle->app_config.name);
     fr_input_shutdown();
     FR_CORE_INFO("Input system shutdown: %s", app_handle->app_config.name);
     fr_event_shutdown();
     FR_CORE_INFO("Event system shutdown: %s", app_handle->app_config.name);
     fr_logging_shutdown();
     FR_CORE_INFO("Logging shutdown: %s", app_handle->app_config.name);
-    fr_renderer_shutdown();
-    FR_CORE_INFO("Renderer shutdown: %s", app_handle->app_config.name);
+
     platform_shutdown(&state.plat_state);
     FR_CORE_INFO("Platform shutdown: %s", app_handle->app_config.name);
     is_initialized = FALSE;

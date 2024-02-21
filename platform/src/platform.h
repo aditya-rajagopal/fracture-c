@@ -148,3 +148,12 @@ f64 platform_get_absolute_time();
  * @param milliseconds The number of milliseconds to sleep
  */
 void platform_sleep(u64 milliseconds);
+
+/**
+ * @brief Gets the handle information of the platform and writes it to the given memory.
+ * @details if the memory is NULL, the function will return the size of the memory required to write the handle information to.
+ * @param out_size The size of the memory to write the handle information to
+ * @param memory The memory to write the handle information to
+ */
+void platform_get_handle_info(u64* out_size, void* memory);
+ 
