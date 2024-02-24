@@ -58,6 +58,12 @@ typedef struct vulkan_device {
     i32 compute_family_index;
     i32 transfer_family_index;
 
+    /** @brief The queue family handles */
+    VkQueue graphics_queue_handle;
+    VkQueue present_queue_handle;
+    VkQueue compute_queue_handle;
+    VkQueue transfer_queue_handle;
+
     /** @brief physical device properties */
     VkPhysicalDeviceProperties properties;
     /** @brief physical device features */

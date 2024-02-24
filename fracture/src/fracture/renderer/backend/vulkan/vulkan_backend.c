@@ -125,11 +125,11 @@ void _vulkan_load_required_instance_extensions(const char*** required_extensions
     // Add the debug utils extension for debugging
     darray_push(*required_extensions, &VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
-    FR_CORE_INFO("Required instance extensions: ");
+    FR_CORE_TRACE("Required instance extensions: ");
     u64 length = darray_length(*required_extensions);
 
     for (u64 i = 0; i < length; ++i) {
-        FR_CORE_INFO("%s", (*required_extensions)[i]);
+        FR_CORE_TRACE("%s", (*required_extensions)[i]);
     }
 #endif
 }
@@ -151,12 +151,12 @@ b8 _vulkan_load_validation_layers(const char*** required_validation_layers, u32*
  
     // Check if the required validation layers are available
     for (u32 i = 0; i < *required_validation_layer_count; ++i) {
-        FR_CORE_INFO("Searching for validation layer: %s", *required_validation_layers[i]);
+        FR_CORE_TRACE("Searching for validation layer: %s", *required_validation_layers[i]);
         b8 layer_found = FALSE;
         for (u32 j = 0; j < available_layer_count; ++j) {
             if (fr_string_compare(available_layers[j].layerName, *required_validation_layers[i]) == 0) {
                 layer_found = TRUE;
-                FR_CORE_INFO("Found!");
+                FR_CORE_TRACE("Found!");
                 break;
             }
         }
@@ -165,7 +165,7 @@ b8 _vulkan_load_validation_layers(const char*** required_validation_layers, u32*
             return FALSE;
         }
     }
-    FR_CORE_INFO("All required validation layers found");
+    FR_CORE_TRACE("All required validation layers found");
     darray_destroy(available_layers);
 #endif
     return TRUE;

@@ -46,16 +46,63 @@ b8 _vulkan_check_physical_device_extension_support(
     const vulkan_physical_device_requriements *requirements,
     VkPhysicalDevice device, const VkPhysicalDeviceProperties *properties);
 
+b8 _vulkan_create_logical_device(vulkan_context* context);
+b8 _vulkan_get_device_queue_handles(vulkan_context* context);
+
 b8 vulkan_create_device(vulkan_context *context) {
     if (!_vulkan_select_physical_device(context)) {
       FR_CORE_FATAL("Failed to select a physical device");
       return FALSE;
     }
+    FR_CORE_INFO("Physical device selected");
+    // Create the logical device
+    if (!_vulkan_create_logical_device(context)) {
+      FR_CORE_FATAL("Failed to create the logical device");
+      return FALSE;
+    }
+
+    // Get the device queue handles
+    if(!_vulkan_get_device_queue_handles(context)) {
+        FR_CORE_FATAL("Failed to get the device queue handles");
+        return FALSE;
+    }
     return TRUE;
 }
 
 void vulkan_destroy_device(vulkan_context* context) {
-
+    // Unset the queue handles
+    context->device.graphics_queue_handle = 0;
+    context->device.present_queue_handle = 0;
+    context->device.compute_queue_handle = 0;
+    context->device.transfer_queue_handle = 0;
+    FR_CORE_INFO("Vulkan queue handles unset");
+    // Destroy the logical device
+    if (context->device.logical_device) {
+        vkDestroyDevice(context->device.logical_device, 0);
+        FR_CORE_INFO("Vulkan Logical device destroyed");
+    }
+    // Free the swapchain support
+    if (context->device.swapchain_support.formats) {
+        fr_memory_free(context->device.swapchain_support.formats,
+                       sizeof(VkSurfaceFormatKHR) *
+                           context->device.swapchain_support.format_count,
+                       MEMORY_TYPE_RENDERER);
+    }
+    if (context->device.swapchain_support.present_modes) {
+        fr_memory_free(context->device.swapchain_support.present_modes,
+                       sizeof(VkPresentModeKHR) *
+                           context->device.swapchain_support.present_mode_count,
+                       MEMORY_TYPE_RENDERER);
+    }
+    fr_memory_zero(&context->device.swapchain_support, sizeof(vulkan_swapchain_support_info));
+    context->device.graphics_family_index = UINT32_MAX;
+    context->device.present_family_index = UINT32_MAX;
+    context->device.compute_family_index = UINT32_MAX;
+    context->device.transfer_family_index = UINT32_MAX;
+    FR_CORE_INFO("Vulkan swapchain support released");
+    // Release the physical device
+    context->device.physical_device = 0;
+    FR_CORE_INFO("Vulkan Physical device released");
 }
 
 b8 vulkan_device_query_swapchain_support(
@@ -131,32 +178,32 @@ b8 _vulkan_select_physical_device(vulkan_context* context) {
             physical_devices[i], context->surface, &properties, &features, &memory,
             &requirements, &queue_families, &context->device.swapchain_support);
         if (result) {
-            FR_CORE_INFO("Selected physical device: %s", properties.deviceName);
+            FR_CORE_TRACE("Selected physical device: %s", properties.deviceName);
             switch (properties.deviceType) {
                 case VK_PHYSICAL_DEVICE_TYPE_OTHER:
-                    FR_CORE_INFO("Device type: Other");
+                    FR_CORE_TRACE("Device type: Other");
                     break;
                 case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-                    FR_CORE_INFO("Device type: Integrated GPU");
+                    FR_CORE_TRACE("Device type: Integrated GPU");
                     break;
                 case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-                    FR_CORE_INFO("Device type: Discrete GPU");
+                    FR_CORE_TRACE("Device type: Discrete GPU");
                     break;
                 case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-                    FR_CORE_INFO("Device type: Virtual GPU");
+                    FR_CORE_TRACE("Device type: Virtual GPU");
                     break;
                 case VK_PHYSICAL_DEVICE_TYPE_CPU:
-                    FR_CORE_INFO("Device type: CPU");
+                    FR_CORE_TRACE("Device type: CPU");
                     break;
                 default:
-                    FR_CORE_INFO("Device type: Unknown");
+                    FR_CORE_TRACE("Device type: Unknown");
                     break;
             }
-            FR_CORE_INFO("GPU Driver version: %d.%d.%d",
+            FR_CORE_TRACE("GPU Driver version: %d.%d.%d",
                          VK_VERSION_MAJOR(properties.driverVersion),
                          VK_VERSION_MINOR(properties.driverVersion),
                          VK_VERSION_PATCH(properties.driverVersion));
-            FR_CORE_INFO("API Version: %d.%d.%d",
+            FR_CORE_TRACE("API Version: %d.%d.%d",
                          VK_VERSION_MAJOR(properties.apiVersion),
                          VK_VERSION_MINOR(properties.apiVersion),
                          VK_VERSION_PATCH(properties.apiVersion));
@@ -164,9 +211,9 @@ b8 _vulkan_select_physical_device(vulkan_context* context) {
             for (u32 j = 0; j < memory.memoryTypeCount; ++j) {
                 f32 memory_size_gb = (f32)memory.memoryHeaps[j].size / (1024.0f * 1024.0f * 1024.0f);
                 if (memory.memoryTypes[j].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
-                    FR_CORE_INFO("Device local memory: %.2f GB", memory_size_gb);
+                    FR_CORE_TRACE("Device local memory: %.2f GB", memory_size_gb);
                 } else {
-                    FR_CORE_INFO("Shared System memory: %.2f GB", memory_size_gb);
+                    FR_CORE_TRACE("Shared System memory: %.2f GB", memory_size_gb);
                 }
             }
 
@@ -210,7 +257,7 @@ b8 _vulkan_physical_device_meets_requirements(
 
     // Check if the device is a discrete GPU
     if (requirements->discrete_gpu && properties->deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-        FR_CORE_INFO("Device does not meet discrete GPU requirements. Skipping");
+        FR_CORE_TRACE("Device does not meet discrete GPU requirements. Skipping");
         return FALSE;
     }
 
@@ -305,7 +352,7 @@ b8 _vulkan_physical_device_meets_requirements(
                                    out_swapchain_support->present_mode_count,
                                MEMORY_TYPE_RENDERER);
             }
-            FR_CORE_INFO(
+            FR_CORE_TRACE(
                 "Device does not support the swapchain extension. Skipping");
             return FALSE;
         }
@@ -318,7 +365,7 @@ b8 _vulkan_physical_device_meets_requirements(
 
         // Check if the device has anisotropic filtering
         if (requirements->sampler_anisotropy && !features->samplerAnisotropy) {
-            FR_CORE_INFO("Device does not meet anisotropic filtering "
+            FR_CORE_TRACE("Device does not meet anisotropic filtering "
                          "requirements. Skipping");
             return FALSE;
         }
@@ -361,7 +408,7 @@ b8 _vulkan_check_physical_device_extension_support(const vulkan_physical_device_
                                    sizeof(VkExtensionProperties) *
                                        available_extension_count,
                                    MEMORY_TYPE_RENDERER);
-                    FR_CORE_INFO("Device: %s does not support the required "
+                    FR_CORE_TRACE("Device: %s does not support the required "
                                  "extension: %s",
                                  properties->deviceName,
                                  requirements->device_extension_names[i]);
@@ -373,5 +420,96 @@ b8 _vulkan_check_physical_device_extension_support(const vulkan_physical_device_
                        sizeof(VkExtensionProperties) * available_extension_count,
                        MEMORY_TYPE_RENDERER);
     }
+    return TRUE;
+}
+
+b8 _vulkan_create_logical_device(vulkan_context* context) {
+    // Check if there are shared queue families
+    b8 present_shares_graphics_queue = context->device.graphics_family_index ==
+                                       context->device.present_family_index;
+    b8 transfer_shares_graphics_queue = context->device.graphics_family_index ==
+                                        context->device.transfer_family_index;
+    b8 compute_shares_present_queue = context->device.present_family_index ==
+                                      context->device.compute_family_index;
+    u32 index_count = 1;
+    if (!present_shares_graphics_queue) {
+        ++index_count;
+    }
+    if (!transfer_shares_graphics_queue) {
+        ++index_count;
+    }
+    if (!compute_shares_present_queue) {
+        ++index_count;
+    }
+    u32 unique_queue_family_indices[index_count];
+    u32 i = 0;
+    unique_queue_family_indices[i++] = context->device.graphics_family_index;
+    if (!present_shares_graphics_queue) {
+        unique_queue_family_indices[i++] = context->device.present_family_index;
+    }
+    if (!transfer_shares_graphics_queue) {
+        unique_queue_family_indices[i++] = context->device.transfer_family_index;
+    }
+    if (!compute_shares_present_queue) {
+        unique_queue_family_indices[i++] = context->device.compute_family_index;
+    }
+
+    // Create the queue create info
+    VkDeviceQueueCreateInfo queue_create_infos[index_count];
+    for (i = 0; i < index_count; ++i) {
+        queue_create_infos[i].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queue_create_infos[i].queueFamilyIndex = unique_queue_family_indices[i];
+        queue_create_infos[i].queueCount = 1;
+        if (unique_queue_family_indices[i] == context->device.graphics_family_index) {
+            queue_create_infos[i].queueCount = 2;
+        }
+        queue_create_infos[i].flags = 0;
+        queue_create_infos[i].pNext = 0;
+        f32 queue_priority = 1.0f;
+        queue_create_infos[i].pQueuePriorities = &queue_priority;
+
+        FR_CORE_TRACE("Queue family index: %d, Queue count: %d",
+                     queue_create_infos[i].queueFamilyIndex,
+                     queue_create_infos[i].queueCount);
+    }
+    // Required device features
+    // TODO: Get the required features from the engine/application
+    VkPhysicalDeviceFeatures device_features = {};
+    device_features.samplerAnisotropy = VK_TRUE;
+
+    VkDeviceCreateInfo device_create_info = {VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO};
+    device_create_info.queueCreateInfoCount = index_count;
+    device_create_info.pQueueCreateInfos = queue_create_infos;
+    device_create_info.pEnabledFeatures = &device_features;
+    device_create_info.enabledExtensionCount = 1;
+    const char* extension_name = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+    device_create_info.ppEnabledExtensionNames = &extension_name;
+    // We dont use any layers here as iut is not a thing anymore
+    device_create_info.enabledLayerCount = 0;
+    device_create_info.ppEnabledLayerNames = 0;
+
+    VK_CHECK_RESULT(vkCreateDevice(context->device.physical_device,
+                                   &device_create_info, 0,
+                                   &context->device.logical_device));
+    FR_CORE_INFO("Logical device created");
+
+    return TRUE;
+}
+
+b8 _vulkan_get_device_queue_handles(vulkan_context* context) {
+    // Get the queue handles
+    vkGetDeviceQueue(context->device.logical_device,
+                     context->device.graphics_family_index, 0,
+                     &context->device.graphics_queue_handle);
+    vkGetDeviceQueue(context->device.logical_device,
+                     context->device.present_family_index, 0,
+                     &context->device.present_queue_handle);
+    vkGetDeviceQueue(context->device.logical_device,
+                     context->device.compute_family_index, 0,
+                     &context->device.compute_queue_handle);
+    vkGetDeviceQueue(context->device.logical_device,
+                     context->device.transfer_family_index, 0,
+                     &context->device.transfer_queue_handle);
+    FR_CORE_INFO("Device queue handles retrieved");
     return TRUE;
 }

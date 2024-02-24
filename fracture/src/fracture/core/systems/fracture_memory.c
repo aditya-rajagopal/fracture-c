@@ -267,7 +267,7 @@ char* fr_memory_get_stats() {
 
 void fr_memory_print_stats() {
     char* stats = fr_memory_get_stats();
-    FR_CORE_INFO(stats);
+    FR_CORE_TRACE(stats);
     fr_memory_free(stats, fr_string_length(stats) + 1, MEMORY_TYPE_STRING);
 }
 
