@@ -56,6 +56,11 @@ typedef char b8;
 #define MB(x) (x * 1000ULL * 1000ULL)
 #define GB(x) (x * 1000ULL * 1000ULL * 1000ULL)
 
+// Min and Max and Clamp
+#define MIN(x, y) (x < y ? x : y)
+#define MAX(x, y) (x > y ? x : y)
+#define CLAMP(x, min, max) (x < min ? min : (x > max ? max : x))
+
 // Pi
 #define PI 3.14159265359F
 

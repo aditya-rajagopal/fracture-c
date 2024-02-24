@@ -3,10 +3,12 @@
 #include "fracture/renderer/backend/vulkan/vulkan_types.h"
 #include "fracture/renderer/backend/vulkan/platform/vulkan_platform.h"
 #include "fracture/renderer/backend/vulkan/vulkan_device.h"
+#include "fracture/renderer/backend/vulkan/vulkan_swapchain.h"
 
 #include "fracture/core/systems/logging.h"
 #include "fracture/core/containers/darrays.h"
 #include "fracture/core/library/fracture_string.h"
+#include "vulkan/vulkan_core.h"
 
 #include <platform.h>
 
@@ -23,6 +25,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL _vulkan_debug_callback(
     VkDebugUtilsMessageTypeFlagsEXT message_types,
     const VkDebugUtilsMessengerCallbackDataEXT *callback_data, void *user_data);
 
+i32 _backend_find_memory_index(u32 type_filter, VkMemoryPropertyFlags flags);
+
 b8 vulkan_backend_initialize(renderer_backend* backend, const char* app_name, struct platform_state* plat_state) {
     if (!backend) {
         FR_CORE_ERROR("Renderer backend is NULL");
@@ -38,6 +42,8 @@ b8 vulkan_backend_initialize(renderer_backend* backend, const char* app_name, st
     }
     // TODO: Add a cutom allocator and pass it to the context
     context.allocator = NULL;
+
+    context.PFN_find_memory_type = _backend_find_memory_index;
 
     // Create the Vulkan instance
     if (!_vulkan_create_instance(app_name)) {
@@ -64,6 +70,12 @@ b8 vulkan_backend_initialize(renderer_backend* backend, const char* app_name, st
         return FALSE;
     }
     FR_CORE_INFO("Device created successfully");
+
+    // Create the swapchain
+    if (!vulkan_swapchain_create(&context, context.framebuffer_width, context.framebuffer_height, &context.swapchain)) {
+        FR_CORE_ERROR("Failed to create vulkan swapchain");
+        return FALSE;
+    }
     
     backend->is_initialized = TRUE;
     FR_CORE_INFO("Vulkan backend initialized successfully");
@@ -78,13 +90,19 @@ void vulkan_backend_shutdown(renderer_backend* backend) {
         return;
     }
 
+    // Destroy the swapchain
+    vulkan_swapchain_destroy(&context, &context.swapchain);
+
     // Destroy vulkan devices
     vulkan_destroy_device(&context);
 
     // Destroy the surface
-    FR_CORE_INFO("Destroying Vulkan surface...");
-    vkDestroySurfaceKHR(context.instance, context.surface, context.allocator);
-
+    if (context.surface) {
+        FR_CORE_INFO("Destroying Vulkan surface...");
+        vkDestroySurfaceKHR(context.instance, context.surface,
+                            context.allocator);
+        context.surface = 0;
+    }
     // Destroy the debugger
     _vulkan_destroy_debugger();
 
@@ -269,4 +287,17 @@ VKAPI_ATTR VkBool32 VKAPI_CALL _vulkan_debug_callback(
             break;
     }
     return VK_FALSE;
+}
+
+i32 _backend_find_memory_index(u32 type_filter, VkMemoryPropertyFlags flags) {
+    VkPhysicalDeviceMemoryProperties mem_properties = context.device.memory_properties;
+    for (u32 i = 0; i < mem_properties.memoryTypeCount; ++i) {
+        // Check each memory type to see if its bit is set to 1. 
+        if ((type_filter & (1 << i)) &&
+            (mem_properties.memoryTypes[i].propertyFlags & flags) == flags) {
+            return i;
+        }
+    }
+    FR_CORE_WARN("Unable to find suitable memory type for buffer");
+    return -1;
 }

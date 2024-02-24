@@ -38,3 +38,12 @@ b8 vulkan_device_query_swapchain_support(
     VkPhysicalDevice device,
     VkSurfaceKHR surface,
     vulkan_swapchain_support_info *out_support_info);
+
+/**
+ * @brief Selects the format for the depth buffer
+ * @details The depth buffer format is selected based on the available formats on the device and the preferred formats.
+ * 
+ * @param device The Vulkan device
+ * @return b8 TRUE if the depth format was detected successfully, FALSE otherwise
+ */
+b8 vulkan_device_detect_depth_format(vulkan_device* device);

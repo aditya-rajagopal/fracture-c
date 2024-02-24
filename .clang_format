@@ -1,7 +1,0 @@
-Language: C
-BasedOnStyle: Google
-IndentWidth: 4
-ColumnLimit: 80
-NamespaceIndentation: All
-BreakBeforeBraces: Attach
-PointerAlignment: Left

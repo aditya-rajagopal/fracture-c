@@ -51,14 +51,14 @@ b8 _vulkan_get_device_queue_handles(vulkan_context* context);
 
 b8 vulkan_create_device(vulkan_context *context) {
     if (!_vulkan_select_physical_device(context)) {
-      FR_CORE_FATAL("Failed to select a physical device");
-      return FALSE;
+        FR_CORE_FATAL("Failed to select a physical device");
+        return FALSE;
     }
     FR_CORE_INFO("Physical device selected");
     // Create the logical device
     if (!_vulkan_create_logical_device(context)) {
-      FR_CORE_FATAL("Failed to create the logical device");
-      return FALSE;
+        FR_CORE_FATAL("Failed to create the logical device");
+        return FALSE;
     }
 
     // Get the device queue handles
@@ -136,6 +136,27 @@ b8 vulkan_device_query_swapchain_support(
     return TRUE;
 }
 
+b8 vulkan_device_detect_depth_format(vulkan_device *device) {
+    const u64 candidate_count = 3;
+    // We prefere 3 formats in this order
+    // 1. VK_FORMAT_D32_SFLOAT: One component 32-bit float depth buffer format that uses all 32 bits for depth
+    // 2. VK_FORMAT_D32_SFLOAT_S8_UINT: A combined depth/stencil format with 32-bit float depth and 8-bit stencil
+    // 3. VK_FORMAT_D24_UNORM_S8_UINT: A combined depth/stencil format with 24-bit depth and 8-bit stencil
+    VkFormat candidates[3] = {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT};
+    u32 flags = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    for (u64 i = 0; i < candidate_count; ++i) {
+        VkFormatProperties props;
+        vkGetPhysicalDeviceFormatProperties(device->physical_device, candidates[i], &props);
+        
+        if ((props.linearTilingFeatures & flags) == flags || (props.optimalTilingFeatures & flags) == flags) {
+            device->depth_format = candidates[i];
+            return TRUE;
+        }
+    }
+    FR_CORE_ERROR("Failed to find a suitable depth format");
+    return FALSE;
+}
+
 // ------------------------------------------------------------------
 // ------------------------ PRIVATE FUNCTIONS -----------------------
 // ------------------------------------------------------------------
@@ -200,14 +221,14 @@ b8 _vulkan_select_physical_device(vulkan_context* context) {
                     break;
             }
             FR_CORE_TRACE("GPU Driver version: %d.%d.%d",
-                         VK_VERSION_MAJOR(properties.driverVersion),
-                         VK_VERSION_MINOR(properties.driverVersion),
-                         VK_VERSION_PATCH(properties.driverVersion));
+                          VK_VERSION_MAJOR(properties.driverVersion),
+                          VK_VERSION_MINOR(properties.driverVersion),
+                          VK_VERSION_PATCH(properties.driverVersion));
             FR_CORE_TRACE("API Version: %d.%d.%d",
-                         VK_VERSION_MAJOR(properties.apiVersion),
-                         VK_VERSION_MINOR(properties.apiVersion),
-                         VK_VERSION_PATCH(properties.apiVersion));
-            
+                          VK_VERSION_MAJOR(properties.apiVersion),
+                          VK_VERSION_MINOR(properties.apiVersion),
+                          VK_VERSION_PATCH(properties.apiVersion));
+
             for (u32 j = 0; j < memory.memoryTypeCount; ++j) {
                 f32 memory_size_gb = (f32)memory.memoryHeaps[j].size / (1024.0f * 1024.0f * 1024.0f);
                 if (memory.memoryTypes[j].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
@@ -460,9 +481,12 @@ b8 _vulkan_create_logical_device(vulkan_context* context) {
         queue_create_infos[i].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queue_create_infos[i].queueFamilyIndex = unique_queue_family_indices[i];
         queue_create_infos[i].queueCount = 1;
-        if (unique_queue_family_indices[i] == context->device.graphics_family_index) {
-            queue_create_infos[i].queueCount = 2;
-        }
+        // TODO: Check if we need more than one queue for the graphics family
+        // some graphics cards might not have more than one if
+        // (unique_queue_family_indices[i] ==
+        // context->device.graphics_family_index) {
+        //     queue_create_infos[i].queueCount = 2;
+        // }
         queue_create_infos[i].flags = 0;
         queue_create_infos[i].pNext = 0;
         f32 queue_priority = 1.0f;
