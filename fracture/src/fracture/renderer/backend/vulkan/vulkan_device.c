@@ -31,9 +31,9 @@ typedef struct vulkan_physical_device_queue_families {
     u32 transfer_family_index;
 } vulkan_physical_device_queue_families_info;
 
-b8 _vulkan_select_physical_device(vulkan_context* contect);
+b8 _device_select_physical_device(vulkan_context* contect);
 
-b8 _vulkan_physical_device_meets_requirements(
+b8 _device_physical_device_meets_requirements(
     VkPhysicalDevice device, VkSurfaceKHR surface,
     const VkPhysicalDeviceProperties* properties,
     const VkPhysicalDeviceFeatures* features,
@@ -42,27 +42,27 @@ b8 _vulkan_physical_device_meets_requirements(
     vulkan_physical_device_queue_families_info* out_queue_families,
     vulkan_swapchain_support_info* out_swapchain_support);
 
-b8 _vulkan_check_physical_device_extension_support(
+b8 _device_check_physical_device_extension_support(
     const vulkan_physical_device_requriements *requirements,
     VkPhysicalDevice device, const VkPhysicalDeviceProperties *properties);
 
-b8 _vulkan_create_logical_device(vulkan_context* context);
-b8 _vulkan_get_device_queue_handles(vulkan_context* context);
+b8 _device_create_logical_device(vulkan_context* context);
+b8 _device_get_device_queue_handles(vulkan_context* context);
 
 b8 vulkan_create_device(vulkan_context *context) {
-    if (!_vulkan_select_physical_device(context)) {
+    if (!_device_select_physical_device(context)) {
         FR_CORE_FATAL("Failed to select a physical device");
         return FALSE;
     }
     FR_CORE_INFO("Physical device selected");
     // Create the logical device
-    if (!_vulkan_create_logical_device(context)) {
+    if (!_device_create_logical_device(context)) {
         FR_CORE_FATAL("Failed to create the logical device");
         return FALSE;
     }
 
     // Get the device queue handles
-    if(!_vulkan_get_device_queue_handles(context)) {
+    if(!_device_get_device_queue_handles(context)) {
         FR_CORE_FATAL("Failed to get the device queue handles");
         return FALSE;
     }
@@ -161,7 +161,7 @@ b8 vulkan_device_detect_depth_format(vulkan_device *device) {
 // ------------------------ PRIVATE FUNCTIONS -----------------------
 // ------------------------------------------------------------------
 
-b8 _vulkan_select_physical_device(vulkan_context* context) {
+b8 _device_select_physical_device(vulkan_context* context) {
     u32 physical_device_count = 0;
     VK_CHECK_RESULT(vkEnumeratePhysicalDevices(context->instance, &physical_device_count, 0));
     if (physical_device_count == 0) {
@@ -195,7 +195,7 @@ b8 _vulkan_select_physical_device(vulkan_context* context) {
         
 
         vulkan_physical_device_queue_families_info queue_families = {};
-        b8 result = _vulkan_physical_device_meets_requirements(
+        b8 result = _device_physical_device_meets_requirements(
             physical_devices[i], context->surface, &properties, &features, &memory,
             &requirements, &queue_families, &context->device.swapchain_support);
         if (result) {
@@ -262,7 +262,7 @@ b8 _vulkan_select_physical_device(vulkan_context* context) {
     return TRUE;
 }
 
-b8 _vulkan_physical_device_meets_requirements(
+b8 _device_physical_device_meets_requirements(
     VkPhysicalDevice device, VkSurfaceKHR surface,
     const VkPhysicalDeviceProperties* properties,
     const VkPhysicalDeviceFeatures* features,
@@ -379,7 +379,7 @@ b8 _vulkan_physical_device_meets_requirements(
         }
 
         // Check if the device has the required device extensions
-        if (!_vulkan_check_physical_device_extension_support(
+        if (!_device_check_physical_device_extension_support(
                 requirements, device, properties)) {
             return FALSE;
         }
@@ -398,7 +398,7 @@ b8 _vulkan_physical_device_meets_requirements(
     return FALSE;
 }
 
-b8 _vulkan_check_physical_device_extension_support(const vulkan_physical_device_requriements* requirements,
+b8 _device_check_physical_device_extension_support(const vulkan_physical_device_requriements* requirements,
                                                    VkPhysicalDevice device,
                                                    const VkPhysicalDeviceProperties* properties) {
     if (requirements->device_extension_names) {
@@ -444,7 +444,7 @@ b8 _vulkan_check_physical_device_extension_support(const vulkan_physical_device_
     return TRUE;
 }
 
-b8 _vulkan_create_logical_device(vulkan_context* context) {
+b8 _device_create_logical_device(vulkan_context* context) {
     // Check if there are shared queue families
     b8 present_shares_graphics_queue = context->device.graphics_family_index ==
                                        context->device.present_family_index;
@@ -512,6 +512,10 @@ b8 _vulkan_create_logical_device(vulkan_context* context) {
     device_create_info.enabledLayerCount = 0;
     device_create_info.ppEnabledLayerNames = 0;
 
+    // Create the logical device. Physical devices are not created directly,
+    // instead their handles are retrieved. The logical device needs to be
+    // created with the queue family indices. In most cases the logical device
+    // is what we work with
     VK_CHECK_RESULT(vkCreateDevice(context->device.physical_device,
                                    &device_create_info, 0,
                                    &context->device.logical_device));
@@ -520,7 +524,7 @@ b8 _vulkan_create_logical_device(vulkan_context* context) {
     return TRUE;
 }
 
-b8 _vulkan_get_device_queue_handles(vulkan_context* context) {
+b8 _device_get_device_queue_handles(vulkan_context* context) {
     // Get the queue handles
     vkGetDeviceQueue(context->device.logical_device,
                      context->device.graphics_family_index, 0,

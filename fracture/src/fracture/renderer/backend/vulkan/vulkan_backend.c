@@ -16,9 +16,9 @@ static vulkan_context context;
 
 void _vulkan_load_required_instance_extensions(const char*** required_extensions);
 b8 _vulkan_load_validation_layers(const char*** required_validation_layers, u32* required_validation_layer_count);
-b8 _vulkan_create_instance(const char* app_name);
-b8 _vulkan_create_debugger();
-void _vulkan_destroy_debugger();
+b8 _backend_create_instance(const char* app_name);
+b8 _backend_create_debugger();
+void _backend_destroy_debugger();
 
 VKAPI_ATTR VkBool32 VKAPI_CALL _vulkan_debug_callback(
     VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
@@ -46,13 +46,13 @@ b8 vulkan_backend_initialize(renderer_backend* backend, const char* app_name, st
     context.PFN_find_memory_type = _backend_find_memory_index;
 
     // Create the Vulkan instance
-    if (!_vulkan_create_instance(app_name)) {
+    if (!_backend_create_instance(app_name)) {
         FR_CORE_ERROR("Failed to create Vulkan instance");
         return FALSE;
     }
     FR_CORE_INFO("Vulkan instance created successfully");
 
-    if (!_vulkan_create_debugger()) {
+    if (!_backend_create_debugger()) {
         FR_CORE_ERROR("Failed to create Vulkan debugger");
         return FALSE;
     }
@@ -104,7 +104,7 @@ void vulkan_backend_shutdown(renderer_backend* backend) {
         context.surface = 0;
     }
     // Destroy the debugger
-    _vulkan_destroy_debugger();
+    _backend_destroy_debugger();
 
     // Destroy the instance
     FR_CORE_INFO("Destroying Vulkan instance...");
@@ -189,7 +189,7 @@ b8 _vulkan_load_validation_layers(const char*** required_validation_layers, u32*
     return TRUE;
 }
 
-b8 _vulkan_create_instance(const char* app_name) {
+b8 _backend_create_instance(const char* app_name) {
     VkApplicationInfo app_info = {VK_STRUCTURE_TYPE_APPLICATION_INFO};
     app_info.apiVersion = VK_API_VERSION_1_3;
     app_info.pApplicationName = app_name;
@@ -224,8 +224,8 @@ b8 _vulkan_create_instance(const char* app_name) {
     return TRUE;
 }
 
-b8 _vulkan_create_debugger() {
-#if defined (_DEBUG)
+b8 _backend_create_debugger() {
+#if defined(_DEBUG)
     FR_CORE_INFO("Creating Vulkan debugger...");
     u32 log_severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT; // |
@@ -250,7 +250,7 @@ b8 _vulkan_create_debugger() {
     return TRUE;
 }
 
-void _vulkan_destroy_debugger() {
+void _backend_destroy_debugger() {
 #if defined(_DEBUG)
     // Destroy the debugger
     if (context.debug_messenger) {

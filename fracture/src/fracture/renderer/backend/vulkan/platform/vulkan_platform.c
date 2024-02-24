@@ -35,6 +35,7 @@ b8 vulkan_platform_create_surface(struct vulkan_context *context) {
     create_info.hwnd = handle->hwnd;
 
     VK_CHECK_RESULT(vkCreateWin32SurfaceKHR(context->instance, &create_info, context->allocator, &context->surface));
+    fr_memory_free(mem_block, platform_state_size, MEMORY_TYPE_RENDERER);
     return TRUE;
 }
 

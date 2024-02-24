@@ -106,9 +106,11 @@ b8 _swapchain_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
     }
 
     if (!found_format) {
+        // If we did not find the formats we wanted, warn the user and use the
+        // first format available and hope for the best
         FR_CORE_WARN(
-            "Failed to find suitable swap surface format using the default "
-            "format %d",
+            "Failed to find suitable swap surface format. Using the default "
+            "format %d and hoping for the best.",
             context->device.swapchain_support.formats[0].format);
         out_swapchain->format = context->device.swapchain_support.formats[0];
     }
@@ -116,6 +118,7 @@ b8 _swapchain_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
     // Choose the presentation mode. We want to use the mailbox mode if it is available, as it is the lowest latency
     // mode available. If it is not available, we will use the FIFO mode, which is guaranteed to be available.
     // We could also use the immediate mode, but it is not guaranteed to be available and it has no vsync.
+    // TODO: Make the presentation mode configurable
     VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
     for (u32 i = 0; i < context->device.swapchain_support.present_mode_count; ++i) {
         if (context->device.swapchain_support.present_modes[i] == VK_PRESENT_MODE_MAILBOX_KHR) {
@@ -172,7 +175,9 @@ b8 _swapchain_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
         };
         // If the graphics and present queues are different, we are going to use
         // concurrent mode for the swapchain where we can use the images in the
-        // swapchain in multiple queues at the same time.
+        // swapchain in multiple queues at the same time. We can work on one
+        // image(with graphics commands) of the swapchain while presenting
+        // another.
         create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         create_info.queueFamilyIndexCount = 2;
         create_info.pQueueFamilyIndices = queue_family_indices;
@@ -208,11 +213,11 @@ b8 _swapchain_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
     VK_CHECK_RESULT(vkGetSwapchainImagesKHR(context->device.logical_device, out_swapchain->handle, &out_swapchain->image_count, NULL));
     if (!out_swapchain->images) {
         // Only if we have not already allocated space to store the pointers to the images
-        out_swapchain->images = fr_memory_allocate(sizeof(VkImage) * out_swapchain->image_count, MEMORY_TYPE_RENDERER);
+        out_swapchain->images = (VkImage*)fr_memory_allocate(sizeof(VkImage) * out_swapchain->image_count, MEMORY_TYPE_RENDERER);
     }
     if (!out_swapchain->image_views) {
         // Only if we have not already allocated space to store the pointers to the image views
-        out_swapchain->image_views = fr_memory_allocate(sizeof(VkImageView) * out_swapchain->image_count, MEMORY_TYPE_RENDERER);
+        out_swapchain->image_views = (VkImageView*)fr_memory_allocate(sizeof(VkImageView) * out_swapchain->image_count, MEMORY_TYPE_RENDERER);
     }
 
     VK_CHECK_RESULT(vkGetSwapchainImagesKHR(context->device.logical_device, out_swapchain->handle, &out_swapchain->image_count, out_swapchain->images));
@@ -228,22 +233,10 @@ b8 _swapchain_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
             FR_CORE_FATAL("Failed to create image view for swapchain image %d", i);
             return FALSE;
         }
-        // VkImageViewCreateInfo image_view_create_info = {VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
-        // image_view_create_info.image = out_swapchain->images[i];
-        // image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D; // We will always use 2D images
-        // image_view_create_info.format = out_swapchain->format.format;
-        // // This tells us how to use the view. We are going to use it as a color attachment
-        // image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        // image_view_create_info.subresourceRange.baseMipLevel = 0;
-        // image_view_create_info.subresourceRange.levelCount = 1;
-        // image_view_create_info.subresourceRange.baseArrayLayer = 0;
-        // image_view_create_info.subresourceRange.layerCount = 1;
-
-        // VK_CHECK_RESULT(vkCreateImageView(context->device.logical_device, &image_view_create_info, context->allocator, &out_swapchain->image_views[i]));
     }
-    FR_CORE_TRACE("Created %d image views for the swapchain", out_swapchain->image_count);
+    FR_CORE_TRACE("Created %d image views for the swapchain images", out_swapchain->image_count);
 
-    // We are also going to create a resourve for the depth buffer that we are going to use for the swapchain
+    // We are also going to create a resource for the depth buffer that we are going to use for the swapchain
     if(!vulkan_device_detect_depth_format(&context->device)) {
         // If we cannot detect a depth format that is supported, we are going to
         // return false as this is not an error that we can recover from
