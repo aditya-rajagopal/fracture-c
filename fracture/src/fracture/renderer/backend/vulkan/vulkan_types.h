@@ -13,6 +13,7 @@
 
 #include "fracture/fracture_core.h"
 #include "fracture/core/systems/logging.h"
+#include "vulkan/vulkan_core.h"
 
 #include <vulkan/vulkan.h>
 
@@ -77,7 +78,8 @@ typedef struct vulkan_device {
     VkQueue present_queue_handle;
     VkQueue compute_queue_handle;
     VkQueue transfer_queue_handle;
-
+    /** @brief The command pool for the graphics queue */
+    VkCommandPool graphics_command_pool;
     /** @brief physical device properties */
     VkPhysicalDeviceProperties properties;
     /** @brief physical device features */
@@ -85,6 +87,46 @@ typedef struct vulkan_device {
     /** @brief physical device memory properties */
     VkPhysicalDeviceMemoryProperties memory_properties;
 } vulkan_device;
+
+/**
+ * @brief The states that a renderpass can be in
+ * @details Since the renderpass is something that will be created and executed
+ * we need some way to track its state. This enum will be used to track the
+ * state of the renderpass
+ */
+typedef enum vulkan_renderpass_state {
+    /** @brief State indicating that the renderpass is ready to begin */
+    RENDERPASS_STATE_READY,
+    /** @brief State indicating that the renderpass is recording commands */
+    RENDERPASS_STATE_RECORDING,
+    /** @brief State indicating that the renderpass is in flight */
+    RENDERPASS_STATE_IN_FLIGHT,
+    /** @brief State indicating that the renderpass is finished recording commands */
+    RENDERPASS_STATE_RECORDING_FINISHED,
+    /** @brief State indicating that the renderpass is submitted for exectution */
+    RENDERPASS_STATE_SUBMITTED,
+    /** @brief State indicating that the renderpass is not allocated and is the default state */
+    RENDERPASS_STATE_NOT_ALLOCATED
+} vulkan_renderpass_state;
+
+/**
+ * @brief The struct that holds information about a renderpass
+ * 
+ */
+typedef struct vulkan_renderpass {
+    /** @brief The handle for the renderpass */
+    VkRenderPass handle;
+    /** @brief The state of the renderpass */
+    vulkan_renderpass_state state;
+    /** @brief the rectangle that this renderpass will render to */
+    rect_2d render_area;
+    /** @brief the clear colour for the renderpass */
+    colour clear_colour;
+    /** @brief the clear depth for the renderpass */
+    f32 clear_depth;
+    /** @brief the clear stencil for the renderpass */
+    u32 clear_stencil;
+} vulkan_renderpass;
 
 typedef struct vulkan_swapchain {
     /** @brief The image format for the swapchain */
@@ -102,6 +144,34 @@ typedef struct vulkan_swapchain {
     /** @brief the depth buffer image */
     vulkan_image depth_attachment;
 } vulkan_swapchain;
+
+typedef enum vulkan_command_buffer_state {
+    /** @brief State indicating that the command buffer is ready to begin recording */
+    COMMAND_BUFFER_STATE_READY,
+    /** @brief State indicating that the command buffer is recording commands */
+    COMMAND_BUFFER_STATE_RECORDING,
+    /** @brief State indicating that the command buffer is in the renderpass */
+    COMMAND_BUFFER_STATE_IN_RENDER_PASS,
+    /** @brief State indicating that the command buffer is finished recording commands */
+    COMMAND_BUFFER_STATE_RECORDING_FINISHED,
+    /** @brief State indicating that the command buffer is submitted for exectution */
+    COMMAND_BUFFER_STATE_SUBMITTED,
+    /** @brief State indicating that the command buffer is not allocated and is the default initial state */
+    COMMAND_BUFFER_STATE_NOT_ALLOCATED
+} vulkan_command_buffer_state;
+
+typedef struct vulkan_command_buffer {
+    /** @brief The handle for the command buffer */
+    VkCommandBuffer handle;
+    /** @brief The state of the command buffer */
+    vulkan_command_buffer_state state;
+} vulkan_command_buffer;
+
+typedef struct vulkan_frame_buffer {
+    /** @brief The handle for the framebuffer */    
+    VkFramebuffer handle;
+
+} vulkan_frame_buffer;
 
 typedef struct vulkan_context {
     /** @brief The handle for the vulkan instance */
@@ -136,6 +206,9 @@ typedef struct vulkan_context {
     /** @brief boolean to track if we are currently recreating the swapchain */
     b8 recreating_swapchain;
 
-
+    /** @brief the renderpass we are currently using */
+    vulkan_renderpass main_renderpass;
+    /** @brief darray of the graphics command buffers */
+    vulkan_command_buffer* graphics_command_buffers;
     i32 (*PFN_find_memory_type)(u32 type_filter, VkMemoryPropertyFlags properties);
 } vulkan_context;

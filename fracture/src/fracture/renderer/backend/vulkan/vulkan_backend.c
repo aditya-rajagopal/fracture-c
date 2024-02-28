@@ -4,9 +4,12 @@
 #include "fracture/renderer/backend/vulkan/platform/vulkan_platform.h"
 #include "fracture/renderer/backend/vulkan/vulkan_device.h"
 #include "fracture/renderer/backend/vulkan/vulkan_swapchain.h"
+#include "fracture/renderer/backend/vulkan/vulkan_renderpass.h"
+#include "fracture/renderer/backend/vulkan/vulkan_commandbuffer.h"
 
 #include "fracture/core/systems/logging.h"
 #include "fracture/core/containers/darrays.h"
+#include "fracture/core/systems/fracture_memory.h"
 #include "fracture/core/library/fracture_string.h"
 #include "vulkan/vulkan_core.h"
 
@@ -26,6 +29,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL _vulkan_debug_callback(
     const VkDebugUtilsMessengerCallbackDataEXT *callback_data, void *user_data);
 
 i32 _backend_find_memory_index(u32 type_filter, VkMemoryPropertyFlags flags);
+
+b8 _backend_create_command_buffers(renderer_backend* backend);
+void _backed_destroy_command_buffers();
 
 b8 vulkan_backend_initialize(renderer_backend* backend, const char* app_name, struct platform_state* plat_state) {
     if (!backend) {
@@ -76,6 +82,33 @@ b8 vulkan_backend_initialize(renderer_backend* backend, const char* app_name, st
         FR_CORE_ERROR("Failed to create vulkan swapchain");
         return FALSE;
     }
+
+    rect_2d render_aread = {
+        .x = 0,
+        .y = 0,
+        .width = context.framebuffer_width,
+        .height = context.framebuffer_height
+    };
+
+    colour clear_colour = {
+        .r = 0.8f,
+        .g = 0.0f,
+        .b = 0.8f,
+        .a = 1.0f
+    };
+
+    // Create the renderpass
+    if (!vulkan_renderpass_create(&context, &context.main_renderpass, render_aread, clear_colour, 1.0f, 0)) {
+        FR_CORE_ERROR("Failed to create vulkan renderpass");
+        return FALSE;
+    }
+
+    // Create the command buffers
+    if(!_backend_create_command_buffers(backend)) {
+        FR_CORE_ERROR("Failed to create vulkan command buffers");
+        return FALSE;
+    }
+
     
     backend->is_initialized = TRUE;
     FR_CORE_INFO("Vulkan backend initialized successfully");
@@ -89,6 +122,10 @@ void vulkan_backend_shutdown(renderer_backend* backend) {
     if (!backend->is_initialized) {
         return;
     }
+    // Destroy the command buffers
+    _backed_destroy_command_buffers();
+    // Destroy the renderpass
+    vulkan_renderpass_destroy(&context, &context.main_renderpass);
 
     // Destroy the swapchain
     vulkan_swapchain_destroy(&context, &context.swapchain);
@@ -300,4 +337,46 @@ i32 _backend_find_memory_index(u32 type_filter, VkMemoryPropertyFlags flags) {
     }
     FR_CORE_WARN("Unable to find suitable memory type for buffer");
     return -1;
+}
+
+b8 _backend_create_command_buffers(renderer_backend* backend) {
+    // Create our graphics command buffers
+    // We want to create atleast 1 command buffer for each swapchain image so
+    // that we can record commands for each image in the swapchain while the
+    // other is being presented
+    if (!context.graphics_command_buffers) {
+        context.graphics_command_buffers = darray_reserve(
+            context.swapchain.image_count, vulkan_command_buffer);
+    }
+
+    for (u32 i = 0; i < context.swapchain.image_count; ++i) {
+        if (context.graphics_command_buffers[i].handle) {
+            vulkan_command_buffer_free(&context,
+                                       context.device.graphics_command_pool,
+                                       &context.graphics_command_buffers[i]);
+        }
+        fr_memory_zero(&context.graphics_command_buffers[i], sizeof(vulkan_command_buffer));
+        if (!vulkan_command_buffer_allocate(
+                &context, context.device.graphics_command_pool, TRUE,
+                &context.graphics_command_buffers[i])) {
+            FR_CORE_ERROR("Failed to allocate command buffer for index: %d", i);
+            return FALSE;
+        }
+    }
+    FR_CORE_INFO("Graphics command buffers created successfully");
+    return TRUE;
+}
+
+void _backed_destroy_command_buffers() {
+    if (context.graphics_command_buffers) {
+        u64 length = darray_length(context.graphics_command_buffers);
+        for (u32 i = 0; i < length; ++i) {
+            vulkan_command_buffer_free(&context, context.device.graphics_command_pool,
+                                       &context.graphics_command_buffers[i]);
+            context.graphics_command_buffers[i].handle = VK_NULL_HANDLE;
+        }
+        darray_destroy(context.graphics_command_buffers);
+        context.graphics_command_buffers = 0;
+        FR_CORE_INFO("Graphics command buffers destroyed successfully");
+    }
 }

@@ -48,6 +48,8 @@ b8 _device_check_physical_device_extension_support(
 
 b8 _device_create_logical_device(vulkan_context* context);
 b8 _device_get_device_queue_handles(vulkan_context* context);
+b8 _device_create_graphics_command_pool(vulkan_context* context);
+void _device_destroy_graphics_command_pool(vulkan_context* context);
 
 b8 vulkan_create_device(vulkan_context *context) {
     if (!_device_select_physical_device(context)) {
@@ -66,10 +68,18 @@ b8 vulkan_create_device(vulkan_context *context) {
         FR_CORE_FATAL("Failed to get the device queue handles");
         return FALSE;
     }
+
+    if(!_device_create_graphics_command_pool(context)) {
+        FR_CORE_FATAL("Failed to create the command pool");
+        return FALSE;
+    }
+
     return TRUE;
 }
 
 void vulkan_destroy_device(vulkan_context* context) {
+    // Destroy the graphics command pool
+    _device_destroy_graphics_command_pool(context);
     // Unset the queue handles
     context->device.graphics_queue_handle = 0;
     context->device.present_queue_handle = 0;
@@ -540,4 +550,32 @@ b8 _device_get_device_queue_handles(vulkan_context* context) {
                      &context->device.transfer_queue_handle);
     FR_CORE_INFO("Device queue handles retrieved");
     return TRUE;
+}
+
+b8 _device_create_graphics_command_pool(vulkan_context* context) {
+    // Create the command pool
+    VkCommandPoolCreateInfo pool_create_info = {VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
+    pool_create_info.queueFamilyIndex = context->device.graphics_family_index;
+    // This flag specifies that we can reset the command buffers from this pool
+    // with eitehr the vkResetCommandBuffer or implicitly within the vkBeginCommandBuffer calls.
+    // If VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT is not set then we must not call vkResetCommandBuffer.
+    // This is useful for performance reasons as we can reuse the command buffers
+    pool_create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    VK_CHECK_RESULT(vkCreateCommandPool(context->device.logical_device,
+                                        &pool_create_info, context->allocator,
+                                        &context->device.graphics_command_pool));
+    FR_CORE_INFO("Graphics Command pool created");
+    return TRUE;
+}
+
+void _device_destroy_graphics_command_pool(vulkan_context* context) {
+    if (context->device.graphics_command_pool) {
+        vkDestroyCommandPool(context->device.logical_device,
+                             context->device.graphics_command_pool,
+                             context->allocator);
+        context->device.graphics_command_pool = 0;
+        FR_CORE_INFO("Graphics Command pool destroyed");
+        return;
+    }
+    FR_CORE_WARN("Attempting to destroy a command pool handle that is NULL");
 }

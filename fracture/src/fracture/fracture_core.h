@@ -11,6 +11,7 @@
 #pragma once
 
 #include "fracture/core/defines.h"
+#include "fracture/core/types/math_types.h"
 
 #if defined (WIN32) || defined (_WIN32) || defined (__WIN32__)
     #define FR_PLATFORM_WINDOWS  1
