@@ -81,7 +81,7 @@ b8 vulkan_swapchain_get_next_image_index(vulkan_context* context,
  * @param graphics_queue The graphics queue to submit the command buffer to.
  * @param present_queue The present queue to present the image to the screen.
  * @param present_image_index The index of the image to present.
- * @param render_finished_semaphore The semaphore to signal when rendering is finished.
+ * @param render_finished_semaphore The semaphore to signal when rendering is finished that present will wait on.
  */
 void vulkan_swapchain_present(vulkan_context* context,
                               vulkan_swapchain* swapchain,

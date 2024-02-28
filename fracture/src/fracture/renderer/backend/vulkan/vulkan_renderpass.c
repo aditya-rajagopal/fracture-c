@@ -131,7 +131,9 @@ void vulkan_renderpass_destroy(vulkan_context* context, vulkan_renderpass* rende
     FR_CORE_WARN("Attempting to destyroy a Renderpass handle that is NULL or not allocated");
 }
 
-void vulkan_renderpass_begin(vulkan_renderpass *renderpass, vulkan_frame_buffer *framebuffer, vulkan_command_buffer *command_buffer) {
+void vulkan_renderpass_begin(vulkan_renderpass* renderpass,
+                             vulkan_frame_buffer* framebuffer,
+                             vulkan_command_buffer* command_buffer) {
     VkRenderPassBeginInfo renderpass_begin_info = {VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
     renderpass_begin_info.renderPass = renderpass->handle;
     renderpass_begin_info.framebuffer = framebuffer->handle;

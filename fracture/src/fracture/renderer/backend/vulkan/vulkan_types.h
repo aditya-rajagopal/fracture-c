@@ -199,6 +199,7 @@ typedef struct vulkan_context {
     VkAllocationCallbacks* allocator;
     /** @brief The handle for the window surface */
     VkSurfaceKHR surface;
+
     /** 
      * @brief The width of the framebuffer we are currently rendering to.
      * @details the height of the framebuffer we are currently rendering to. We
@@ -210,14 +211,24 @@ typedef struct vulkan_context {
      * many rendering tasks
      */
     u32 framebuffer_height;
+    /** @brief number to keep track of the generation of the framebuffer size.
+     * If this does not match the last one then we have to resize our frame
+     * buffers */
+    u64 framebuffer_size_generation;
+    /** @brief the last generation of the framebuffer size */
+    u64 framebuffer_size_last_generation;
+
 #if defined(FR_DEBUG)
     /** @brief The debug messenger */
     VkDebugUtilsMessengerEXT debug_messenger;
 #endif
+
     /** @brief the vulkan device struct holding information we need about our device and its capabilities */
     vulkan_device device;
+
     /** @brief the vulkan swapchain struct holding information we need about our swapchain and its handle*/
     vulkan_swapchain swapchain;
+
     /** @brief the current image index we are rendering */
     u32 current_image_index;
     /** @brief  */

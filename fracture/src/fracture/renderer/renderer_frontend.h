@@ -43,7 +43,8 @@ b8 fr_renderer_draw_frame(renderer_packet* package);
 /**
  * @brief Handles window resize events for the renderer
  * 
- * @param delta_time The time since the last frame
+ * @param width The new width of the window
+ * @param height The new height of the window
  * @return b8 TRUE if the frame was ended successfully
  */
 void fr_renderer_on_window_resize(u32 width, u32 height);

@@ -271,6 +271,8 @@ b8 _swapchain_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
 }
 
 b8 _swapchain_destroy(vulkan_context* context, vulkan_swapchain* swapchain) {
+    // Wait for the device to finish all operations before destroying the swapchain
+    vkDeviceWaitIdle(context->device.logical_device);
     vulkan_image_destroy(context, &swapchain->depth_attachment);
     FR_CORE_TRACE("Destroyed depth attachment for swapchain");
     // Destroy the image views we dont need to destroy the images as they are implicitly destroyed when the swapchain is destroyed

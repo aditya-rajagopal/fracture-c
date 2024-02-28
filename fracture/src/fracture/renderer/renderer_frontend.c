@@ -47,6 +47,15 @@ void fr_renderer_shutdown() {
     current_backend = NULL_PTR;
 }
 
+void fr_renderer_on_window_resize(u32 width, u32 height) {
+    if (!current_backend) {
+        FR_CORE_FATAL("Renderer not initialized");
+        return;
+    }
+
+    current_backend->PFN_on_window_resize(current_backend, width, height);
+}
+
 b8 _renderer_begin_frame(renderer_packet *package) {
     return current_backend->PFN_begin_frame(current_backend, package->delta_time);
 }

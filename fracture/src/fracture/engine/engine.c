@@ -223,8 +223,26 @@ b8 _engine_on_event(u16 event_code, void* sender, void* listener_instance, event
             return TRUE;
         case EVENT_CODE_WINDOW_RESIZE:
             FR_CORE_TRACE("Window resized to: %d, %d", data.data.du32[0], data.data.du32[1]);
+            if (state.current_width == data.data.du32[0] && state.current_height == data.data.du32[1]) {
+                return FALSE;
+            }
             state.current_width = data.data.du32[0];
             state.current_height = data.data.du32[1];
+            if (state.current_width == 0 || state.current_height == 0) {
+                FR_CORE_INFO("Window minimized or suspended");
+                state.is_minimized = TRUE;
+                state.is_supended = TRUE;
+                return TRUE;
+            } else {
+                if (state.is_minimized || state.is_supended) {
+                    FR_CORE_INFO("Window restored");
+                    state.is_minimized = FALSE;
+                    state.is_supended = FALSE;
+                }
+                state.app_handle->on_resize(state.app_handle, state.current_width, state.current_height);
+                fr_renderer_on_window_resize(state.current_width,
+                                             state.current_height);
+            }
             return TRUE;
     }
     return FALSE;
