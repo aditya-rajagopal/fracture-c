@@ -22,16 +22,16 @@ typedef struct application_config {
     const char* name;
     
     /** @brief Width of the application window */
-    u32 width;
+    u32 start_width;
 
     /** @brief Height of the application window */
-    u32 height;
+    u32 start_height;
 
     /** @brief X position of the application window */
-    u32 x_pos;
+    u32 start_x_pos;
 
     /** @brief Y position of the application window */
-    u32 y_pos;
+    u32 start_y_pos;
 
     /** @brief Logging module config */
     logging_config logging_config;

@@ -22,6 +22,7 @@
         VkResult res = (f);                                 \
         if (res != VK_SUCCESS) {                            \
             FR_CORE_FATAL("Vulkan error %s : %d", #f, res); \
+            FR_CORE_ASSERT(FALSE);                          \
             return FALSE;                                   \
         }                                                   \
     }
@@ -128,6 +129,21 @@ typedef struct vulkan_renderpass {
     u32 clear_stencil;
 } vulkan_renderpass;
 
+typedef struct vulkan_frame_buffer {
+    /** @brief The handle for the framebuffer */    
+    VkFramebuffer handle;
+    /** @brief the number of attachments in the framebuffer */
+    u32 attachment_count;
+    /** @brief the array of image views for the attachments */
+    VkImageView* pAttachments;
+    /** @brief Reference to the renderpass that the farmebuffer is attached to */
+    vulkan_renderpass* renderpass;
+    /** @brief the width of the framebuffer */
+    u32 width;
+    /** @brief the height of the framebuffer */
+    u32 height;
+} vulkan_frame_buffer;
+
 typedef struct vulkan_swapchain {
     /** @brief The image format for the swapchain */
     VkSurfaceFormatKHR format;
@@ -143,6 +159,8 @@ typedef struct vulkan_swapchain {
     VkImageView* image_views;
     /** @brief the depth buffer image */
     vulkan_image depth_attachment;
+    /** @brief The framebuffers for the image_views */
+    vulkan_frame_buffer* framebuffers;
 } vulkan_swapchain;
 
 typedef enum vulkan_command_buffer_state {
@@ -167,11 +185,12 @@ typedef struct vulkan_command_buffer {
     vulkan_command_buffer_state state;
 } vulkan_command_buffer;
 
-typedef struct vulkan_frame_buffer {
-    /** @brief The handle for the framebuffer */    
-    VkFramebuffer handle;
-
-} vulkan_frame_buffer;
+typedef struct vulkan_fence {
+    /** @brief The handle for the fence */
+    VkFence handle;
+    /** @brief The boolean to track if the fence is signaled */
+    b8 is_signaled;
+} vulkan_fence;
 
 typedef struct vulkan_context {
     /** @brief The handle for the vulkan instance */
@@ -210,5 +229,17 @@ typedef struct vulkan_context {
     vulkan_renderpass main_renderpass;
     /** @brief darray of the graphics command buffers */
     vulkan_command_buffer* graphics_command_buffers;
+
+    /** @brief darray of semaphores that get triggered when an image is available for rendering*/
+    VkSemaphore* image_available_semaphores;
+    /** @brief darray of semaphores that get triggered when the rendering is complete*/
+    VkSemaphore* queue_complete_semaphores;
+    /** @brief count of in flight fences */
+    u32 in_flight_fence_count;
+    /** @brief darray of in flight fences */
+    vulkan_fence* in_flight_fences;
+    /** @brief holds pointers to one of the in flight fences or 0 */
+    vulkan_fence** images_in_flight;
+
     i32 (*PFN_find_memory_type)(u32 type_filter, VkMemoryPropertyFlags properties);
 } vulkan_context;

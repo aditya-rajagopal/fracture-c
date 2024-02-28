@@ -8,10 +8,10 @@
 b8 create_client_application(application_handle* app_handle) {
 
     app_handle->app_config.name = "Testbed";
-    app_handle->app_config.width = 1280;
-    app_handle->app_config.height = 720;
-    app_handle->app_config.x_pos = 100;
-    app_handle->app_config.y_pos = 100;
+    app_handle->app_config.start_width = 1280;
+    app_handle->app_config.start_height = 720;
+    app_handle->app_config.start_x_pos = 100;
+    app_handle->app_config.start_y_pos = 100;
     app_handle->app_config.target_frame_rate = 60;
     app_handle->app_config.lock_frame_rate = FALSE;
 

@@ -16,3 +16,5 @@
  * @brief Function called by the platform layer to process window close events.
  */
 void fr_engine_process_window_close();
+
+void fr_engine_process_window_resize(u32 width, u32 height);

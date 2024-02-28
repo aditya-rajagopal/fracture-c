@@ -19,6 +19,8 @@ typedef struct engine_state {
     b8 is_running;
     b8 is_minimized;
     b8 is_supended;
+    u32 current_width;
+    u32 current_height;
     platform_state plat_state;
     clock app_clock;
     f64 last_frame_time;
@@ -28,8 +30,8 @@ typedef struct engine_state {
 static b8 is_initialized = FALSE;
 static engine_state state;
 
-b8 engine_on_event(u16 event_code, void* sendeer, void* listener_instance, event_data data);
-b8 engine_on_key_event(u16 event_code, void* sender, void* listener_instance, event_data data);
+b8 _engine_on_event(u16 event_code, void* sendeer, void* listener_instance, event_data data);
+b8 _engine_on_key_event(u16 event_code, void* sender, void* listener_instance, event_data data);
 
 b8 engine_initialize(application_handle* app_handle) {
     if (is_initialized) {
@@ -45,6 +47,8 @@ b8 engine_initialize(application_handle* app_handle) {
     state.is_supended = FALSE;
     state.last_frame_time = 0.0;
     state.app_handle = app_handle;
+    state.current_width = app_handle->app_config.start_width;
+    state.current_height = app_handle->app_config.start_height;
 
     // Initialize the platform
     state.plat_state.on_key_event = fr_input_process_keypress;
@@ -52,11 +56,12 @@ b8 engine_initialize(application_handle* app_handle) {
     state.plat_state.on_mouse_button_event = fr_input_process_mouse_button;
     state.plat_state.on_mouse_scroll = fr_input_process_mouse_wheel;
     state.plat_state.on_window_close = fr_engine_process_window_close;
+    state.plat_state.on_window_resize = fr_engine_process_window_resize;
 
     if (!platform_startup(
             &state.plat_state, app_handle->app_config.name,
-            app_handle->app_config.width, app_handle->app_config.height,
-            app_handle->app_config.x_pos, app_handle->app_config.y_pos)) {
+            app_handle->app_config.start_width, app_handle->app_config.start_height,
+            app_handle->app_config.start_x_pos, app_handle->app_config.start_y_pos)) {
         FR_CORE_FATAL("Failed to initialize platform");
         return FALSE;
     }
@@ -83,9 +88,10 @@ b8 engine_initialize(application_handle* app_handle) {
     }
 
     // Register the application to listen for events
-    fr_event_register_handler(EVENT_CODE_APPLICATION_QUIT, 0, engine_on_event);
-    fr_event_register_handler(EVENT_CODE_KEY_PRESS, 0, engine_on_key_event);
-    fr_event_register_handler(EVENT_CODE_KEY_RELEASE, 0, engine_on_key_event);
+    fr_event_register_handler(EVENT_CODE_APPLICATION_QUIT, 0, _engine_on_event);
+    fr_event_register_handler(EVENT_CODE_KEY_PRESS, 0, _engine_on_key_event);
+    fr_event_register_handler(EVENT_CODE_KEY_RELEASE, 0, _engine_on_key_event);
+    fr_event_register_handler(EVENT_CODE_WINDOW_RESIZE, 0, _engine_on_event);
 
     // Intialize the renderer
     if (!fr_renderer_initialize(app_handle->app_config.name, &state.plat_state)) {
@@ -114,9 +120,9 @@ b8 engine_shutdown(application_handle* app_handle) {
     app_handle->shutdown(app_handle);
     FR_CORE_INFO("Shut down application: %s", app_handle->app_config.name);
 
-    fr_event_deregister_handler(EVENT_CODE_APPLICATION_QUIT, 0, engine_on_event);
-    fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, 0, engine_on_key_event);
-    fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, 0, engine_on_key_event);
+    fr_event_deregister_handler(EVENT_CODE_APPLICATION_QUIT, 0, _engine_on_event);
+    fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, 0, _engine_on_key_event);
+    fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, 0, _engine_on_key_event);
 
     fr_renderer_shutdown();
     FR_CORE_INFO("Renderer shutdown: %s", app_handle->app_config.name);
@@ -205,16 +211,26 @@ b8 engine_run(application_handle* app_handle) {
     return TRUE;
 }
 
-b8 engine_on_event(u16 event_code, void* sender, void* listener_instance, event_data data) {
+void engine_get_framebuffer_size(u32 *width, u32 *height) {
+    *width = state.current_width;
+    *height = state.current_height;
+}
+
+b8 _engine_on_event(u16 event_code, void* sender, void* listener_instance, event_data data) {
     switch (event_code) {
         case EVENT_CODE_APPLICATION_QUIT:
             state.is_running = FALSE;
+            return TRUE;
+        case EVENT_CODE_WINDOW_RESIZE:
+            FR_CORE_TRACE("Window resized to: %d, %d", data.data.du32[0], data.data.du32[1]);
+            state.current_width = data.data.du32[0];
+            state.current_height = data.data.du32[1];
             return TRUE;
     }
     return FALSE;
 }
 
-b8 engine_on_key_event(u16 event_code, void* sender, void* listener_instance, event_data data) {
+b8 _engine_on_key_event(u16 event_code, void* sender, void* listener_instance, event_data data) {
     if (event_code == EVENT_CODE_KEY_PRESS) {
         keys key = (keys)data.data.du16[0];
         b8 is_repeated = (b8)data.data.du16[1];

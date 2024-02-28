@@ -38,7 +38,8 @@ b8 platform_startup(platform_state *platform_state, const char *window_title, u3
     if (platform_state->on_key_event == NULL_PTR ||
         platform_state->on_mouse_move == NULL_PTR ||
         platform_state->on_mouse_button_event == NULL_PTR ||
-        platform_state->on_mouse_scroll == NULL_PTR) {
+        platform_state->on_mouse_scroll == NULL_PTR ||
+        platform_state->on_window_resize == NULL_PTR) {
       return FALSE;
     }
 
@@ -232,6 +233,13 @@ void platform_get_handle_info(u64* out_size, void *memory) {
     memcpy(memory, state_ptr, *out_size);
 }
 
+void platform_get_framebuffer_size(u32 *width, u32 *height) {
+    RECT rect;
+    GetClientRect(state_ptr->hWnd, &rect);
+    *width = rect.right - rect.left;
+    *height = rect.bottom - rect.top;
+}
+
 //*********************************************************************************************************************
 //***********************************************PRIVATE FUNCTIONS*****************************************************
 //*********************************************************************************************************************
@@ -254,8 +262,7 @@ LRESULT CALLBACK _win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPAR
             GetClientRect(hwnd, &r);
             u32 width = r.right - r.left;
             u32 height = r.bottom - r.top;
-
-            // TODO: Use this width and height to fire off an event to the application to handle the resizing of the window.
+            plat_state->on_window_resize(width, height);
         } break;
         case WM_MOUSEMOVE: {
             // Mouse move event

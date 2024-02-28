@@ -18,6 +18,7 @@ typedef void (*PFN_on_key_event)(keys key_code, b8 is_pressed);
 typedef void (*PFN_on_mouse_move)(i16 x_pos, i16 y_pos);
 typedef void (*PFN_on_mouse_button_event)(mouse_button button, b8 is_pressed);
 typedef void (*PFN_on_mouse_scroll)(i8 z_delta);
+typedef void (*PFN_on_window_resize)(u32 width, u32 height);
 
 // Function pointers to handle window event callbacks
 typedef void (*PFN_on_window_close)();
@@ -37,6 +38,7 @@ typedef struct platform_state {
 
     // Function pointers to handle window event callbacks
     PFN_on_window_close on_window_close;
+    PFN_on_window_resize on_window_resize;
 } platform_state;
 
 /**
@@ -156,4 +158,10 @@ void platform_sleep(u64 milliseconds);
  * @param memory The memory to write the handle information to
  */
 void platform_get_handle_info(u64* out_size, void* memory);
- 
+
+/**
+ * @brief Gets the framebuffer size of the platform and writes it to the given memory.
+ * @param width The width of the framebuffer
+ * @param height The height of the framebuffer
+ */
+void platform_get_framebuffer_size(u32* width, u32* height);

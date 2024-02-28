@@ -36,3 +36,11 @@ FR_API b8 engine_shutdown(application_handle* aapp_handle);
  * @return b8 True if the application ran successfully, false otherwise
  */
 FR_API b8 engine_run(application_handle* app_handle);
+
+/**
+ * @brief Returns the width and height of the application's framebuffer
+ * 
+ * @param width The width of the framebuffer
+ * @param height The height of the framebuffer
+ */
+FR_API void engine_get_framebuffer_size(u32* width, u32* height);

@@ -83,6 +83,9 @@ void vulkan_swapchain_present(vulkan_context* context,
         // Something went wrong and we can't continue rendering
         FR_CORE_FATAL("Failed to present swapchain image Error Code: %d", result);
     }
+
+    // Increment the current frame index
+    context->current_frame_index = (context->current_frame_index + 1) % swapchain->max_frames_in_flight;
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -154,6 +157,8 @@ b8 _swapchain_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
         image_count > context->device.swapchain_support.capabilities.maxImageCount) {
         image_count = context->device.swapchain_support.capabilities.maxImageCount;
     }
+
+    out_swapchain->max_frames_in_flight = image_count - 1;
 
     // Now we are going to create the swapchain create info
     VkSwapchainCreateInfoKHR create_info = {VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
