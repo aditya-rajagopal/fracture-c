@@ -11,6 +11,7 @@
 #pragma once
 
 #include "fracture/core/defines.h"
+#include <intrin.h>
 
 typedef union vec3_u {
     struct {
@@ -29,9 +30,14 @@ typedef union vec3_u {
            f32 b;
            f32 w;
        };
+       union {
+           f32 padding;
+       };
     };
-    f32 data[3];
-} vec3;
+    f32 data[4];
+    __m128 simd;
+
+} __attribute__((aligned(16))) vec3;
 
 typedef union ivec3_u {
     struct {

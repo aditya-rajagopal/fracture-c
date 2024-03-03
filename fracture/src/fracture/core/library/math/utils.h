@@ -34,7 +34,10 @@ FR_API FR_FORCE_INLINE u32 fr_umax(u32 a, u32 b) { return a > b ? a : b; }
 FR_API FR_FORCE_INLINE f64 fr_dmin(f64 a, f64 b) { return a < b ? a : b; }
 FR_API FR_FORCE_INLINE f64 fr_dmax(f64 a, f64 b) { return a > b ? a : b; }
 
-FR_API FR_FORCE_INLINE f32 fr_sign(f32 val) { return val < 0.0f ? -1.0f : 1.0f; }
+FR_API FR_FORCE_INLINE f32 fr_sign(f32 val) {
+    return (float)((val > 0.0f) - (val < 0.0f));
+}
+
 FR_API FR_FORCE_INLINE i32 fr_isign(i32 val) { return val < 0 ? -1 : 1; }
 FR_API FR_FORCE_INLINE f64 fr_dsign(f64 val) { return val < 0.0 ? -1.0 : 1.0; }
 

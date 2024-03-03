@@ -110,3 +110,9 @@ STATIC_ASSERT(sizeof(b8) == 1, "b8 is not 1 byte");
 #else
 #  define FR_FORCE_INLINE static inline __attribute((always_inline))
 #endif
+
+#if defined(_SIMD) && (defined(__SSE2__) || defined(__SSE__))
+#define FR_SIMD 1
+#else
+#define FR_SIMD 0
+#endif
