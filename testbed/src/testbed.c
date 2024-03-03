@@ -30,6 +30,32 @@ b8 testbed_initialize(application_handle *app_handle) {
     fr_event_register_handler(EVENT_CODE_KEY_B, NULL_PTR, testbed_on_key_B);
     fr_event_register_handler(EVENT_CODE_MOUSE_BUTTON_LEFT, NULL_PTR, testbed_on_mouse_button1);
 
+    // Test the 2 variations of vec3_norm : fr_vec3_norm and fr_vec3_normp
+    // clock timer;
+    // fr_clock_start(&timer);
+    // f32 random = fr_random();
+    // for (u32 i = 0; i < 1000000; i++) {
+    //     vec3 v1 = { random, (f32)i, random};
+    //     vec3 v2 = { fr_random(), (f32)i, random};
+    //     vec3 norm;
+    //     norm = fr_vec3_add(&v1, &v2);
+    // }
+    // fr_clock_update(&timer);
+    // f32 time_per_call = timer.elapsed_time / 1000000;
+    // FR_CORE_TRACE("fr_vec3_norm took %f ms per call", time_per_call * 1000);
+
+    // fr_clock_start(&timer);
+    // random = fr_random();
+    // for (u32 i = 0; i < 1000000; i++) {
+    //     vec3 v1 = { random, (f32)i, random};
+    //     vec3 v2 = { fr_random(), (f32)i, random};
+    //     vec3 norm;
+    //     norm = fr_vec3_addp(v1, v2);
+    // }
+    // fr_clock_update(&timer);
+    // time_per_call = timer.elapsed_time / 1000000;
+    // FR_CORE_TRACE("fr_vec3_normp took %f ms per call", time_per_call * 1000);
+
     return TRUE;
 }
 

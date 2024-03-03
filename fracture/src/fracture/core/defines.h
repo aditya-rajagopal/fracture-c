@@ -61,9 +61,6 @@ typedef char b8;
 #define MAX(x, y) (x > y ? x : y)
 #define CLAMP(x, min, max) (x < min ? min : (x > max ? max : x))
 
-// Pi
-#define PI 3.14159265359F
-
 // Define static assert
 #if defined (__clang__) || defined (__gcc__)
     #define STATIC_ASSERT _Static_assert
@@ -93,4 +90,23 @@ STATIC_ASSERT(sizeof(b8) == 1, "b8 is not 1 byte");
     #define CORE_DEBUG 1
 #else
     #define CORE_DEBUG 0
+#endif
+
+// Taken from cglm library
+#if defined(_MSC_VER)
+/* do not use alignment for older visual studio versions */
+#  if _MSC_VER < 1913 /*  Visual Studio 2017 version 15.6  */
+#    define FR_ALL_UNALIGNED
+#    define FR_ALIGN(X) /* no alignment */
+#  else
+#    define FR_ALIGN(X) __declspec(align(X))
+#  endif
+#else
+#  define FR_ALIGN(X) __attribute((aligned(X)))
+#endif
+
+#if defined(_MSC_VER)
+#  define FR_FORCE_INLINE __forceinline
+#else
+#  define FR_FORCE_INLINE static inline __attribute((always_inline))
 #endif

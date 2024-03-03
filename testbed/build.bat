@@ -12,7 +12,7 @@ REM echo "Files: " %cFileNames%
 SET assembly=testbed
 SET comilerFlags=-g
 REM -Wall -Werror
-SET includeFlags=-Isrc -I..\fracture\src
+SET includeFlags=-Isrc -I..\fracture\src -I..\fracture\includes
 SET linkerFlags=-luser32 -L../bin/ -lfracture.lib
 SET defines=-D_DEBUG -DFR_IMPORT -D_ENABLE_ASSERTS
 

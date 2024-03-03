@@ -21,3 +21,6 @@
 #include "fracture/core/systems/input.h"
 
 #include "fracture/core/containers/darrays.h"
+
+#include "fracture/core/library/fracture_string.h"
+#include "fracture_math.h"

@@ -16,7 +16,7 @@
 #pragma once
 
 #include "fracture/fracture_core.h"
-#include "fracture/core/types/input_codes.h"
+#include "fracture/core/includes/input_codes.h"
 
 
 /**

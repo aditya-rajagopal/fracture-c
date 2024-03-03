@@ -10,8 +10,6 @@
  */
 #pragma once
 
-#include "fracture/core/types/system_event_codes.h"
-
 typedef enum system_event_code {
   // Mouse button codes
   /** @brief Left mouse button */
