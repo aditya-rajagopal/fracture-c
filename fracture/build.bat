@@ -10,7 +10,7 @@ FOR /R %%f in (*.c) do (
 
 REM echo "Files: " %cFileNames%
 SET assembly=fracture
-SET comilerFlags=-g -shared -Wvarargs -Wall -Werror
+SET comilerFlags=-g -shared -Wvarargs -Wall -Werror -msse
 REM -Wall -Werror
 SET includeFlags=-I..\fracture\src -I%VULKAN_SDK%\Include -I..\platform\src
 SET linkerFlags=-luser32 -lvulkan-1 -L%VULKAN_SDK%/Lib -L..\bin\ -lplatform.lib
@@ -19,7 +19,7 @@ SET defines=-D_DEBUG -DFR_EXPORT -D_CRT_SECURE_NO_WARNINGS -D_ENABLE_ASSERTS -DP
 ECHO %VULKAN_SDK%
 
 ECHO "Buildin %assembly%..."
-clang %cFileNames% %comilerFlags% -o ../bin/%assembly%.dll %defines% %includeFlags% %linkerFlags% -MTd
+clang %cFileNames% %comilerFlags% -o ../bin/%assembly%.dll %defines% %includeFlags% %linkerFlags%
 
 REM "Writing the compile_flags.txt file"
 ECHO "Writing the compile_flags.txt file"

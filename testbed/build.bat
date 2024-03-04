@@ -19,6 +19,10 @@ SET defines=-D_DEBUG -DFR_IMPORT -D_ENABLE_ASSERTS -D_SIMD
 ECHO "Buildin %assembly%...."
 clang %cFileNames% %comilerFlags% -o ../bin/%assembly%.exe %defines% %includeFlags% %linkerFlags%
 
+@REM FOR %%f in (%cFileNames%) do (
+@REM     clang -S -fverbose-asm -masm=intel -O3 %compilerFlags% %%f %defines% %includeFlags%
+@REM )
+
 REM "Writing the compile_flags.txt file"
 ECHO "Writing the compile_flags.txt file"
 echo %includeFlags% %defines% %comilerFlags% | sed -e "s/-I/-I\\/g" -e "s/ /\n/g" -e "s/-I\\C/-IC:/g" -e "s/-I\\..\\/-I..\\/g" > compile_flags.txt
