@@ -31,31 +31,35 @@ b8 testbed_initialize(application_handle *app_handle) {
     // fr_event_register_handler(EVENT_CODE_KEY_B, NULL_PTR, testbed_on_key_B);
     // fr_event_register_handler(EVENT_CODE_MOUSE_BUTTON_LEFT, NULL_PTR, testbed_on_mouse_button1);
 
-    // vec3 test, out;
-    // fr_vec3_new_to(fr_random(), 2.0f, 3.0f, &test);
-    // fr_vec3_new_to(4.0f, 5.0f, fr_random(), &out);
+    vec3 test, out;
+    fr_vec3_new_to(fr_random(), 2.0f, 3.0f, &test);
+    FR_CORE_TRACE("test: (%f, %f, %f)", test.x, test.y, test.z);
+    fr_vec3_new_to(4.0f, 5.0f, fr_random(), &out);
+    fr_vec3_make_sqrt(&test);
+    fr_vec3_make_sqrt(&out);
+    FR_CORE_TRACE("test: (%f, %f, %f)", test.x, test.y, test.z);
     // vec3 norm;
-    // fr_vec3_make_zero(&norm);
+    // // fr_vec3_make_zero(&norm);
     // fr_vec3_cross(&test, &out, &norm);
     // FR_CORE_TRACE("Cross product of (%f, %f, %f) and (%f, %f, %f) is (%f, %f, %f)", test.x, test.y, test.z, out.x, out.y, out.z, norm.x, norm.y, norm.z);
     // Test the 2 variations of vec3_norm : fr_vec3_norm and fr_vec3_normp
     // clock timer;
-    // vec3 test, out;
+    // vec3 test, out, norm;
     // fr_clock_start(&timer);
-    // // f32 random = fr_random();
+    // f32 random = fr_random();
     // // fr_vec3_new_to(-1.0f, 2.0f, 6.4f, &test);
     // fr_vec3_new_to(fr_random(), fr_random(), fr_random(), &out);
     // fr_vec3_new_to(fr_random(), fr_random(), fr_random(), &test);
     // // vec3 norm;
-    // f32 output = fr_vec3_norm(&test);
+    // // f32 output = fr_vec3_norm(&test);
     // for (u32 i = 0; i < 10000000; i++) {
-    //     // fr_vec3_new_to(fr_random(), fr_random(), fr_random(), &out);
-    //     vec3 norm;
+    //     fr_vec3_new_to(fr_random(), fr_random(), fr_random(), &out);
     //     fr_vec3_cross_simd(&out, &test, &norm);
     // }
     // fr_clock_update(&timer);
     // f32 time_per_call = timer.elapsed_time;
     // FR_CORE_TRACE("fr_vec3_norm took %f ms per call", time_per_call * 1000);
+    // FR_CORE_TRACE("norm: (%f, %f, %f)", norm.x, norm.y, norm.z);
 
     // fr_clock_start(&timer);
     // // random = fr_random();
@@ -63,14 +67,13 @@ b8 testbed_initialize(application_handle *app_handle) {
     // for (u32 i = 0; i < 10000000; i++) {
     //     // vec3 v1;
     //     // fr_vec3_new_to(fr_random(), fr_random(), fr_random(), &test);
-    //     // fr_vec3_new_to(fr_random(), fr_random(), fr_random(), &out);
-    //     vec3 norm;
+    //     fr_vec3_new_to(fr_random(), fr_random(), fr_random(), &out);
     //     fr_vec3_cross(&out, &test, &norm);
     // }
     // fr_clock_update(&timer);
     // time_per_call = timer.elapsed_time;
     // FR_CORE_TRACE("fr_vec3_sign_glm took %f ms per call", time_per_call * 1000);
-
+    // FR_CORE_TRACE("norm: (%f, %f, %f)", norm.x, norm.y, norm.z);
     // fr_vec3_new_to(1.0f, -2.0f, 3.0f, &test);
     // fr_vec3_new_to(4.0f, 0.0f, -6.0f, &out);
     // vec3 norm;

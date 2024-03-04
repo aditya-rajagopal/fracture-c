@@ -116,3 +116,9 @@ STATIC_ASSERT(sizeof(b8) == 1, "b8 is not 1 byte");
 #else
 #define FR_SIMD 0
 #endif
+
+#if FR_SIMD == 1 && defined(_VEC3_SIMD)
+#define FR_VEC3_SIMD 1
+#else
+#define FR_VEC3_SIMD 0
+#endif

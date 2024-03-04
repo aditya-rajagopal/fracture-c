@@ -28,7 +28,7 @@
  * @param src The source array of floats.
  * @param dst The destination vec2 object.
  */
-FR_API FR_FORCE_INLINE void fr_vec2_from_array(const f32* restrict src,
+FR_FORCE_INLINE void fr_vec2_from_array(const f32* restrict src,
                                                vec2* restrict dst) {
     dst->x = src[0];
     dst->y = src[1];
@@ -42,7 +42,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_from_array(const f32* restrict src,
  * @param src The source vec2 object.
  * @param dst The destination array of floats.
  */
-FR_API FR_FORCE_INLINE void fr_vec2_to_array(const vec2* restrict src,
+FR_FORCE_INLINE void fr_vec2_to_array(const vec2* restrict src,
                                              f32* restrict dst) {
     dst[0] = src->x;
     dst[1] = src->y;
@@ -55,7 +55,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_to_array(const vec2* restrict src,
  * @param y The y component of the vec2 object.
  * @return vec2 The constructed vec2 object.
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_new(f32 x, f32 y) {
+FR_FORCE_INLINE vec2 fr_vec2_new(f32 x, f32 y) {
     return (vec2){.x = x, .y = y};
 }
 
@@ -65,7 +65,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_new(f32 x, f32 y) {
  * @param val The value to set the x and y components of the vec2 object to.
  * @return vec2 The constructed vec2 object.
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_new_scalar(f32 val) {
+FR_FORCE_INLINE vec2 fr_vec2_new_scalar(f32 val) {
     return (vec2){.x = val, .y = val};
 }
 
@@ -75,7 +75,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_new_scalar(f32 val) {
  * @param arr The array of floats to construct the vec2 object from.
  * @return vec2 The constructed vec2 object.
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_new_array(f32* arr) {
+FR_FORCE_INLINE vec2 fr_vec2_new_array(f32* arr) {
     return (vec2){.x = arr[0], .y = arr[1]};
 }
 
@@ -85,7 +85,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_new_array(f32* arr) {
  * @param src The source vec2 object.
  * @return vec2 The constructed vec2 object.
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_copy(const vec2* src) {
+FR_FORCE_INLINE vec2 fr_vec2_copy(const vec2* src) {
     return (vec2){.x = src->x, .y = src->y};
 }
 
@@ -97,7 +97,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_copy(const vec2* src) {
  * @param src The source vec2 object.
  * @param dest The destination vec2 object.
  */
-FR_API FR_FORCE_INLINE void fr_vec2_copy_to(const vec2* restrict src, vec2* restrict dest) {
+FR_FORCE_INLINE void fr_vec2_copy_to(const vec2* restrict src, vec2* restrict dest) {
     dest->x = src->x;
     dest->y = src->y;
 }
@@ -107,7 +107,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_copy_to(const vec2* restrict src, vec2* rest
  * 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_zero() {
+FR_FORCE_INLINE vec2 fr_vec2_zero() {
     return (vec2){.x = 0.0f, .y = 0.0f};
 }
 
@@ -116,7 +116,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_zero() {
  * 
  * @param dest The destination vec2 object.
  */
-FR_API FR_FORCE_INLINE void fr_vec2_make_zero(vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_make_zero(vec2* dest) {
     dest->x = 0.0f;
     dest->y = 0.0f;
 }
@@ -126,7 +126,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_make_zero(vec2* dest) {
  * 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_one() {
+FR_FORCE_INLINE vec2 fr_vec2_one() {
     return (vec2){.x = 1.0f, .y = 1.0f};
 }
 
@@ -135,7 +135,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_one() {
  * 
  * @param dest The destination vec2 object.
  */
-FR_API FR_FORCE_INLINE void fr_vec2_make_one(vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_make_one(vec2* dest) {
     dest->x = 1.0f;
     dest->y = 1.0f;
 }
@@ -145,7 +145,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_make_one(vec2* dest) {
  * 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_left() {
+FR_FORCE_INLINE vec2 fr_vec2_left() {
     return (vec2){.x = -1.0f, .y = 0.0f};
 }
 
@@ -154,7 +154,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_left() {
  * 
  * @param dest The destination vec2 object.
  */
-FR_API FR_FORCE_INLINE void fr_vec2_make_left(vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_make_left(vec2* dest) {
     dest->x = -1.0f;
     dest->y = 0.0f;
 }
@@ -164,7 +164,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_make_left(vec2* dest) {
  * 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_right() {
+FR_FORCE_INLINE vec2 fr_vec2_right() {
     return (vec2){.x = 1.0f, .y = 0.0f};
 }
 
@@ -173,7 +173,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_right() {
  * 
  * @param dest The destination vec2 object.
  */
-FR_API FR_FORCE_INLINE void fr_vec2_make_right(vec2* v, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_make_right(vec2* v, vec2* dest) {
     dest->x = 1.0f;
     dest->y = 0.0f;
 }
@@ -183,7 +183,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_make_right(vec2* v, vec2* dest) {
  * 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_up() {
+FR_FORCE_INLINE vec2 fr_vec2_up() {
     return (vec2){.x = 0.0f, .y = 1.0f};
 }
 
@@ -192,7 +192,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_up() {
  * 
  * @param dest The destination vec2 object.
  */
-FR_API FR_FORCE_INLINE void fr_vec2_make_up(vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_make_up(vec2* dest) {
     dest->x = 0.0f;
     dest->y = 1.0f;
 }
@@ -202,7 +202,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_make_up(vec2* dest) {
  * 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_down() {
+FR_FORCE_INLINE vec2 fr_vec2_down() {
     return (vec2){.x = 0.0f, .y = -1.0f};
 }
 
@@ -211,7 +211,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_down() {
  * 
  * @param dest The destination vec2 object.
  */
-FR_API FR_FORCE_INLINE void fr_vec2_make_down(vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_make_down(vec2* dest) {
     dest->x = 0.0f;
     dest->y = -1.0f;
 }
@@ -222,7 +222,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_make_down(vec2* dest) {
  * @param dest The destination vec2 object.
  * @param val The value to set the components to.
  */
-FR_API FR_FORCE_INLINE void fr_vec2_fill(vec2* dest, f32 val) {
+FR_FORCE_INLINE void fr_vec2_fill(vec2* dest, f32 val) {
     dest->x = val;
     dest->y = val;
 }
@@ -237,7 +237,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_fill(vec2* dest, f32 val) {
  * @param val The value to check against.
  * @return b8 True if all components are equal to the value, false otherwise.
  */
-FR_API FR_FORCE_INLINE b8 fr_vec2_eq_scalar(const vec2* v, f32 val) {
+FR_FORCE_INLINE b8 fr_vec2_eq_scalar(const vec2* v, f32 val) {
     return fr_equal(v->x, val) && fr_equal(v->y, val);
 }
 
@@ -249,7 +249,7 @@ FR_API FR_FORCE_INLINE b8 fr_vec2_eq_scalar(const vec2* v, f32 val) {
  * @param threshold The threshold to use for the comparison.
  * @return b8 True if all components are equal to the value within the threshold, false otherwise.
  */
-FR_API FR_FORCE_INLINE b8 fr_vec2_eq_scalar_threshold(const vec2* v, f32 val,
+FR_FORCE_INLINE b8 fr_vec2_eq_scalar_threshold(const vec2* v, f32 val,
                                                       f32 threshold) {
     return fr_equal_threshold(v->x, val, threshold) &&
            fr_equal_threshold(v->y, val, threshold);
@@ -261,7 +261,7 @@ FR_API FR_FORCE_INLINE b8 fr_vec2_eq_scalar_threshold(const vec2* v, f32 val,
  * @param v The vec2 object to check.
  * @return b8 True if all components are equal to each other, false otherwise.
  */
-FR_API FR_FORCE_INLINE b8 fr_vec2_eq_all(const vec2* v) { return fr_equal(v->x, v->y); }
+FR_FORCE_INLINE b8 fr_vec2_eq_all(const vec2* v) { return fr_equal(v->x, v->y); }
 
 /**
  * @brief Check if two vectors are equal to each other
@@ -270,7 +270,7 @@ FR_API FR_FORCE_INLINE b8 fr_vec2_eq_all(const vec2* v) { return fr_equal(v->x, 
  * @param v1
  * @return b8 TRUE if the vectors are equal, FALSE otherwise. 
  */
-FR_API FR_FORCE_INLINE b8 fr_vec2_eq(const vec2* v0, const vec2* v1) {
+FR_FORCE_INLINE b8 fr_vec2_eq(const vec2* v0, const vec2* v1) {
     return fr_equal(v0->x, v1->x) && fr_equal(v0->y, v1->y);
 }
 
@@ -282,7 +282,7 @@ FR_API FR_FORCE_INLINE b8 fr_vec2_eq(const vec2* v0, const vec2* v1) {
  * @param threshold The threshold to use for the comparison.
  * @return b8 TRUE if the vectors are equal within the threshold, FALSE otherwise. 
  */
-FR_API FR_FORCE_INLINE b8 fr_vec2_eq_threshold(const vec2* v0, const vec2* v1, f32 threshold) {
+FR_FORCE_INLINE b8 fr_vec2_eq_threshold(const vec2* v0, const vec2* v1, f32 threshold) {
     return fr_equal_threshold(v0->x, v1->x, threshold) &&
            fr_equal_threshold(v0->y, v1->y, threshold);
 }
@@ -293,7 +293,7 @@ FR_API FR_FORCE_INLINE b8 fr_vec2_eq_threshold(const vec2* v0, const vec2* v1, f
  * @param v The vec2 object to check.
  * @return f32 The maximum component of the vec2 object.
  */
-FR_API FR_FORCE_INLINE f32 fr_vec2_max(const vec2* v) { return fr_max(v->x, v->y); }
+FR_FORCE_INLINE f32 fr_vec2_max(const vec2* v) { return fr_max(v->x, v->y); }
 
 /**
  * @brief Get the minimum component of a vec2 object.
@@ -301,7 +301,7 @@ FR_API FR_FORCE_INLINE f32 fr_vec2_max(const vec2* v) { return fr_max(v->x, v->y
  * @param v The vec2 object to check.
  * @return f32 The minimum component of the vec2 object.
  */
-FR_API FR_FORCE_INLINE f32 fr_vec2_min(const vec2* v) { return fr_min(v->x, v->y); }
+FR_FORCE_INLINE f32 fr_vec2_min(const vec2* v) { return fr_min(v->x, v->y); }
 
 /**
  * @brief Check if all the components of a vec2 are zero
@@ -309,7 +309,7 @@ FR_API FR_FORCE_INLINE f32 fr_vec2_min(const vec2* v) { return fr_min(v->x, v->y
  * @param v The vec2 object to check.
  * @return b8 TRUE if all components are zero, FALSE otherwise. 
  */
-FR_API FR_FORCE_INLINE b8 fr_vec2_iszero(const vec2* v) {
+FR_FORCE_INLINE b8 fr_vec2_iszero(const vec2* v) {
     return fr_equal(v->x, 0.0f) && fr_equal(v->y, 0.0f);
 }
 
@@ -319,7 +319,7 @@ FR_API FR_FORCE_INLINE b8 fr_vec2_iszero(const vec2* v) {
  * @param v The input vec2 object.
  * @return vec2
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_sign(const vec2* v) {
+FR_FORCE_INLINE vec2 fr_vec2_sign(const vec2* v) {
     return fr_vec2_new(fr_sign(v->x), fr_sign(v->y));
 }
 
@@ -329,7 +329,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_sign(const vec2* v) {
  * @param v The input vec2 object.
  * @return vec2
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_abs(const vec2* v) {
+FR_FORCE_INLINE vec2 fr_vec2_abs(const vec2* v) {
     return fr_vec2_new(fr_abs(v->x), fr_abs(v->y));
 }
 
@@ -338,7 +338,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_abs(const vec2* v) {
  * 
  * @param v The input vec2 object.
  */
-FR_API FR_FORCE_INLINE void fr_vec2_make_abs(vec2* v) {
+FR_FORCE_INLINE void fr_vec2_make_abs(vec2* v) {
     v->x = fr_abs(v->x);
     v->y = fr_abs(v->y);
 }
@@ -349,7 +349,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_make_abs(vec2* v) {
  * @param v The input vec2 object.
  * @return vec2
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_sqrt(const vec2* v) {
+FR_FORCE_INLINE vec2 fr_vec2_sqrt(const vec2* v) {
     return fr_vec2_new(fr_sqrt(v->x), fr_sqrt(v->y));
 }
 
@@ -358,7 +358,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_sqrt(const vec2* v) {
  * 
  * @param v The input vec2 object.
  */
-FR_API FR_FORCE_INLINE void fr_vec2_make_sqrt(vec2* v) {
+FR_FORCE_INLINE void fr_vec2_make_sqrt(vec2* v) {
     v->x = fr_sqrt(v->x);
     v->y = fr_sqrt(v->y);
 }
@@ -370,7 +370,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_make_sqrt(vec2* v) {
  * @param c1 
  * @return vec2 New complex number. 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_complex_mul(const vec2* c0, const vec2* c1) {
+FR_FORCE_INLINE vec2 fr_vec2_complex_mul(const vec2* c0, const vec2* c1) {
     return fr_vec2_new(c0->r * c1->r - c0->i * c1->i, c0->r * c1->i + c0->i * c1->r);
 }
 
@@ -381,7 +381,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_complex_mul(const vec2* c0, const vec2* c1) 
  * @param c1 
  * @return vec2 New complex number. 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_complex_div(const vec2* c0, const vec2* c1) {
+FR_FORCE_INLINE vec2 fr_vec2_complex_div(const vec2* c0, const vec2* c1) {
     f32 const inv_denom = 1.0f / (c1->r * c1->r + c1->i * c1->i);
     return fr_vec2_new((c0->r * c1->r + c0->i * c1->i) * inv_denom,
                        (c0->i * c1->r - c0->r * c1->i) * inv_denom);
@@ -393,7 +393,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_complex_div(const vec2* c0, const vec2* c1) 
  * @param c 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_complex_conjugate(const vec2* c) {
+FR_FORCE_INLINE vec2 fr_vec2_complex_conjugate(const vec2* c) {
     return fr_vec2_new(c->r, -c->i);
 }
 
@@ -402,7 +402,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_complex_conjugate(const vec2* c) {
  * 
  * @param c 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_make_complex_conjugate(vec2* c) {
+FR_FORCE_INLINE void fr_vec2_make_complex_conjugate(vec2* c) {
     c->i = -c->i;
 }
 
@@ -417,7 +417,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_make_complex_conjugate(vec2* c) {
  * @param v1 
  * @return f32 
  */
-FR_API FR_FORCE_INLINE f32 fr_vec2_dot(const vec2* v0, const vec2* v1) {
+FR_FORCE_INLINE f32 fr_vec2_dot(const vec2* v0, const vec2* v1) {
     return v0->x * v1->x + v0->y * v1->y;
 }
 
@@ -431,7 +431,7 @@ FR_API FR_FORCE_INLINE f32 fr_vec2_dot(const vec2* v0, const vec2* v1) {
  * @param v1
  * @return f32
  */
-FR_API FR_FORCE_INLINE f32 fr_vec2_cross(const vec2* v0, const vec2* v1) {
+FR_FORCE_INLINE f32 fr_vec2_cross(const vec2* v0, const vec2* v1) {
     return v0->x * v1->y - v0->y * v1->x;
 }
 
@@ -441,7 +441,7 @@ FR_API FR_FORCE_INLINE f32 fr_vec2_cross(const vec2* v0, const vec2* v1) {
  * @param v 
  * @return f32 
  */
-FR_API FR_FORCE_INLINE f32 fr_vec2_norm2(const vec2* v) {
+FR_FORCE_INLINE f32 fr_vec2_norm2(const vec2* v) {
     return v->x * v->x + v->y * v->y;
 }
 
@@ -451,7 +451,7 @@ FR_API FR_FORCE_INLINE f32 fr_vec2_norm2(const vec2* v) {
  * @param v 
  * @return f32 
  */
-FR_API FR_FORCE_INLINE f32 fr_vec2_norm(const vec2* v) {
+FR_FORCE_INLINE f32 fr_vec2_norm(const vec2* v) {
     return fr_sqrt(v->x * v->x + v->y * v->y);
 }
 
@@ -462,7 +462,7 @@ FR_API FR_FORCE_INLINE f32 fr_vec2_norm(const vec2* v) {
  * @param v1 
  * @return vec2  
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_add(const vec2* v0, const vec2* v1) {
+FR_FORCE_INLINE vec2 fr_vec2_add(const vec2* v0, const vec2* v1) {
     return fr_vec2_new(v0->x + v1->x, v0->y + v1->y);
 }
 
@@ -473,7 +473,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_add(const vec2* v0, const vec2* v1) {
  * @param v1
  * @param dest pointer to the destination vec2 object. 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_add_to(const vec2* v0, const vec2* v1, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_add_to(const vec2* v0, const vec2* v1, vec2* dest) {
     dest->x = v0->x + v1->x;
     dest->y = v0->y + v1->y;
 }
@@ -485,7 +485,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_add_to(const vec2* v0, const vec2* v1, vec2*
  * @param s 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_adds(const vec2* v, f32 s) {
+FR_FORCE_INLINE vec2 fr_vec2_adds(const vec2* v, f32 s) {
     return fr_vec2_new(v->x + s, v->y + s);
 }
 
@@ -496,7 +496,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_adds(const vec2* v, f32 s) {
  * @param s
  * @param dest pointer to the destination vec2 object. 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_adds_to(const vec2* v, f32 s, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_adds_to(const vec2* v, f32 s, vec2* dest) {
     dest->x = v->x + s;
     dest->y = v->y + s;
 }
@@ -508,7 +508,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_adds_to(const vec2* v, f32 s, vec2* dest) {
  * @param v1
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_sub(const vec2* v0, const vec2* v1) {
+FR_FORCE_INLINE vec2 fr_vec2_sub(const vec2* v0, const vec2* v1) {
     return fr_vec2_new(v0->x - v1->x, v0->y - v1->y);
 }
 
@@ -519,7 +519,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_sub(const vec2* v0, const vec2* v1) {
  * @param v1
  * @param dest pointer to the destination vec2 object. 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_sub_to(const vec2* v0, const vec2* v1, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_sub_to(const vec2* v0, const vec2* v1, vec2* dest) {
     dest->x = v0->x - v1->x;
     dest->y = v0->y - v1->y;
 }
@@ -531,7 +531,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_sub_to(const vec2* v0, const vec2* v1, vec2*
  * @param s
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_subs(const vec2* v, f32 s) {
+FR_FORCE_INLINE vec2 fr_vec2_subs(const vec2* v, f32 s) {
     return fr_vec2_new(v->x - s, v->y - s);
 }
 
@@ -542,7 +542,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_subs(const vec2* v, f32 s) {
  * @param s
  * @param dest pointer to the destination vec2 object. 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_subs_to(const vec2* v, f32 s, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_subs_to(const vec2* v, f32 s, vec2* dest) {
     dest->x = v->x - s;
     dest->y = v->y - s;
 }
@@ -554,7 +554,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_subs_to(const vec2* v, f32 s, vec2* dest) {
  * @param v1 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_mul(const vec2* v0, const vec2* v1) {
+FR_FORCE_INLINE vec2 fr_vec2_mul(const vec2* v0, const vec2* v1) {
     return fr_vec2_new(v0->x * v1->x, v0->y * v1->y);
 }
 
@@ -565,7 +565,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_mul(const vec2* v0, const vec2* v1) {
  * @param v1
  * @param dest pointer to the destination vec2 object. 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_mul_to(const vec2* v0, const vec2* v1, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_mul_to(const vec2* v0, const vec2* v1, vec2* dest) {
     dest->x = v0->x * v1->x;
     dest->y = v0->y * v1->y;
 }
@@ -576,7 +576,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_mul_to(const vec2* v0, const vec2* v1, vec2*
  * @param v
  * @param s 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_scale(vec2* v, f32 s) {
+FR_FORCE_INLINE void fr_vec2_scale(vec2* v, f32 s) {
     v->x *= s;
     v->y *= s;
 }
@@ -588,7 +588,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_scale(vec2* v, f32 s) {
  * @param s 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_get_scaled(const vec2* v, f32 s) {
+FR_FORCE_INLINE vec2 fr_vec2_get_scaled(const vec2* v, f32 s) {
     return fr_vec2_new(v->x * s, v->y * s);
 }
 
@@ -599,7 +599,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_get_scaled(const vec2* v, f32 s) {
  * @param s
  * @param dest pointer to the destination vec2 object. 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_scale_to(const vec2* v, f32 s, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_scale_to(const vec2* v, f32 s, vec2* dest) {
     dest->x = v->x * s;
     dest->y = v->y * s;
 }
@@ -611,7 +611,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_scale_to(const vec2* v, f32 s, vec2* dest) {
  * @param s 
  * @param dest 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_scale_direction_to(const vec2* v, f32 s,
+FR_FORCE_INLINE void fr_vec2_scale_direction_to(const vec2* v, f32 s,
                                                        vec2* dest) {
     f32 const norm = fr_vec2_norm(v);
     if (norm == 0.0f) {
@@ -629,7 +629,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_scale_direction_to(const vec2* v, f32 s,
  * @param v1 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_div(const vec2* v0, const vec2* v1) {
+FR_FORCE_INLINE vec2 fr_vec2_div(const vec2* v0, const vec2* v1) {
     return fr_vec2_new(v0->x / v1->x, v0->y / v1->y);
 }
 
@@ -640,7 +640,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_div(const vec2* v0, const vec2* v1) {
  * @param v1
  * @param dest pointer to the destination vec2 object. 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_div_to(const vec2* v0, const vec2* v1, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_div_to(const vec2* v0, const vec2* v1, vec2* dest) {
     dest->x = v0->x / v1->x;
     dest->y = v0->y / v1->y;
 }
@@ -653,7 +653,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_div_to(const vec2* v0, const vec2* v1, vec2*
  * @param s 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_divs(const vec2* v, f32 s) {
+FR_FORCE_INLINE vec2 fr_vec2_divs(const vec2* v, f32 s) {
     return fr_vec2_new(v->x / s, v->y / s);
 }
 
@@ -665,7 +665,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_divs(const vec2* v, f32 s) {
  * @param s
  * @param dest pointer to the destination vec2 object. 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_divs_to(const vec2* v, f32 s, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_divs_to(const vec2* v, f32 s, vec2* dest) {
     dest->x = v->x / s;
     dest->y = v->y / s;
 }
@@ -677,7 +677,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_divs_to(const vec2* v, f32 s, vec2* dest) {
  * @param v1 
  * @param dest 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_addadd(const vec2* v0, const vec2* v1, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_addadd(const vec2* v0, const vec2* v1, vec2* dest) {
     dest->x += v0->x + v1->x;
     dest->y += v0->y + v1->y;
 }
@@ -689,7 +689,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_addadd(const vec2* v0, const vec2* v1, vec2*
  * @param v1 
  * @param dest 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_subadd(const vec2* v0, const vec2* v1, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_subadd(const vec2* v0, const vec2* v1, vec2* dest) {
     dest->x += v0->x - v1->x;
     dest->y += v0->y - v1->y;
 }
@@ -701,7 +701,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_subadd(const vec2* v0, const vec2* v1, vec2*
  * @param v1 
  * @param dest 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_muladd(const vec2* v0, const vec2* v1, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_muladd(const vec2* v0, const vec2* v1, vec2* dest) {
     dest->x += v0->x * v1->x;
     dest->y += v0->y * v1->y;
 }
@@ -713,7 +713,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_muladd(const vec2* v0, const vec2* v1, vec2*
  * @param s 
  * @param dest 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_muladds(const vec2* v, f32 s, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_muladds(const vec2* v, f32 s, vec2* dest) {
     dest->x += v->x * s;
     dest->y += v->y * s;
 }
@@ -725,7 +725,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_muladds(const vec2* v, f32 s, vec2* dest) {
  * @param v1 
  * @param dest 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_maxadd(const vec2* v0, const vec2* v1, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_maxadd(const vec2* v0, const vec2* v1, vec2* dest) {
     dest->x += fr_max(v0->x, v1->x);
     dest->y += fr_max(v0->y, v1->y);
 }
@@ -737,7 +737,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_maxadd(const vec2* v0, const vec2* v1, vec2*
  * @param v1 
  * @param dest 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_minadd(const vec2* v0, const vec2* v1, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_minadd(const vec2* v0, const vec2* v1, vec2* dest) {
     dest->x += fr_min(v0->x, v1->x);
     dest->y += fr_min(v0->y, v1->y);
 }
@@ -749,7 +749,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_minadd(const vec2* v0, const vec2* v1, vec2*
  * @param v1 
  * @param dest 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_subsub(const vec2* v0, const vec2* v1, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_subsub(const vec2* v0, const vec2* v1, vec2* dest) {
     dest->x -= v0->x - v1->x;
     dest->y -= v0->y - v1->y;
 }
@@ -761,7 +761,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_subsub(const vec2* v0, const vec2* v1, vec2*
  * @param v1 
  * @param dest 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_addsub(const vec2* v0, const vec2* v1, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_addsub(const vec2* v0, const vec2* v1, vec2* dest) {
     dest->x -= v0->x + v1->x;
     dest->y -= v0->y + v1->y;
 }
@@ -773,7 +773,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_addsub(const vec2* v0, const vec2* v1, vec2*
  * @param v1 
  * @param dest 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_mulsub(const vec2* v0, const vec2* v1, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_mulsub(const vec2* v0, const vec2* v1, vec2* dest) {
     dest->x -= v0->x * v1->x;
     dest->y -= v0->y * v1->y;
 }
@@ -785,7 +785,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_mulsub(const vec2* v0, const vec2* v1, vec2*
  * @param s 
  * @param dest 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_mulsubs(const vec2* v, f32 s, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_mulsubs(const vec2* v, f32 s, vec2* dest) {
     dest->x -= v->x * s;
     dest->y -= v->y * s;
 }
@@ -797,7 +797,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_mulsubs(const vec2* v, f32 s, vec2* dest) {
  * @param v1 
  * @param dest 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_maxsub(const vec2* v0, const vec2* v1, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_maxsub(const vec2* v0, const vec2* v1, vec2* dest) {
     dest->x -= fr_max(v0->x, v1->x);
     dest->y -= fr_max(v0->y, v1->y);
 }
@@ -809,7 +809,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_maxsub(const vec2* v0, const vec2* v1, vec2*
  * @param v1 
  * @param dest 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_minsub(const vec2* v0, const vec2* v1, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_minsub(const vec2* v0, const vec2* v1, vec2* dest) {
     dest->x -= fr_min(v0->x, v1->x);
     dest->y -= fr_min(v0->y, v1->y);
 }
@@ -819,7 +819,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_minsub(const vec2* v0, const vec2* v1, vec2*
  * 
  * @param v 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_negate(vec2* v) {
+FR_FORCE_INLINE void fr_vec2_negate(vec2* v) {
     v->x = -v->x;
     v->y = -v->y;
 }
@@ -830,7 +830,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_negate(vec2* v) {
  * @param v 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_get_negative(const vec2* v) {
+FR_FORCE_INLINE vec2 fr_vec2_get_negative(const vec2* v) {
     return fr_vec2_new(-v->x, -v->y);
 }
 
@@ -840,7 +840,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_get_negative(const vec2* v) {
  * @param v 
  * @param dest 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_negate_to(const vec2* v, vec2* dest) {
+FR_FORCE_INLINE void fr_vec2_negate_to(const vec2* v, vec2* dest) {
     dest->x = -v->x;
     dest->y = -v->y;
 }
@@ -850,7 +850,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_negate_to(const vec2* v, vec2* dest) {
  * 
  * @param v 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_normalize(vec2* v) {
+FR_FORCE_INLINE void fr_vec2_normalize(vec2* v) {
     f32 const norm = fr_vec2_norm(v);
     if (norm == 0.0f) {
         v->x = 0.0f;
@@ -865,7 +865,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_normalize(vec2* v) {
  * @param v 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_get_unit(const vec2* v) {
+FR_FORCE_INLINE vec2 fr_vec2_get_unit(const vec2* v) {
     f32 const norm = fr_vec2_norm(v);
     if (norm == 0.0f) {
         return fr_vec2_zero();
@@ -880,7 +880,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_get_unit(const vec2* v) {
  * @param s 
  * @return vec2
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_scale_direction(const vec2* v, f32 s) {
+FR_FORCE_INLINE vec2 fr_vec2_scale_direction(const vec2* v, f32 s) {
     f32 const norm = fr_vec2_norm(v);
     if (norm == 0.0f) {
         return fr_vec2_zero();
@@ -895,7 +895,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_scale_direction(const vec2* v, f32 s) {
  * @param angle angle in radians
  * @return vec2
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_get_rotated(const vec2* v, f32 angle) {
+FR_FORCE_INLINE vec2 fr_vec2_get_rotated(const vec2* v, f32 angle) {
     f32 const c = fr_cos(angle);
     f32 const s = fr_sin(angle);
     return fr_vec2_new(v->x * c - v->y * s, v->x * s + v->y * c);
@@ -907,7 +907,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_get_rotated(const vec2* v, f32 angle) {
  * @param v 
  * @param angle angle in radians
  */
-FR_API FR_FORCE_INLINE void fr_vec2_rotate(vec2* v, f32 angle) {
+FR_FORCE_INLINE void fr_vec2_rotate(vec2* v, f32 angle) {
     f32 const c = fr_cos(angle);
     f32 const s = fr_sin(angle);
     f32 const x = v->x;
@@ -921,7 +921,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_rotate(vec2* v, f32 angle) {
  * @param v 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_get_perpendicular(const vec2* v) {
+FR_FORCE_INLINE vec2 fr_vec2_get_perpendicular(const vec2* v) {
     return fr_vec2_new(-v->y, v->x);
 }
 
@@ -930,7 +930,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_get_perpendicular(const vec2* v) {
  * 
  * @param v 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_make_perpendicular(vec2* v) {
+FR_FORCE_INLINE void fr_vec2_make_perpendicular(vec2* v) {
     f32 const x = v->x;
     v->x = -v->y;
     v->y = x;
@@ -943,7 +943,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_make_perpendicular(vec2* v) {
  * @param v1 
  * @return f32 
  */
-FR_API FR_FORCE_INLINE f32 fr_vec2_angle_between(const vec2* v0, const vec2* v1) {
+FR_FORCE_INLINE f32 fr_vec2_angle_between(const vec2* v0, const vec2* v1) {
     f32 const dot = fr_vec2_dot(v0, v1);
     f32 const cross = fr_vec2_cross(v0, v1);
     return fr_atan2(cross, dot);
@@ -956,7 +956,7 @@ FR_API FR_FORCE_INLINE f32 fr_vec2_angle_between(const vec2* v0, const vec2* v1)
  * @param onto 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_project(const vec2* v, const vec2* onto) {
+FR_FORCE_INLINE vec2 fr_vec2_project(const vec2* v, const vec2* onto) {
     f32 const dot = fr_vec2_dot(v, onto);
     return fr_vec2_scale_direction(onto, dot);
 }
@@ -968,7 +968,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_project(const vec2* v, const vec2* onto) {
  * @param v1 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_center(const vec2* v0, const vec2* v1) {
+FR_FORCE_INLINE vec2 fr_vec2_center(const vec2* v0, const vec2* v1) {
     return fr_vec2_new((v0->x + v1->x) * 0.5f, (v0->y + v1->y) * 0.5f);
 }
 
@@ -979,7 +979,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_center(const vec2* v0, const vec2* v1) {
  * @param v1 
  * @return f32 
  */
-FR_API FR_FORCE_INLINE f32 fr_vec2_distance2(const vec2* v0, const vec2* v1) {
+FR_FORCE_INLINE f32 fr_vec2_distance2(const vec2* v0, const vec2* v1) {
     f32 const dx = v0->x - v1->x;
     f32 const dy = v0->y - v1->y;
     return dx * dx + dy * dy;
@@ -992,7 +992,7 @@ FR_API FR_FORCE_INLINE f32 fr_vec2_distance2(const vec2* v0, const vec2* v1) {
  * @param v1 
  * @return f32 
  */
-FR_API FR_FORCE_INLINE f32 fr_vec2_distance(const vec2* v0, const vec2* v1) {
+FR_FORCE_INLINE f32 fr_vec2_distance(const vec2* v0, const vec2* v1) {
     f32 const dx = v0->x - v1->x;
     f32 const dy = v0->y - v1->y;
     return fr_sqrt(dx * dx + dy * dy);
@@ -1005,7 +1005,7 @@ FR_API FR_FORCE_INLINE f32 fr_vec2_distance(const vec2* v0, const vec2* v1) {
  * @param v2 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_maxv(const vec2* v1, const vec2* v2) {
+FR_FORCE_INLINE vec2 fr_vec2_maxv(const vec2* v1, const vec2* v2) {
     return fr_vec2_new(fr_max(v1->x, v2->x), fr_max(v1->y, v2->y));
 }
 
@@ -1016,7 +1016,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_maxv(const vec2* v1, const vec2* v2) {
  * @param v2 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_minv(const vec2* v1, const vec2* v2) {
+FR_FORCE_INLINE vec2 fr_vec2_minv(const vec2* v1, const vec2* v2) {
     return fr_vec2_new(fr_min(v1->x, v2->x), fr_min(v1->y, v2->y));
 }
 
@@ -1027,7 +1027,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_minv(const vec2* v1, const vec2* v2) {
  * @param minVal 
  * @param maxVal 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_clamp(vec2* v, f32 minVal, f32 maxVal) {
+FR_FORCE_INLINE void fr_vec2_clamp(vec2* v, f32 minVal, f32 maxVal) {
     v->x = fr_clamp(v->x, minVal, maxVal);
     v->y = fr_clamp(v->y, minVal, maxVal);
 }
@@ -1040,7 +1040,7 @@ FR_API FR_FORCE_INLINE void fr_vec2_clamp(vec2* v, f32 minVal, f32 maxVal) {
  * @param maxVal 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_get_clamped(const vec2* v, f32 minVal,
+FR_FORCE_INLINE vec2 fr_vec2_get_clamped(const vec2* v, f32 minVal,
                                                 f32 maxVal) {
     return fr_vec2_new(fr_clamp(v->x, minVal, maxVal),
                        fr_clamp(v->y, minVal, maxVal));
@@ -1054,7 +1054,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_get_clamped(const vec2* v, f32 minVal,
  * @param t 
  * @return vec2 
  */
-FR_API FR_FORCE_INLINE vec2 fr_vec2_lerp(const vec2* from, const vec2* to, f32 t) {
+FR_FORCE_INLINE vec2 fr_vec2_lerp(const vec2* from, const vec2* to, f32 t) {
     return fr_vec2_new(from->x + (to->x - from->x) * t,
                        from->y + (to->y - from->y) * t);
 }
@@ -1067,7 +1067,7 @@ FR_API FR_FORCE_INLINE vec2 fr_vec2_lerp(const vec2* from, const vec2* to, f32 t
  * @param t 
  * @param dest 
  */
-FR_API FR_FORCE_INLINE void fr_vec2_lerp_to(const vec2* from, const vec2* to, f32 t,
+FR_FORCE_INLINE void fr_vec2_lerp_to(const vec2* from, const vec2* to, f32 t,
                                             vec2* dest) {
     dest->x = from->x + (to->x - from->x) * t;
     dest->y = from->y + (to->y - from->y) * t;
