@@ -10,11 +10,14 @@
  */
 #pragma once
 
+#include <xmmintrin.h>
+
 #include "detail/vec3.h"
 #include "fracture/fracture_core.h"
 #include "math_constants.h"
-#include "utils.h"
 #include "simd/sse.h"
+#include "utils.h"
+
 
 // ---------------------------------------------------------
 // ------------------- Vec3 Constructors -------------------
@@ -29,7 +32,7 @@
  * @param dst The destination vec3 object.
  */
 FR_FORCE_INLINE void fr_vec3_from_array(const f32* restrict src,
-                                               vec3* restrict dst) {
+                                        vec3* restrict dst) {
 #if FR_VEC3_SIMD == 1
     dst->simd = _mm_loadu_ps(src);
 #else
@@ -48,7 +51,7 @@ FR_FORCE_INLINE void fr_vec3_from_array(const f32* restrict src,
  * @param dst The destination array of floats.
  */
 FR_FORCE_INLINE void fr_vec3_to_array(const vec3* restrict src,
-                                             f32* restrict dst) {
+                                      f32* restrict dst) {
 #if FR_VEC3_SIMD == 1
     _mm_storeu_ps(dst, src->simd);
 #else
@@ -135,7 +138,7 @@ FR_FORCE_INLINE vec3 fr_vec3_copy(const vec3* src) {
  * @param dest The destination vec3 object.
  */
 FR_FORCE_INLINE void fr_vec3_copy_to(const vec3* restrict src,
-                                            vec3* restrict dest) {
+                                     vec3* restrict dest) {
 #if FR_VEC3_SIMD == 1
     _mm_store_ps(dest->data, src->simd);
 #else
@@ -411,7 +414,7 @@ FR_FORCE_INLINE b8 fr_vec3_eq_scalar(const vec3* v, f32 val) {
  * threshold, false otherwise.
  */
 FR_FORCE_INLINE b8 fr_vec3_eq_scalar_threshold(const vec3* v, f32 val,
-                                                      f32 threshold) {
+                                               f32 threshold) {
     return fr_equal_threshold(v->x, val, threshold) &&
            fr_equal_threshold(v->y, val, threshold) &&
            fr_equal_threshold(v->z, val, threshold);
@@ -435,7 +438,8 @@ FR_FORCE_INLINE b8 fr_vec3_eq_all(const vec3* v) {
  * @return b8 TRUE if the vectors are equal, FALSE otherwise.
  */
 FR_FORCE_INLINE b8 fr_vec3_eq(const vec3* v0, const vec3* v1) {
-    return fr_equal(v0->x, v1->x) && fr_equal(v0->y, v1->y) && fr_equal(v0->z, v1->z);
+    return fr_equal(v0->x, v1->x) && fr_equal(v0->y, v1->y) &&
+           fr_equal(v0->z, v1->z);
 }
 
 /**
@@ -449,7 +453,7 @@ FR_FORCE_INLINE b8 fr_vec3_eq(const vec3* v0, const vec3* v1) {
  * otherwise.
  */
 FR_FORCE_INLINE b8 fr_vec3_eq_threshold(const vec3* v0, const vec3* v1,
-                                               f32 threshold) {
+                                        f32 threshold) {
     return fr_equal_threshold(v0->x, v1->x, threshold) &&
            fr_equal_threshold(v0->y, v1->y, threshold) &&
            fr_equal_threshold(v0->z, v1->z, threshold);
@@ -462,6 +466,9 @@ FR_FORCE_INLINE b8 fr_vec3_eq_threshold(const vec3* v0, const vec3* v1,
  * @return f32 The maximum component of the vec3 object.
  */
 FR_FORCE_INLINE f32 fr_vec3_max(const vec3* v) {
+#if FR_VEC3_SIMD == 1
+    return _mm_cvtss_f32(fr_simd_vhmax(v->simd));
+#else
     f32 max = v->x;
     if (v->y > max) {
         max = v->y;
@@ -469,7 +476,8 @@ FR_FORCE_INLINE f32 fr_vec3_max(const vec3* v) {
     if (v->z > max) {
         max = v->z;
     }
-    return max; 
+    return max;
+#endif
 }
 
 /**
@@ -479,6 +487,9 @@ FR_FORCE_INLINE f32 fr_vec3_max(const vec3* v) {
  * @return f32 The minimum component of the vec3 object.
  */
 FR_FORCE_INLINE f32 fr_vec3_min(const vec3* v) {
+#if FR_VEC3_SIMD == 1
+    return _mm_cvtss_f32(fr_simd_vhmin(v->simd));
+#else
     f32 min = v->x;
     if (v->y < min) {
         min = v->y;
@@ -487,6 +498,7 @@ FR_FORCE_INLINE f32 fr_vec3_min(const vec3* v) {
         min = v->z;
     }
     return min;
+#endif
 }
 
 /**
@@ -509,12 +521,12 @@ FR_FORCE_INLINE b8 fr_vec3_iszero(const vec3* v) {
 FR_FORCE_INLINE void fr_vec3_sign(const vec3* v, vec3* dest) {
 #if FR_VEC3_SIMD == 1
     __m128 x0, x1, x2, x3, x4;
-    x0 = _mm_load_ps(v->data);
+    x0 = v->simd;
     x1 = _mm_set_ps(0.0f, 0.0f, 1.0f, -1.0f);
-    x2 = FR_VEC3_SIMD_SPLAT(x1, 2);
+    x2 = FR_SIMD_SPLAT(x1, 2);
 
-    x3 = _mm_and_ps(_mm_cmpgt_ps(x0, x2), FR_VEC3_SIMD_SPLAT(x1, 1));
-    x4 = _mm_and_ps(_mm_cmplt_ps(x0, x2), FR_VEC3_SIMD_SPLAT(x1, 0));
+    x3 = _mm_and_ps(_mm_cmpgt_ps(x0, x2), FR_SIMD_SPLAT(x1, 1));
+    x4 = _mm_and_ps(_mm_cmplt_ps(x0, x2), FR_SIMD_SPLAT(x1, 0));
     dest->simd = _mm_or_ps(x3, x4);
 #else
     *dest = fr_vec3_new(fr_sign(v->x), fr_sign(v->y), fr_sign(v->z));
@@ -536,15 +548,17 @@ FR_FORCE_INLINE vec3 fr_vec3_get_sign(const vec3* v) {
  */
 FR_FORCE_INLINE void fr_vec3_abs(const vec3* v, vec3* dest) {
 #if FR_VEC3_SIMD == 1
-    dest->simd = _mm_and_ps(v->simd, _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF)));
+    dest->simd = fr_simd_abs(v->simd);
 #else
-    *dest = fr_vec3_new(fr_abs(v->x), fr_abs(v->y), fr_abs(v->z));
+    dest->x = fr_abs(v->x);
+    dest->y = fr_abs(v->y);
+    dest->z = fr_abs(v->z);
 #endif
 }
 
 FR_FORCE_INLINE vec3 fr_vec3_get_abs(const vec3* v) {
 #if FR_VEC3_SIMD == 1
-    return (vec3)_mm_and_ps(v->simd, _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF)));
+    return (vec3)fr_simd_abs(v->simd);
 #else
     return fr_vec3_new(fr_abs(v->x), fr_abs(v->y), fr_abs(v->z));
 #endif
@@ -648,8 +662,9 @@ FR_FORCE_INLINE f32 fr_vec3_dot_simd(const vec3* v0, const vec3* v1) {
  * @param v1
  * @return vec3
  */
-FR_FORCE_INLINE  void fr_vec3_cross(const vec3* v0, const vec3* v1, vec3* dest) {
-#if 0 // The normal cross product implementation is faster than the SIMD implementation
+FR_FORCE_INLINE void fr_vec3_cross(const vec3* v0, const vec3* v1, vec3* dest) {
+#if 0  // The normal cross product implementation is faster than the SIMD
+       // implementation
     __m128 x0 = FR_VEC3_SIMD_SHUFFLE1(v0->simd, 3, 0, 2, 1); // x0 = {v0->z, v0->x, v0->y, 0.0f}
     __m128 x1 = FR_VEC3_SIMD_SHUFFLE1(v1->simd, 3, 1, 0, 2); // x1 = {v1->y, v1->z, v1->x, 0.0f}
     __m128 x2 = _mm_mul_ps(x0, v1->simd);
@@ -662,7 +677,6 @@ FR_FORCE_INLINE  void fr_vec3_cross(const vec3* v0, const vec3* v1, vec3* dest) 
     dest->z = v0->x * v1->y - v0->y * v1->x;
 #endif
 }
-
 
 FR_FORCE_INLINE vec3 fr_vec3_get_cross(const vec3* v0, const vec3* v1) {
     vec3 dest;
@@ -688,11 +702,11 @@ FR_FORCE_INLINE f32 fr_vec3_norm2(const vec3* v) {
  * @return f32
  */
 FR_FORCE_INLINE f32 fr_vec3_norm(const vec3* v) {
-#if FR_VEC3_SIMD == 1 // Simd seems faster by like 8% for 10million iterations
+#if FR_VEC3_SIMD == 1  // Simd seems faster by like 8% for 10million iterations
     __m128 x0, x1;
     x0 = _mm_mul_ps(v->simd, v->simd);
-    x1 = _mm_add_ps(x0, FR_VEC3_SIMD_SHUFFLE1(x0, 0, 1, 2, 3));
-    x1 = _mm_add_ps(x1, FR_VEC3_SIMD_SHUFFLE1(x1, 1, 0, 0, 1));
+    x1 = _mm_add_ps(x0, FR_SIMD_SHUFFLE1(x0, 0, 1, 2, 3));
+    x1 = _mm_add_ps(x1, FR_SIMD_SHUFFLE1(x1, 1, 0, 0, 1));
     return _mm_cvtss_f32(_mm_sqrt_ss(x1));
 #else
     return fr_sqrt(v->x * v->x + v->y * v->y + v->z * v->z);
@@ -706,7 +720,11 @@ FR_FORCE_INLINE f32 fr_vec3_norm(const vec3* v) {
  * @return f32
  */
 FR_FORCE_INLINE f32 fr_vec3_norm1(const vec3* v) {
+#if FR_VEC3_SIMD == 1
+    return _mm_cvtss_f32(fr_simd_vhadd(fr_simd_abs(v->simd)));
+#else
     return fr_abs(v->x) + fr_abs(v->y) + fr_abs(v->z);
+#endif
 }
 
 /**
@@ -716,7 +734,20 @@ FR_FORCE_INLINE f32 fr_vec3_norm1(const vec3* v) {
  * @return f32
  */
 FR_FORCE_INLINE f32 fr_vec3_norm_inf(const vec3* v) {
-    return fr_max(fr_max(fr_abs(v->x), fr_abs(v->y)), fr_abs(v->z));
+#if FR_VEC3_SIMD == 1
+    return _mm_cvtss_f32(fr_simd_vhmax(fr_simd_abs(v->simd)));
+#else
+    f32 max = fr_abs(v->x);
+    f32 temp = fr_abs(v->y);
+    if (temp > max) {
+        max = temp;
+    }
+    temp = fr_abs(v->z);
+    if (temp > max) {
+        max = temp;
+    }
+    return max;
+#endif
 }
 
 /**
@@ -726,20 +757,7 @@ FR_FORCE_INLINE f32 fr_vec3_norm_inf(const vec3* v) {
  * @param v1
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_add(const vec3* v0, const vec3* v1) {
-    return fr_vec3_new(v0->x + v1->x, v0->y + v1->y, v0->z + v1->z);
-}
-
-/**
- * @brief Add two vec3 objects together and store the result in a third vec3
- * object.
- *
- * @param v0
- * @param v1
- * @param dest pointer to the destination vec3 object.
- */
-FR_FORCE_INLINE void fr_vec3_add_to(const vec3* v0, const vec3* v1,
-                                           vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_add(const vec3* v0, const vec3* v1, vec3* dest) {
 #if FR_VEC3_SIMD == 1
     dest->simd = _mm_add_ps(v0->simd, v1->simd);
 #else
@@ -750,14 +768,36 @@ FR_FORCE_INLINE void fr_vec3_add_to(const vec3* v0, const vec3* v1,
 }
 
 /**
+ * @brief Add two vec3 objects together and store the result in a third vec3
+ * object.
+ *
+ * @param v0
+ * @param v1
+ * @param dest pointer to the destination vec3 object.
+ */
+FR_FORCE_INLINE vec3 fr_vec3_vadd(const vec3* v0, const vec3* v1) {
+#if FR_VEC3_SIMD == 1
+    return (vec3)_mm_add_ps(v0->simd, v1->simd);
+#else
+    return fr_vec3_new(v0->x + v1->x, v0->y + v1->y, v0->z + v1->z);
+#endif
+}
+
+/**
  * @brief Add a scalar value to a vec3 object.
  *
  * @param v
  * @param s
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_adds(const vec3* v, f32 s) {
-    return fr_vec3_new(v->x + s, v->y + s, v->z + s);
+FR_FORCE_INLINE void fr_vec3_adds(const vec3* v, f32 s, vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_add_ps(v->simd, _mm_set1_ps(s));
+#else
+    dest->x = v->x + s;
+    dest->y = v->y + s;
+    dest->z = v->z + s;
+#endif
 }
 
 /**
@@ -768,10 +808,12 @@ FR_FORCE_INLINE vec3 fr_vec3_adds(const vec3* v, f32 s) {
  * @param s
  * @param dest pointer to the destination vec3 object.
  */
-FR_FORCE_INLINE void fr_vec3_adds_to(const vec3* v, f32 s, vec3* dest) {
-    dest->x = v->x + s;
-    dest->y = v->y + s;
-    dest->z = v->z + s;
+FR_FORCE_INLINE vec3 fr_vec3_vadds(const vec3* v, f32 s) {
+#if FR_VEC3_SIMD == 1
+    return (vec3)_mm_add_ps(v->simd, _mm_set1_ps(s));
+#else
+    return fr_vec3_new(v->x + s, v->y + s, v->z + s);
+#endif
 }
 
 /**
@@ -781,8 +823,12 @@ FR_FORCE_INLINE void fr_vec3_adds_to(const vec3* v, f32 s, vec3* dest) {
  * @param v1
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_sub(const vec3* v0, const vec3* v1) {
+FR_FORCE_INLINE vec3 fr_vec3_vsub(const vec3* v0, const vec3* v1) {
+#if FR_VEC3_SIMD == 1
+    return (vec3)_mm_sub_ps(v0->simd, v1->simd);
+#else
     return fr_vec3_new(v0->x - v1->x, v0->y - v1->y, v0->z - v1->z);
+#endif
 }
 
 /**
@@ -793,10 +839,14 @@ FR_FORCE_INLINE vec3 fr_vec3_sub(const vec3* v0, const vec3* v1) {
  * @param v1
  * @param dest pointer to the destination vec3 object.
  */
-FR_FORCE_INLINE void fr_vec3_sub_to(const vec3* v0, const vec3* v1, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_sub(const vec3* v0, const vec3* v1, vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_sub_ps(v0->simd, v1->simd);
+#else
     dest->x = v0->x - v1->x;
     dest->y = v0->y - v1->y;
     dest->z = v0->z - v1->z;
+#endif
 }
 
 /**
@@ -806,8 +856,12 @@ FR_FORCE_INLINE void fr_vec3_sub_to(const vec3* v0, const vec3* v1, vec3* dest) 
  * @param s
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_subs(const vec3* v, f32 s) {
+FR_FORCE_INLINE vec3 fr_vec3_vsubs(const vec3* v, f32 s) {
+#if FR_VEC3_SIMD == 1
+    return (vec3)_mm_sub_ps(v->simd, _mm_set1_ps(s));
+#else
     return fr_vec3_new(v->x - s, v->y - s, v->z - s);
+#endif
 }
 
 /**
@@ -818,10 +872,14 @@ FR_FORCE_INLINE vec3 fr_vec3_subs(const vec3* v, f32 s) {
  * @param s
  * @param dest pointer to the destination vec3 object.
  */
-FR_FORCE_INLINE void fr_vec3_subs_to(const vec3* v, f32 s, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_subs(const vec3* v, f32 s, vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_sub_ps(v->simd, _mm_set1_ps(s));
+#else
     dest->x = v->x - s;
     dest->y = v->y - s;
     dest->z = v->z - s;
+#endif
 }
 
 /**
@@ -831,8 +889,12 @@ FR_FORCE_INLINE void fr_vec3_subs_to(const vec3* v, f32 s, vec3* dest) {
  * @param v1
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_mul(const vec3* v0, const vec3* v1) {
+FR_FORCE_INLINE vec3 fr_vec3_vmul(const vec3* v0, const vec3* v1) {
+#if FR_VEC3_SIMD == 1
+    return (vec3)_mm_mul_ps(v0->simd, v1->simd);
+#else
     return fr_vec3_new(v0->x * v1->x, v0->y * v1->y, v0->z * v1->z);
+#endif
 }
 
 /**
@@ -843,22 +905,14 @@ FR_FORCE_INLINE vec3 fr_vec3_mul(const vec3* v0, const vec3* v1) {
  * @param v1
  * @param dest pointer to the destination vec3 object.
  */
-FR_FORCE_INLINE void fr_vec3_mul_to(const vec3* v0, const vec3* v1, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_mul(const vec3* v0, const vec3* v1, vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_mul_ps(v0->simd, v1->simd);
+#else
     dest->x = v0->x * v1->x;
     dest->y = v0->y * v1->y;
     dest->z = v0->z * v1->z;
-}
-
-/**
- * @brief Multiply a vec3 object by a scalar value.
- *
- * @param v
- * @param s
- */
-FR_FORCE_INLINE void fr_vec3_scale(vec3* v, f32 s) {
-    v->x *= s;
-    v->y *= s;
-    v->z *= s;
+#endif
 }
 
 /**
@@ -868,8 +922,12 @@ FR_FORCE_INLINE void fr_vec3_scale(vec3* v, f32 s) {
  * @param s
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_get_scaled(const vec3* v, f32 s) {
+FR_FORCE_INLINE vec3 fr_vec3_vscale(const vec3* v, f32 s) {
+#if FR_VEC3_SIMD == 1
+    return (vec3)_mm_mul_ps(v->simd, _mm_set1_ps(s));
+#else
     return fr_vec3_new(v->x * s, v->y * s, v->z * s);
+#endif
 }
 
 /**
@@ -879,10 +937,14 @@ FR_FORCE_INLINE vec3 fr_vec3_get_scaled(const vec3* v, f32 s) {
  * @param s
  * @param dest pointer to the destination vec3 object.
  */
-FR_FORCE_INLINE void fr_vec3_scale_to(const vec3* v, f32 s, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_scale(const vec3* v, f32 s, vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_mul_ps(v->simd, _mm_set1_ps(s));
+#else
     dest->x = v->x * s;
     dest->y = v->y * s;
     dest->z = v->z * s;
+#endif
 }
 
 /**
@@ -893,16 +955,13 @@ FR_FORCE_INLINE void fr_vec3_scale_to(const vec3* v, f32 s, vec3* dest) {
  * @param s
  * @param dest
  */
-FR_FORCE_INLINE void fr_vec3_scale_direction_to(const vec3* v, f32 s,
-                                                       vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_scale_direction(const vec3* v, f32 s, vec3* dest) {
     f32 const norm = fr_vec3_norm(v);
     if (norm == 0.0f) {
-        dest->x = 0.0f;
-        dest->y = 0.0f;
-        dest->z = 0.0f;
+        fr_vec3_make_zero(dest);
         return;
     }
-    fr_vec3_scale_to(v, s / norm, dest);
+    fr_vec3_scale(v, s / norm, dest);
 }
 
 /**
@@ -913,7 +972,7 @@ FR_FORCE_INLINE void fr_vec3_scale_direction_to(const vec3* v, f32 s,
  * @param v1
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_div(const vec3* v0, const vec3* v1) {
+FR_FORCE_INLINE vec3 fr_vec3_vdiv(const vec3* v0, const vec3* v1) {
     return fr_vec3_new(v0->x / v1->x, v0->y / v1->y, v0->z / v1->z);
 }
 
@@ -925,7 +984,7 @@ FR_FORCE_INLINE vec3 fr_vec3_div(const vec3* v0, const vec3* v1) {
  * @param v1
  * @param dest pointer to the destination vec3 object.
  */
-FR_FORCE_INLINE void fr_vec3_div_to(const vec3* v0, const vec3* v1, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_div(const vec3* v0, const vec3* v1, vec3* dest) {
     dest->x = v0->x / v1->x;
     dest->y = v0->y / v1->y;
     dest->z = v0->z / v1->z;
@@ -940,7 +999,7 @@ FR_FORCE_INLINE void fr_vec3_div_to(const vec3* v0, const vec3* v1, vec3* dest) 
  * @param s
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_divs(const vec3* v, f32 s) {
+FR_FORCE_INLINE vec3 fr_vec3_vdivs(const vec3* v, f32 s) {
     return fr_vec3_new(v->x / s, v->y / s, v->z / s);
 }
 
@@ -954,7 +1013,7 @@ FR_FORCE_INLINE vec3 fr_vec3_divs(const vec3* v, f32 s) {
  * @param s
  * @param dest pointer to the destination vec3 object.
  */
-FR_FORCE_INLINE void fr_vec3_divs_to(const vec3* v, f32 s, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_divs(const vec3* v, f32 s, vec3* dest) {
     dest->x = v->x / s;
     dest->y = v->y / s;
     dest->z = v->z / s;
@@ -968,10 +1027,15 @@ FR_FORCE_INLINE void fr_vec3_divs_to(const vec3* v, f32 s, vec3* dest) {
  * @param v1
  * @param dest
  */
-FR_FORCE_INLINE void fr_vec3_addadd(const vec3* v0, const vec3* v1, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_addadd(const vec3* v0, const vec3* v1,
+                                    vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_add_ps(dest->simd, _mm_add_ps(v0->simd, v1->simd));
+#else
     dest->x += v0->x + v1->x;
     dest->y += v0->y + v1->y;
     dest->z += v0->z + v1->z;
+#endif
 }
 
 /**
@@ -982,10 +1046,15 @@ FR_FORCE_INLINE void fr_vec3_addadd(const vec3* v0, const vec3* v1, vec3* dest) 
  * @param v1
  * @param dest
  */
-FR_FORCE_INLINE void fr_vec3_subadd(const vec3* v0, const vec3* v1, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_subadd(const vec3* v0, const vec3* v1,
+                                    vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_add_ps(dest->simd, _mm_sub_ps(v0->simd, v1->simd));
+#else
     dest->x += v0->x - v1->x;
     dest->y += v0->y - v1->y;
     dest->z += v0->z - v1->z;
+#endif
 }
 
 /**
@@ -996,10 +1065,15 @@ FR_FORCE_INLINE void fr_vec3_subadd(const vec3* v0, const vec3* v1, vec3* dest) 
  * @param v1
  * @param dest
  */
-FR_FORCE_INLINE void fr_vec3_muladd(const vec3* v0, const vec3* v1, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_muladd(const vec3* v0, const vec3* v1,
+                                    vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_add_ps(dest->simd, _mm_mul_ps(v0->simd, v1->simd));
+#else
     dest->x += v0->x * v1->x;
     dest->y += v0->y * v1->y;
     dest->z += v0->z * v1->z;
+#endif
 }
 
 /**
@@ -1011,9 +1085,13 @@ FR_FORCE_INLINE void fr_vec3_muladd(const vec3* v0, const vec3* v1, vec3* dest) 
  * @param dest
  */
 FR_FORCE_INLINE void fr_vec3_muladds(const vec3* v, f32 s, vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_add_ps(dest->simd, _mm_mul_ps(v->simd, _mm_set1_ps(s)));
+#else
     dest->x += v->x * s;
     dest->y += v->y * s;
     dest->z += v->z * s;
+#endif
 }
 
 /**
@@ -1023,10 +1101,15 @@ FR_FORCE_INLINE void fr_vec3_muladds(const vec3* v, f32 s, vec3* dest) {
  * @param v1
  * @param dest
  */
-FR_FORCE_INLINE void fr_vec3_maxadd(const vec3* v0, const vec3* v1, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_maxadd(const vec3* v0, const vec3* v1,
+                                    vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_add_ps(dest->simd, _mm_max_ps(v0->simd, v1->simd));
+#else
     dest->x += fr_max(v0->x, v1->x);
     dest->y += fr_max(v0->y, v1->y);
     dest->z += fr_max(v0->z, v1->z);
+#endif
 }
 
 /**
@@ -1036,10 +1119,15 @@ FR_FORCE_INLINE void fr_vec3_maxadd(const vec3* v0, const vec3* v1, vec3* dest) 
  * @param v1
  * @param dest
  */
-FR_FORCE_INLINE void fr_vec3_minadd(const vec3* v0, const vec3* v1, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_minadd(const vec3* v0, const vec3* v1,
+                                    vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_add_ps(dest->simd, _mm_min_ps(v0->simd, v1->simd));
+#else
     dest->x += fr_min(v0->x, v1->x);
     dest->y += fr_min(v0->y, v1->y);
     dest->z += fr_min(v0->z, v1->z);
+#endif
 }
 
 /**
@@ -1050,10 +1138,15 @@ FR_FORCE_INLINE void fr_vec3_minadd(const vec3* v0, const vec3* v1, vec3* dest) 
  * @param v1
  * @param dest
  */
-FR_FORCE_INLINE void fr_vec3_subsub(const vec3* v0, const vec3* v1, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_subsub(const vec3* v0, const vec3* v1,
+                                    vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_sub_ps(dest->simd, _mm_sub_ps(v0->simd, v1->simd));
+#else
     dest->x -= v0->x - v1->x;
     dest->y -= v0->y - v1->y;
     dest->z -= v0->z - v1->z;
+#endif
 }
 
 /**
@@ -1064,10 +1157,15 @@ FR_FORCE_INLINE void fr_vec3_subsub(const vec3* v0, const vec3* v1, vec3* dest) 
  * @param v1
  * @param dest
  */
-FR_FORCE_INLINE void fr_vec3_addsub(const vec3* v0, const vec3* v1, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_addsub(const vec3* v0, const vec3* v1,
+                                    vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_sub_ps(dest->simd, _mm_add_ps(v0->simd, v1->simd));
+#else
     dest->x -= v0->x + v1->x;
     dest->y -= v0->y + v1->y;
     dest->z -= v0->z + v1->z;
+#endif
 }
 
 /**
@@ -1078,10 +1176,15 @@ FR_FORCE_INLINE void fr_vec3_addsub(const vec3* v0, const vec3* v1, vec3* dest) 
  * @param v1
  * @param dest
  */
-FR_FORCE_INLINE void fr_vec3_mulsub(const vec3* v0, const vec3* v1, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_mulsub(const vec3* v0, const vec3* v1,
+                                    vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_sub_ps(dest->simd, _mm_mul_ps(v0->simd, v1->simd));
+#else
     dest->x -= v0->x * v1->x;
     dest->y -= v0->y * v1->y;
     dest->z -= v0->z * v1->z;
+#endif
 }
 
 /**
@@ -1093,9 +1196,13 @@ FR_FORCE_INLINE void fr_vec3_mulsub(const vec3* v0, const vec3* v1, vec3* dest) 
  * @param dest
  */
 FR_FORCE_INLINE void fr_vec3_mulsubs(const vec3* v, f32 s, vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_sub_ps(dest->simd, _mm_mul_ps(v->simd, _mm_set1_ps(s)));
+#else
     dest->x -= v->x * s;
     dest->y -= v->y * s;
     dest->z -= v->z * s;
+#endif
 }
 
 /**
@@ -1105,10 +1212,15 @@ FR_FORCE_INLINE void fr_vec3_mulsubs(const vec3* v, f32 s, vec3* dest) {
  * @param v1
  * @param dest
  */
-FR_FORCE_INLINE void fr_vec3_maxsub(const vec3* v0, const vec3* v1, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_maxsub(const vec3* v0, const vec3* v1,
+                                    vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_sub_ps(dest->simd, _mm_max_ps(v0->simd, v1->simd));
+#else
     dest->x -= fr_max(v0->x, v1->x);
     dest->y -= fr_max(v0->y, v1->y);
     dest->z -= fr_max(v0->z, v1->z);
+#endif
 }
 
 /**
@@ -1118,10 +1230,15 @@ FR_FORCE_INLINE void fr_vec3_maxsub(const vec3* v0, const vec3* v1, vec3* dest) 
  * @param v1
  * @param dest
  */
-FR_FORCE_INLINE void fr_vec3_minsub(const vec3* v0, const vec3* v1, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_minsub(const vec3* v0, const vec3* v1,
+                                    vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_sub_ps(dest->simd, _mm_min_ps(v0->simd, v1->simd));
+#else
     dest->x -= fr_min(v0->x, v1->x);
     dest->y -= fr_min(v0->y, v1->y);
     dest->z -= fr_min(v0->z, v1->z);
+#endif
 }
 
 /**
@@ -1130,9 +1247,13 @@ FR_FORCE_INLINE void fr_vec3_minsub(const vec3* v0, const vec3* v1, vec3* dest) 
  * @param v
  */
 FR_FORCE_INLINE void fr_vec3_negate(vec3* v) {
+#if FR_VEC3_SIMD == 1
+    v->simd = _mm_sub_ps(_mm_setzero_ps(), v->simd);
+#else
     v->x = -v->x;
     v->y = -v->y;
     v->z = -v->z;
+#endif
 }
 
 /**
@@ -1141,8 +1262,12 @@ FR_FORCE_INLINE void fr_vec3_negate(vec3* v) {
  * @param v
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_get_negative(const vec3* v) {
+FR_FORCE_INLINE vec3 fr_vec3_vnegative(const vec3* v) {
+#if FR_VEC3_SIMD == 1
+    return (vec3)_mm_sub_ps(_mm_setzero_ps(), v->simd);
+#else
     return fr_vec3_new(-v->x, -v->y, -v->z);
+#endif
 }
 
 /**
@@ -1151,10 +1276,14 @@ FR_FORCE_INLINE vec3 fr_vec3_get_negative(const vec3* v) {
  * @param v
  * @param dest
  */
-FR_FORCE_INLINE void fr_vec3_negate_to(const vec3* v, vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_negative(const vec3* v, vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_sub_ps(_mm_setzero_ps(), v->simd);
+#else
     dest->x = -v->x;
     dest->y = -v->y;
     dest->z = -v->z;
+#endif
 }
 
 /**
@@ -1167,7 +1296,7 @@ FR_FORCE_INLINE void fr_vec3_normalize(vec3* v) {
     if (norm == 0.0f) {
         fr_vec3_make_zero(v);
     }
-    fr_vec3_scale(v, 1 / norm);
+    fr_vec3_scale(v, 1 / norm, v);
 }
 
 /**
@@ -1181,7 +1310,7 @@ FR_FORCE_INLINE vec3 fr_vec3_get_unit(const vec3* v) {
     if (norm == 0.0f) {
         return fr_vec3_zero();
     }
-    return fr_vec3_get_scaled(v, 1 / norm);
+    return fr_vec3_vscale(v, 1 / norm);
 }
 
 /**
@@ -1191,12 +1320,12 @@ FR_FORCE_INLINE vec3 fr_vec3_get_unit(const vec3* v) {
  * @param s
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_scale_direction(const vec3* v, f32 s) {
+FR_FORCE_INLINE vec3 fr_vec3_vscale_direction(const vec3* v, f32 s) {
     f32 const norm = fr_vec3_norm(v);
     if (norm == 0.0f) {
         return fr_vec3_zero();
     }
-    return fr_vec3_get_scaled(v, s / norm);
+    return fr_vec3_vscale(v, s / norm);
 }
 
 /**
@@ -1207,19 +1336,22 @@ FR_FORCE_INLINE vec3 fr_vec3_scale_direction(const vec3* v, f32 s) {
  * @param axis the axis to rotate around
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_get_rotated(const vec3* v, f32 angle, const vec3* axis) {
+FR_FORCE_INLINE void fr_vec3_rotated(const vec3* v, f32 angle, const vec3* axis,
+                                     vec3* dest) {
     f32 const c = fr_cos(angle);
     f32 const s = fr_sin(angle);
     vec3 temp1, temp2;
     temp1 = fr_vec3_get_unit(axis);
     fr_vec3_cross(&temp1, v, &temp2);
-    vec3 const scaled_cross = fr_vec3_get_scaled(&temp2, s);
-    vec3 const scaled_other = fr_vec3_get_scaled(&temp2, fr_vec3_dot(&temp1, v) * (1.0f - c));
-    fr_vec3_scale_to(v, c, &temp1);
-    fr_vec3_add_to(&scaled_cross, &scaled_other, &temp2);
+    vec3 const scaled_cross = fr_vec3_vscale(&temp2, s);
+    vec3 const scaled_other =
+        fr_vec3_vscale(&temp2, fr_vec3_dot(&temp1, v) * (1.0f - c));
+    fr_vec3_scale(v, c, &temp1);
+    fr_vec3_add(&scaled_cross, &scaled_other, &temp2);
     // Rodrigues' rotation formula
-    // v_rot = v * cos(angle) + (axis x v) * sin(angle) + axis * (axis . v) * (1- cos(angle))
-    return fr_vec3_add(&temp1, &temp2);
+    // v_rot = v * cos(angle) + (axis x v) * sin(angle) + axis * (axis . v) *
+    // (1- cos(angle))
+    *dest = fr_vec3_vadd(&temp1, &temp2);
 }
 
 /**
@@ -1229,7 +1361,7 @@ FR_FORCE_INLINE vec3 fr_vec3_get_rotated(const vec3* v, f32 angle, const vec3* a
  * @param angle angle in radians
  */
 FR_FORCE_INLINE void fr_vec3_rotate(vec3* v, f32 angle, const vec3* axis) {
-    *v = fr_vec3_get_rotated(v, angle, axis);
+    fr_vec3_rotated(v, angle, axis, v);
 }
 
 /**
@@ -1240,7 +1372,7 @@ FR_FORCE_INLINE void fr_vec3_rotate(vec3* v, f32 angle, const vec3* axis) {
  * @return f32
  */
 FR_FORCE_INLINE f32 fr_vec3_angle_between(const vec3* v0, const vec3* v1) {
-    f32 const dot = fr_vec3_dot(v0, v1); 
+    f32 const dot = fr_vec3_dot(v0, v1);
     vec3 const cross = fr_vec3_get_cross(v0, v1);
     f32 const norm = fr_vec3_norm(&cross);
     return fr_atan2(norm, dot);
@@ -1255,7 +1387,7 @@ FR_FORCE_INLINE f32 fr_vec3_angle_between(const vec3* v0, const vec3* v1) {
  */
 FR_FORCE_INLINE void fr_vec3_project(vec3* v, vec3* onto, vec3* dest) {
     f32 const dot = fr_vec3_dot(v, onto);
-    fr_vec3_scale_direction_to(onto, dot, dest);
+    fr_vec3_scale_direction(onto, dot, dest);
 }
 
 /**
@@ -1266,8 +1398,12 @@ FR_FORCE_INLINE void fr_vec3_project(vec3* v, vec3* onto, vec3* dest) {
  * @return vec3
  */
 FR_FORCE_INLINE vec3 fr_vec3_center(const vec3* v0, const vec3* v1) {
+#if FR_VEC3_SIMD == 1
+    return (vec3)_mm_mul_ps(_mm_add_ps(v0->simd, v1->simd), _mm_set1_ps(0.5f));
+#else
     return fr_vec3_new((v0->x + v1->x) * 0.5f, (v0->y + v1->y) * 0.5f,
                        (v0->z + v1->z) * 0.5f);
+#endif
 }
 
 /**
@@ -1278,10 +1414,17 @@ FR_FORCE_INLINE vec3 fr_vec3_center(const vec3* v0, const vec3* v1) {
  * @return f32
  */
 FR_FORCE_INLINE f32 fr_vec3_distance2(const vec3* v0, const vec3* v1) {
+#if FR_VEC3_SIMD == 1
+    __m128 x0 = _mm_sub_ps(v0->simd, v1->simd);
+    __m128 x1 = _mm_mul_ps(x0, x0);
+    __m128 x2 = _mm_add_ps(x1, FR_SIMD_SHUFFLE1(x1, 0, 1, 2, 3));
+    return _mm_cvtss_f32(_mm_add_ss(x2, FR_SIMD_SHUFFLE1(x2, 1, 0, 0, 1)));
+#else
     f32 const dx = v0->x - v1->x;
     f32 const dy = v0->y - v1->y;
     f32 const dz = v0->z - v1->z;
     return dx * dx + dy * dy + dz * dz;
+#endif
 }
 
 /**
@@ -1292,10 +1435,18 @@ FR_FORCE_INLINE f32 fr_vec3_distance2(const vec3* v0, const vec3* v1) {
  * @return f32
  */
 FR_FORCE_INLINE f32 fr_vec3_distance(const vec3* v0, const vec3* v1) {
+#if FR_VEC3_SIMD == 1
+    __m128 x0 = _mm_sub_ps(v0->simd, v1->simd);
+    __m128 x1 = _mm_mul_ps(x0, x0);
+    __m128 x2 = _mm_add_ps(x1, FR_SIMD_SHUFFLE1(x1, 0, 1, 2, 3));
+    __m128 x3 = _mm_add_ps(x2, FR_SIMD_SHUFFLE1(x2, 1, 0, 0, 1));
+    return _mm_cvtss_f32(_mm_sqrt_ss(x3));
+#else
     f32 const dx = v0->x - v1->x;
     f32 const dy = v0->y - v1->y;
     f32 const dz = v0->z - v1->z;
     return fr_sqrt(dx * dx + dy * dy + dz * dz);
+#endif
 }
 
 /**
@@ -1305,9 +1456,14 @@ FR_FORCE_INLINE f32 fr_vec3_distance(const vec3* v0, const vec3* v1) {
  * @param v2
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_maxv(const vec3* v1, const vec3* v2) {
-    return fr_vec3_new(fr_max(v1->x, v2->x), fr_max(v1->y, v2->y),
-                       fr_max(v1->z, v2->z));
+FR_FORCE_INLINE void fr_vec3_maxv(const vec3* v1, const vec3* v2, vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_max_ps(v1->simd, v2->simd);
+#else
+    dest->x = fr_max(v1->x, v2->x);
+    dest->y = fr_max(v1->y, v2->y);
+    dest->z = fr_max(v1->z, v2->z);
+#endif
 }
 
 /**
@@ -1317,9 +1473,14 @@ FR_FORCE_INLINE vec3 fr_vec3_maxv(const vec3* v1, const vec3* v2) {
  * @param v2
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_minv(const vec3* v1, const vec3* v2) {
-    return fr_vec3_new(fr_min(v1->x, v2->x), fr_min(v1->y, v2->y),
-                       fr_min(v1->z, v2->z));
+FR_FORCE_INLINE void fr_vec3_minv(const vec3* v1, const vec3* v2, vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_min_ps(v1->simd, v2->simd);
+#else
+    dest->x = fr_min(v1->x, v2->x);
+    dest->y = fr_min(v1->y, v2->y);
+    dest->z = fr_min(v1->z, v2->z);
+#endif
 }
 
 /**
@@ -1329,10 +1490,16 @@ FR_FORCE_INLINE vec3 fr_vec3_minv(const vec3* v1, const vec3* v2) {
  * @param minVal
  * @param maxVal
  */
-FR_FORCE_INLINE void fr_vec3_clamp(vec3* v, f32 minVal, f32 maxVal) {
-    v->x = fr_clamp(v->x, minVal, maxVal);
-    v->y = fr_clamp(v->y, minVal, maxVal);
-    v->z = fr_clamp(v->z, minVal, maxVal);
+FR_FORCE_INLINE void fr_vec3_clamp(vec3* v, f32 minVal, f32 maxVal,
+                                   vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_min_ps(_mm_max_ps(v->simd, _mm_set1_ps(minVal)),
+                            _mm_set1_ps(maxVal));
+#else
+    dest->x = fr_clamp(v->x, minVal, maxVal);
+    dest->y = fr_clamp(v->y, minVal, maxVal);
+    dest->z = fr_clamp(v->z, minVal, maxVal);
+#endif
 }
 
 /**
@@ -1344,11 +1511,15 @@ FR_FORCE_INLINE void fr_vec3_clamp(vec3* v, f32 minVal, f32 maxVal) {
  * @param maxVal
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_get_clamped(const vec3* v, f32 minVal,
-                                                f32 maxVal) {
+FR_FORCE_INLINE vec3 fr_vec3_vclamp(const vec3* v, f32 minVal, f32 maxVal) {
+#if FR_VEC3_SIMD == 1
+    return (vec3)_mm_min_ps(_mm_max_ps(v->simd, _mm_set1_ps(minVal)),
+                            _mm_set1_ps(maxVal));
+#else
     return fr_vec3_new(fr_clamp(v->x, minVal, maxVal),
                        fr_clamp(v->y, minVal, maxVal),
                        fr_clamp(v->z, minVal, maxVal));
+#endif
 }
 
 /**
@@ -1359,10 +1530,17 @@ FR_FORCE_INLINE vec3 fr_vec3_get_clamped(const vec3* v, f32 minVal,
  * @param t
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_lerp(const vec3* from, const vec3* to, f32 t) {
-    return fr_vec3_new(from->x + (to->x - from->x) * t,
-                       from->y + (to->y - from->y) * t,
-                       from->z + (to->z - from->z) * t);
+FR_FORCE_INLINE void fr_vec3_lerp(const vec3* from, const vec3* to, f32 t,
+                                  vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = _mm_add_ps(
+        from->simd,
+        _mm_mul_ps(_mm_sub_ps(to->simd, from->simd), _mm_set1_ps(t)));
+#else
+    dest->x = from->x + (to->x - from->x) * t;
+    dest->y = from->y + (to->y - from->y) * t;
+    dest->z = from->z + (to->z - from->z) * t;
+#endif
 }
 /**
  * @brief Linearly interpolate between two vec3 objects using t and store the
@@ -1373,11 +1551,16 @@ FR_FORCE_INLINE vec3 fr_vec3_lerp(const vec3* from, const vec3* to, f32 t) {
  * @param t
  * @param dest
  */
-FR_FORCE_INLINE void fr_vec3_lerp_to(const vec3* from, const vec3* to, f32 t,
-                                            vec3* dest) {
-    dest->x = from->x + (to->x - from->x) * t;
-    dest->y = from->y + (to->y - from->y) * t;
-    dest->z = from->z + (to->z - from->z) * t;
+FR_FORCE_INLINE vec3 fr_vec3_vlerp(const vec3* from, const vec3* to, f32 t) {
+#if FR_VEC3_SIMD == 1
+    return (vec3)_mm_add_ps(
+        from->simd,
+        _mm_mul_ps(_mm_sub_ps(to->simd, from->simd), _mm_set1_ps(t)));
+#else
+    return fr_vec3_new(from->x + (to->x - from->x) * t,
+                       from->y + (to->y - from->y) * t,
+                       from->z + (to->z - from->z) * t);
+#endif
 }
 
 /**
@@ -1389,10 +1572,15 @@ FR_FORCE_INLINE void fr_vec3_lerp_to(const vec3* from, const vec3* to, f32 t,
  * @param x the input value
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_smoothstep(const vec3* edge0, const vec3* edge1, f32 x) {
+FR_FORCE_INLINE vec3 fr_vec3_vsmoothstep(const vec3* edge0, const vec3* edge1,
+                                         f32 x) {
+#if FR_VEC3_SIMD == 1
+    return (vec3)fr_simd_vsmoothstep(edge0->simd, edge1->simd, x)
+#else
     return fr_vec3_new(fr_smoothstep(edge0->x, edge1->x, x),
                        fr_smoothstep(edge0->y, edge1->y, x),
                        fr_smoothstep(edge0->z, edge1->z, x));
+#endif
 }
 
 /**
@@ -1404,11 +1592,15 @@ FR_FORCE_INLINE vec3 fr_vec3_smoothstep(const vec3* edge0, const vec3* edge1, f3
  * @param x the input value
  * @param dest
  */
-FR_FORCE_INLINE void fr_vec3_smoothstep_to(const vec3* edge0, const vec3* edge1, f32 x,
-                                                  vec3* dest) {
+FR_FORCE_INLINE void fr_vec3_smoothstep(const vec3* edge0, const vec3* edge1,
+                                        f32 x, vec3* dest) {
+#if FR_VEC3_SIMD == 1
+    dest->simd = fr_simd_vsmoothstep(edge0->simd, edge1->simd, x);
+#else
     dest->x = fr_smoothstep(edge0->x, edge1->x, x);
     dest->y = fr_smoothstep(edge0->y, edge1->y, x);
     dest->z = fr_smoothstep(edge0->z, edge1->z, x);
+#endif
 }
 
 /**
@@ -1419,11 +1611,9 @@ FR_FORCE_INLINE void fr_vec3_smoothstep_to(const vec3* edge0, const vec3* edge1,
  * @param t
  * @return vec3
  */
-FR_FORCE_INLINE vec3 fr_vec3_smooth_interpolation(const vec3* from, const vec3* to,
-                                                         f32 t) {
-    return fr_vec3_new(fr_smoothinterp(from->x, to->y, t),
-                       fr_smoothinterp(from->y, to->y, t),
-                       fr_smoothinterp(from->z, to->z, t));
+FR_FORCE_INLINE vec3 fr_vec3_vsmooth_interp(const vec3* from, const vec3* to,
+                                            f32 t) {
+    return fr_vec3_vlerp(from, to, fr_smooth(t));
 }
 
 /**
@@ -1435,9 +1625,7 @@ FR_FORCE_INLINE vec3 fr_vec3_smooth_interpolation(const vec3* from, const vec3* 
  * @param t
  * @param dest
  */
-FR_FORCE_INLINE void fr_vec3_smooth_interpolation_to(const vec3* from, const vec3* to,
-                                                            f32 t, vec3* dest) {
-    dest->x = fr_smoothinterp(from->x, to->x, t);
-    dest->y = fr_smoothinterp(from->y, to->y, t);
-    dest->z = fr_smoothinterp(from->z, to->z, t);
+FR_FORCE_INLINE void fr_vec3_smooth_interp(const vec3* from, const vec3* to,
+                                           f32 t, vec3* dest) {
+    fr_vec3_lerp(from, to, fr_smooth(t), dest);
 }

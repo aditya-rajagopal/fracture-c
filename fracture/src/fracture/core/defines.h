@@ -106,7 +106,7 @@ STATIC_ASSERT(sizeof(b8) == 1, "b8 is not 1 byte");
 #endif
 
 #if defined(_MSC_VER)
-#  define FR_FORCE_INLINE __forceinline
+#  define FR_FORCE_INLINE static __forceinline
 #else
 #  define FR_FORCE_INLINE static inline __attribute((always_inline))
 #endif

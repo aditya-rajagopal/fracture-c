@@ -10,6 +10,7 @@
  */
 #pragma once
 
+#include <xmmintrin.h>
 #include "fracture/core/defines.h"
 
 #if FR_SIMD == 1
@@ -20,6 +21,7 @@
 #define FR_SIGN_BIT_INV_MASK (int)0x7FFFFFFF // 0111 1111 1111 1111 1111 1111 1111 1111
 
 #define FR_SIGN_BITf32x4 _mm_set1_ps(-0.0f)
+#define FR_INV_SIGN_BITf32x4 _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF))
 
 // Some useful macros for SIMD operations.
 #define FR_SIMD_SHUFFLE1(a, z, y, x, w) _mm_shuffle_ps(a, a, _MM_SHUFFLE(z, y, x, w))
@@ -36,10 +38,45 @@
 
 FR_FORCE_INLINE __m128 fr_simd_vhadd(__m128 vec) {
     __m128 x0;
-    x0 = _mm_add_ps(
-        vec, FR_SIMD_SHUFFLE1(vec, 0, 1, 2, 3));  // x1 = sum(x0, {z, y, x, 0.0f})
+    x0 = _mm_add_ps(vec, FR_SIMD_SHUFFLE1(vec, 0, 1, 2,
+                                          3));  // x1 = sum(x0, {z, y, x, 0.0f})
     x0 = _mm_add_ps(x0, FR_SIMD_SHUFFLE1(x0, 1, 0, 0, 1));
     return x0;
 }
 
+FR_FORCE_INLINE __m128 fr_simd_abs(__m128 vec) {
+    return _mm_and_ps(vec, FR_INV_SIGN_BITf32x4);
+}
+
+FR_FORCE_INLINE __m128 fr_simd_vhmax(__m128 a) {
+    __m128 x0;
+    x0 = _mm_max_ps(a, FR_SIMD_SHUFFLE1(a, 1, 0, 3, 2));
+    x0 = _mm_max_ps(x0, FR_SIMD_SHUFFLE1(x0, 2, 3, 0, 1));
+    return x0;
+}
+
+FR_FORCE_INLINE __m128 fr_simd_vhmin(__m128 a) {
+    __m128 x0;
+    x0 = _mm_min_ps(a, FR_SIMD_SHUFFLE1(a, 1, 0, 3, 2));
+    x0 = _mm_min_ps(x0, FR_SIMD_SHUFFLE1(x0, 2, 3, 0, 1));
+    return x0;
+}
+
+FR_FORCE_INLINE __m128 fr_simd_clamp(__m128 val, f32 min, f32 max) {
+    __m128 minv = _mm_set1_ps(min);
+    __m128 maxv = _mm_set1_ps(max);
+    return _mm_min_ps(_mm_max_ps(val, minv), maxv);
+}
+
+FR_FORCE_INLINE __m128 fr_simd_vsmoothstep(__m128 edge0, __m128 edge1, f32 x) {
+    // t = fr_clamp((t - a) / (b - a), 0.0f, 1.0f);
+    __m128 t = _mm_set1_ps(x);
+    t = _mm_div_ps(_mm_sub_ps(t, edge0), _mm_sub_ps(edge1, edge0));
+    t = fr_simd_clamp(t, 0.0f, 1.0f);
+    //  t * t * (3.0f - 2.0f * t);
+    __m128 t2 = _mm_mul_ps(t, _mm_set1_ps(2.0f));
+    t2 = _mm_sub_ps(_mm_set1_ps(3.0f), t2);
+    t = _mm_mul_ps(t, t);
+    return _mm_mul_ps(t, t2);
+}
 #endif
