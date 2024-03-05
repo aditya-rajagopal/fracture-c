@@ -10,7 +10,9 @@
  */
 #pragma once
 
+#include <stdalign.h>
 #include "fracture/core/defines.h"
+#include "fracture/core/library/math/simd/sse.h"
 
 typedef union vec4_u {
     struct {
@@ -37,8 +39,40 @@ typedef union vec4_u {
             f32 height;
         };
     };
-    f32 data[4];
-} vec4;
+    alignas(16) f32 data[4];
+#if FR_SIMD == 1
+    alignas(16) __m128 simd;
+#endif
+} __attribute__((aligned(16))) vec4;
 
 typedef vec4 colour;
 typedef vec4 rect_2d;
+
+typedef union bvec4_u {
+    struct {
+        union {
+            b32 x;
+            b32 r;
+            b32 s;
+        };
+        union {
+            b32 y;
+            b32 g;
+            b32 t;
+        };
+        union {
+            b32 z;
+            b32 b;
+            b32 p;
+        };
+        union {
+            b32 w;
+            b32 a;
+            b32 q;
+        };
+    };
+    alignas(16) b32 data[4];
+#if FR_SIMD == 1
+    alignas(16) __m128i simd;
+#endif
+} __attribute__((aligned(16))) bvec4;

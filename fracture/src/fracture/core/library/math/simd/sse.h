@@ -36,12 +36,18 @@
 #define FR_SIMD_LOADU(ptr) _mm_loadu_ps(ptr)
 #define FR_SIMD_STOREU(ptr, mm) _mm_storeu_ps(ptr, mm)
 
-FR_FORCE_INLINE __m128 fr_simd_vhadd(__m128 vec) {
+FR_FORCE_INLINE __m128 fr_simd_vhadds(__m128 vec) {
     __m128 x0;
     x0 = _mm_add_ps(vec, FR_SIMD_SHUFFLE1(vec, 0, 1, 2,
                                           3));  // x1 = sum(x0, {z, y, x, 0.0f})
     x0 = _mm_add_ps(x0, FR_SIMD_SHUFFLE1(x0, 1, 0, 0, 1));
     return x0;
+    // __m128 shuf, sums;
+    // shuf = FR_SIMD_SHUFFLE1(vec, 2, 3, 0, 1);
+    // sums = _mm_add_ps(vec, shuf);
+    // shuf = _mm_movehl_ps(shuf, sums);
+    // sums = _mm_add_ss(sums, shuf);
+    // return sums;
 }
 
 FR_FORCE_INLINE __m128 fr_simd_abs(__m128 vec) {
@@ -79,4 +85,6 @@ FR_FORCE_INLINE __m128 fr_simd_vsmoothstep(__m128 edge0, __m128 edge1, f32 x) {
     t = _mm_mul_ps(t, t);
     return _mm_mul_ps(t, t2);
 }
+
+
 #endif
