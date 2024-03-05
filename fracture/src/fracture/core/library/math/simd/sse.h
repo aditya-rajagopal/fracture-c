@@ -36,7 +36,7 @@
 #define FR_SIMD_LOADU(ptr) _mm_loadu_ps(ptr)
 #define FR_SIMD_STOREU(ptr, mm) _mm_storeu_ps(ptr, mm)
 
-FR_FORCE_INLINE __m128 fr_simd_vhadds(__m128 vec) {
+FR_FORCE_INLINE __m128 fr_simd_vhadd(__m128 vec) {
     __m128 x0;
     x0 = _mm_add_ps(vec, FR_SIMD_SHUFFLE1(vec, 0, 1, 2,
                                           3));  // x1 = sum(x0, {z, y, x, 0.0f})
@@ -50,6 +50,10 @@ FR_FORCE_INLINE __m128 fr_simd_vhadds(__m128 vec) {
     // return sums;
 }
 
+FR_FORCE_INLINE f32 fr_simd_hadd(__m128 vec) {
+    return _mm_cvtss_f32(fr_simd_vhadd(vec));
+}
+
 FR_FORCE_INLINE __m128 fr_simd_abs(__m128 vec) {
     return _mm_and_ps(vec, FR_INV_SIGN_BITf32x4);
 }
@@ -61,11 +65,27 @@ FR_FORCE_INLINE __m128 fr_simd_vhmax(__m128 a) {
     return x0;
 }
 
+FR_FORCE_INLINE f32 fr_simd_hmax(__m128 a) {
+    return _mm_cvtss_f32(fr_simd_vhmax(a));
+}
+
+// FR_FORCE_INLINE __m128 fr_simd_vhmax_glm(__m128 a) {
+//     __m128 x0, x1, x2;
+//     x0 = _mm_movehl_ps(a, a); // x0 = {z, w, z, w}
+//     x1 = _mm_max_ps(a, x0); // x1 = {max(x, z), max(y, w), max(z, z), max(w, w)
+//     x2 = FR_SIMD_SPLAT(x1, 1); // puts the max(y, w) in all 4 components
+//     return _mm_max_ps(x1, x2); // returns the max of all 4 components in the first element
+// }
+
 FR_FORCE_INLINE __m128 fr_simd_vhmin(__m128 a) {
     __m128 x0;
     x0 = _mm_min_ps(a, FR_SIMD_SHUFFLE1(a, 1, 0, 3, 2));
     x0 = _mm_min_ps(x0, FR_SIMD_SHUFFLE1(x0, 2, 3, 0, 1));
     return x0;
+}
+
+FR_FORCE_INLINE f32 fr_simd_hmin(__m128 a) {
+    return _mm_cvtss_f32(fr_simd_vhmin(a));
 }
 
 FR_FORCE_INLINE __m128 fr_simd_clamp(__m128 val, f32 min, f32 max) {

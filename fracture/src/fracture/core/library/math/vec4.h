@@ -78,7 +78,7 @@ FR_FORCE_INLINE void fr_vec4_v2(const vec2* xy, const vec2* zw, vec4* dest) {
 #endif
 }
 
-FR_FORCE_INLINE void fr_vec4_s(f32 s, vec4* dest) {
+FR_FORCE_INLINE void fr_vec4_fill(f32 s, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_set1_ps(s);
 #else
@@ -104,7 +104,7 @@ FR_FORCE_INLINE void fr_vec4_arr(const f32* arr, vec4* dest) {
 // Utilities
 // ------------------------------------------------------------------------------------------------
 
-FR_FORCE_INLINE void fr_vec4_ieqv(const vec4* a, const vec4* b, bvec4* dest) {
+FR_FORCE_INLINE void fr_vec4_iveqv(const vec4* a, const vec4* b, bvec4* dest) {
 #if FR_SIMD == 1
     __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
     __m128 diff = _mm_sub_ps(a->simd, b->simd);
@@ -183,14 +183,221 @@ FR_FORCE_INLINE b8 fr_vec4_eqv(const vec4* a, const vec4* b) {
 #endif
 }
 
-FR_FORCE_INLINE b8 fr_vec4_neqv(const vec4* a, const vec4* b) {
-    return !fr_vec4_eqv(a, b);
+FR_FORCE_INLINE b8 fr_vec4_eqv_exact(const vec4* a, const vec4* b) {
+#if FR_SIMD == 1
+    return _mm_movemask_ps(_mm_cmpeq_ps(a->simd, b->simd)) == 0x0F;
+#else
+    return a->x == b->x && a->y == b->y && a->z == b->z && a->w == b->w;
+#endif
 }
+
+FR_FORCE_INLINE b8 fr_vec4_neqv(const vec4* a, const vec4* b) {
+#if FR_SIMD == 1 // In O0 optimization non simd is faster than simd
+    __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
+    __m128 diff = _mm_sub_ps(a->simd, b->simd);
+    __m128 abs_diff = fr_simd_abs(diff);
+    __m128 mask = _mm_cmpgt_ps(abs_diff, thresh);
+    return _mm_movemask_ps(mask) == 0x0F;
+#else
+    return !fr_equal(a->x, b->x) || !fr_equal(a->y, b->y) ||
+           !fr_equal(a->z, b->z) || !fr_equal(a->w, b->w);
+#endif
+}
+
+FR_FORCE_INLINE b8 fr_vec4_neqv_exact(const vec4* a, const vec4* b) {
+#if FR_SIMD == 1
+    return _mm_movemask_ps(_mm_cmpneq_ps(a->simd, b->simd)) != 0x0F;
+#else
+    return a->x != b->x || a->y != b->y || a->z != b->z || a->w != b->w;
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_iveqs(const vec4* a, f32 s, bvec4* dest) {
+#if FR_SIMD == 1
+    __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
+    __m128 diff = _mm_sub_ps(a->simd, _mm_set1_ps(s));
+    __m128 abs_diff = fr_simd_abs(diff);
+    i32 mask = _mm_movemask_ps(_mm_cmplt_ps(abs_diff, thresh));
+    dest->x = CHECK_BIT(mask, 0);
+    dest->y = CHECK_BIT(mask, 1);
+    dest->z = CHECK_BIT(mask, 2);
+    dest->w = CHECK_BIT(mask, 3);
+#else
+    dest->x = fr_equal(a->x, s);
+    dest->y = fr_equal(a->y, s);
+    dest->z = fr_equal(a->z, s);
+    dest->w = fr_equal(a->w, s);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_veqs(const vec4* a, f32 s, vec4* dest) {
+#if FR_SIMD == 1 // Simd is about the same speed as non simd
+    __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
+    __m128 diff = _mm_sub_ps(a->simd, _mm_set1_ps(s));
+    __m128 abs_diff = fr_simd_abs(diff);
+    __m128 mask = _mm_cmplt_ps(abs_diff, thresh);
+    dest->simd = _mm_and_ps(mask, _mm_set1_ps(1.0f));
+#else
+    dest->x = fr_equal(a->x, s);
+    dest->y = fr_equal(a->y, s);
+    dest->z = fr_equal(a->z, s);
+    dest->w = fr_equal(a->w, s);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_vneqs(const vec4* a, f32 s, vec4* dest) {
+#if FR_SIMD == 1 // Simd is about the same speed as non simd
+    __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
+    __m128 diff = _mm_sub_ps(a->simd, _mm_set1_ps(s));
+    __m128 abs_diff = fr_simd_abs(diff);
+    __m128 mask = _mm_cmpgt_ps(abs_diff, thresh);
+    dest->simd = _mm_and_ps(mask, _mm_set1_ps(1.0f));
+#else
+    dest->x = (f32)(a->x != s);
+    dest->y = (f32)(a->y != s);
+    dest->z = (f32)(a->z != s);
+    dest->w = (f32)(a->w != s);
+#endif
+}
+
+FR_FORCE_INLINE b8 fr_vec4_eqs(const vec4* a, f32 s) {
+#if FR_SIMD == 1 // Simd is about the same speed as non simd
+    __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
+    __m128 diff = _mm_sub_ps(a->simd, _mm_set1_ps(s));
+    __m128 abs_diff = fr_simd_abs(diff);
+    __m128 mask = _mm_cmplt_ps(abs_diff, thresh);
+    return _mm_movemask_ps(mask) == 0x0F;
+#else
+    return fr_equal(a->x, s) && fr_equal(a->y, s) &&
+           fr_equal(a->z, s) && fr_equal(a->w, s);
+#endif
+}
+
+FR_FORCE_INLINE b8 fr_vec4_neqs(const vec4* a, f32 s) {
+#if FR_SIMD == 1 // Simd is about the same speed as non simd
+    __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
+    __m128 diff = _mm_sub_ps(a->simd, _mm_set1_ps(s));
+    __m128 abs_diff = fr_simd_abs(diff);
+    __m128 mask = _mm_cmpgt_ps(abs_diff, thresh);
+    return _mm_movemask_ps(mask) == 0x0F;
+#else
+    return !fr_equal(a->x, s) || !fr_equal(a->y, s) ||
+           !fr_equal(a->z, s) || !fr_equal(a->w, s);
+#endif
+}
+
+FR_FORCE_INLINE b8 fr_vec4_eqs_exact(const vec4* a, f32 s) {
+#if FR_SIMD == 1
+    return _mm_movemask_ps(_mm_cmpeq_ps(a->simd, _mm_set1_ps(s))) == 0x0F;
+#else
+    return a->x == s && a->y == s && a->z == s && a->w == s;
+#endif
+}
+
+FR_FORCE_INLINE b8 fr_vec4_neqs_exact(const vec4* a, f32 s) {
+#if FR_SIMD == 1
+    return _mm_movemask_ps(_mm_cmpneq_ps(a->simd, _mm_set1_ps(s))) != 0x0F;
+#else
+    return a->x != s || a->y != s || a->z != s || a->w != s;
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_vgtv(const vec4* a, const vec4* b, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_and_ps(_mm_cmpgt_ps(a->simd, b->simd), _mm_set1_ps(1.0f));
+#else
+    dest->x = (f32)(a->x > b->x);
+    dest->y = (f32)(a->y > b->y);
+    dest->z = (f32)(a->z > b->z);
+    dest->w = (f32)(a->w > b->w);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_vltv(const vec4* a, const vec4* b, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_and_ps(_mm_cmplt_ps(a->simd, b->simd), _mm_set1_ps(1.0f));
+#else
+    dest->x = (f32)(a->x < b->x);
+    dest->y = (f32)(a->y < b->y);
+    dest->z = (f32)(a->z < b->z);
+    dest->w = (f32)(a->w < b->w);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_vgev(const vec4* a, const vec4* b, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_and_ps(_mm_cmpge_ps(a->simd, b->simd), _mm_set1_ps(1.0f));
+#else
+    dest->x = (f32)(a->x >= b->x);
+    dest->y = (f32)(a->y >= b->y);
+    dest->z = (f32)(a->z >= b->z);
+    dest->w = (f32)(a->w >= b->w);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_vlev(const vec4* a, const vec4* b, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_and_ps(_mm_cmple_ps(a->simd, b->simd), _mm_set1_ps(1.0f));
+#else
+    dest->x = (f32)(a->x <= b->x);
+    dest->y = (f32)(a->y <= b->y);
+    dest->z = (f32)(a->z <= b->z);
+    dest->w = (f32)(a->w <= b->w);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_vgts(const vec4* a, f32 s, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_and_ps(_mm_cmpgt_ps(a->simd, _mm_set1_ps(s)), _mm_set1_ps(1.0f));
+#else
+    dest->x = (f32)(a->x > s);
+    dest->y = (f32)(a->y > s);
+    dest->z = (f32)(a->z > s);
+    dest->w = (f32)(a->w > s);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_vlts(const vec4* a, f32 s, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_and_ps(_mm_cmplt_ps(a->simd, _mm_set1_ps(s)), _mm_set1_ps(1.0f));
+#else
+    dest->x = (f32)(a->x < s);
+    dest->y = (f32)(a->y < s);
+    dest->z = (f32)(a->z < s);
+    dest->w = (f32)(a->w < s);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_vges(const vec4* a, f32 s, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_and_ps(_mm_cmpge_ps(a->simd, _mm_set1_ps(s)), _mm_set1_ps(1.0f));
+#else
+    dest->x = (f32)(a->x >= s);
+    dest->y = (f32)(a->y >= s);
+    dest->z = (f32)(a->z >= s);
+    dest->w = (f32)(a->w >= s);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_vles(const vec4* a, f32 s, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_and_ps(_mm_cmple_ps(a->simd, _mm_set1_ps(s)), _mm_set1_ps(1.0f));
+#else
+    dest->x = (f32)(a->x <= s);
+    dest->y = (f32)(a->y <= s);
+    dest->z = (f32)(a->z <= s);
+    dest->w = (f32)(a->w <= s);
+#endif
+}
+
+// ------------------------------------------------------------------------------------------------
+// Arithmetic
+// ------------------------------------------------------------------------------------------------
 
 FR_FORCE_INLINE f32 fr_vec4_dot(const vec4* a, const vec4* b) {
 #if FR_SIMD == 1 // In O0 optimization non simd is faster than simd
     __m128 dot = _mm_mul_ps(a->simd, b->simd);
-    dot = fr_simd_vhadds(dot);
+    dot = fr_simd_vhadd(dot);
     return _mm_cvtss_f32(dot);
 #else
     return a->x * b->x + a->y * b->y + a->z * b->z + a->w * b->w;
@@ -200,9 +407,11 @@ FR_FORCE_INLINE f32 fr_vec4_dot(const vec4* a, const vec4* b) {
 FR_FORCE_INLINE f32 fr_vec4_norm(const vec4* a) {
 #if 1 // non simd is faster if you dont have O2 optimization
     __m128 sq = _mm_mul_ps(a->simd, a->simd);
-    __m128 sum = fr_simd_vhadds(sq);
+    __m128 sum = fr_simd_vhadd(sq);
     return _mm_cvtss_f32(_mm_sqrt_ps(sum));
 #else
     return fr_sqrt(a->x * a->x + a->y * a->y + a->z * a->z + a->w * a->w);
 #endif
 }
+
+
