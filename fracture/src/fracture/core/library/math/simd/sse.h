@@ -87,22 +87,32 @@ FR_FORCE_INLINE f32 fr_simd_hmin(__m128 a) {
     return _mm_cvtss_f32(fr_simd_vhmin(a));
 }
 
+FR_FORCE_INLINE __m128 fr_simd_clampv(__m128 val, __m128 min, __m128 max) {
+    return _mm_min_ps(_mm_max_ps(val, min), max);
+}
+
 FR_FORCE_INLINE __m128 fr_simd_clamp(__m128 val, f32 min, f32 max) {
     __m128 minv = _mm_set1_ps(min);
     __m128 maxv = _mm_set1_ps(max);
-    return _mm_min_ps(_mm_max_ps(val, minv), maxv);
+    return fr_simd_clampv(val, minv, maxv);
 }
 
-FR_FORCE_INLINE __m128 fr_simd_vsmoothstep(__m128 edge0, __m128 edge1, f32 x) {
+FR_FORCE_INLINE __m128 fr_simd_step(__m128 edge, __m128 val) {
+    return _mm_and_ps(_mm_cmpge_ps(val, edge), _mm_set1_ps(1.0f));
+}
+
+FR_FORCE_INLINE __m128 fr_simd_lerp(__m128 a, __m128 b, f32 t) {
+    __m128 t0 = _mm_set1_ps(t);
+    __m128 t1 = _mm_set1_ps(1.0f - t);
+    return _mm_add_ps(_mm_mul_ps(a, t1), _mm_mul_ps(b, t0));
+}
+
+FR_FORCE_INLINE __m128 fr_simd_vsmoothstep(__m128 edge0, __m128 edge1, __m128 x) {
     // t = fr_clamp((t - a) / (b - a), 0.0f, 1.0f);
-    __m128 t = _mm_set1_ps(x);
-    t = _mm_div_ps(_mm_sub_ps(t, edge0), _mm_sub_ps(edge1, edge0));
+    __m128 t = _mm_div_ps(_mm_sub_ps(x, edge0), _mm_sub_ps(edge1, edge0));
     t = fr_simd_clamp(t, 0.0f, 1.0f);
     //  t * t * (3.0f - 2.0f * t);
-    __m128 t2 = _mm_mul_ps(t, _mm_set1_ps(2.0f));
-    t2 = _mm_sub_ps(_mm_set1_ps(3.0f), t2);
-    t = _mm_mul_ps(t, t);
-    return _mm_mul_ps(t, t2);
+    return _mm_mul_ps(_mm_mul_ps(t, t), _mm_sub_ps(_mm_set1_ps(3.0f), _mm_mul_ps(_mm_set1_ps(2.0f), t)));
 }
 
 FR_FORCE_INLINE __m128 fr_simd_vdot(__m128 a, __m128 b) {
@@ -128,6 +138,26 @@ FR_FORCE_INLINE __m128 fr_simd_vnorm1(__m128 a) {
 
 FR_FORCE_INLINE __m128 fr_simd_vnorm_inf(__m128 a) {
     return fr_simd_vhmax(fr_simd_abs(a));
+}
+
+FR_FORCE_INLINE __m128 fr_simd_unit_vector_unsafe(__m128 a) {
+    __m128 inv_norm = fr_simd_vinvnorm(a);
+    return _mm_mul_ps(a, inv_norm);
+}
+
+FR_FORCE_INLINE __m128 fr_simd_unit_vector(__m128 a) {
+    __m128 zero = _mm_setzero_ps();
+    if (_mm_movemask_ps(_mm_cmpeq_ps(a, zero)) == 0x0F) {
+        return zero;
+    }
+    return fr_simd_unit_vector_unsafe(a);
+}
+
+FR_FORCE_INLINE __m128 fr_simd_reflect(__m128 unit_normal, __m128 incident) {
+    // r = i - 2 * dot(n, i) * n
+    __m128 dot = fr_simd_vdot(unit_normal, incident);
+    __m128 x0 = _mm_mul_ps(unit_normal, _mm_mul_ps(dot, _mm_set1_ps(2.0f)));
+    return _mm_sub_ps(incident, x0);
 }
 
 #endif

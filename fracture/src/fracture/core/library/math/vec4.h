@@ -475,19 +475,11 @@ FR_FORCE_INLINE f32 fr_vec4_norm_inf(const vec4* a) {
 
 FR_FORCE_INLINE void fr_vec4_normalize(const vec4* a, vec4* dest) {
 #if FR_SIMD == 1
-    if (fr_vec4_iszero(a)) {
-        dest->simd = _mm_setzero_ps();
-        return;
-    }
-    __m128 inv_norm = fr_simd_vinvnorm(a->simd);
-    dest->simd = _mm_mul_ps(a->simd, inv_norm);
+    dest->simd = fr_simd_unit_vector(a->simd);
 #else
     f32 norm = fr_vec4_norm(a);
     if (norm == 0.0f) {
-        dest->x = 0.0f;
-        dest->y = 0.0f;
-        dest->z = 0.0f;
-        dest->w = 0.0f;
+        fr_vec4_zero(dest);
         return;
     }
     f32 inv_norm = 1.0f / norm;
@@ -500,8 +492,7 @@ FR_FORCE_INLINE void fr_vec4_normalize(const vec4* a, vec4* dest) {
 
 FR_FORCE_INLINE void fr_vec4_normalize_unsafe(const vec4* a, vec4* dest) {
 #if FR_SIMD == 1
-    __m128 inv_norm = fr_simd_vinvnorm(a->simd);
-    dest->simd = _mm_mul_ps(a->simd, inv_norm);
+    dest->simd = fr_simd_unit_vector_unsafe(a->simd);
 #else
     f32 inv_norm = 1.0f / fr_vec4_norm(a);
     dest->x = a->x * inv_norm;
@@ -585,6 +576,290 @@ FR_FORCE_INLINE void fr_vec4_mul(const vec4* a, const vec4* b, vec4* dest) {
     dest->y = a->y * b->y;
     dest->z = a->z * b->z;
     dest->w = a->w * b->w;
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_scale(const vec4* a, f32 s, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_mul_ps(a->simd, _mm_set1_ps(s));
+#else
+    dest->x = a->x * s;
+    dest->y = a->y * s;
+    dest->z = a->z * s;
+    dest->w = a->w * s;
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_div(const vec4* a, const vec4* b, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_div_ps(a->simd, b->simd);
+#else
+    dest->x = a->x / b->x;
+    dest->y = a->y / b->y;
+    dest->z = a->z / b->z;
+    dest->w = a->w / b->w;
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_divs(const vec4* a, f32 s, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_div_ps(a->simd, _mm_set1_ps(s));
+#else
+    dest->x = a->x / s;
+    dest->y = a->y / s;
+    dest->z = a->z / s;
+    dest->w = a->w / s;
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_vmaxv(const vec4* a, const vec4* b, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_max_ps(a->simd, b->simd);
+#else
+    dest->x = fr_max(a->x, b->x);
+    dest->y = fr_max(a->y, b->y);
+    dest->z = fr_max(a->z, b->z);
+    dest->w = fr_max(a->w, b->w);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_vminv(const vec4* a, const vec4* b, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_min_ps(a->simd, b->simd);
+#else
+    dest->x = fr_min(a->x, b->x);
+    dest->y = fr_min(a->y, b->y);
+    dest->z = fr_min(a->z, b->z);
+    dest->w = fr_min(a->w, b->w);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_maxs(const vec4* a, f32 s, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_max_ps(a->simd, _mm_set1_ps(s));
+#else
+    dest->x = fr_max(a->x, s);
+    dest->y = fr_max(a->y, s);
+    dest->z = fr_max(a->z, s);
+    dest->w = fr_max(a->w, s);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_mins(const vec4* a, f32 s, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_min_ps(a->simd, _mm_set1_ps(s));
+#else
+    dest->x = fr_min(a->x, s);
+    dest->y = fr_min(a->y, s);
+    dest->z = fr_min(a->z, s);
+    dest->w = fr_min(a->w, s);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_scale_direction(const vec4* a, f32 s, vec4* dest) {
+#if FR_SIMD == 1
+    __m128 unit_vector = fr_simd_unit_vector(a->simd);
+    dest->simd = _mm_mul_ps(unit_vector, _mm_set1_ps(s));
+#else
+    f32 norm = fr_vec4_norm(a);
+    if (norm == 0.0f) {
+        fr_vec4_zero(dest);
+        return;
+    }
+    f32 inv_norm = 1.0f / norm;
+    dest->x = a->x * inv_norm * s;
+    dest->y = a->y * inv_norm * s;
+    dest->z = a->z * inv_norm * s;
+    dest->w = a->w * inv_norm * s;
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_clampv(const vec4* a, const vec4* min, const vec4* max, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = fr_simd_clampv(a->simd, min->simd, max->simd);
+#else
+    dest->x = fr_clamp(a->x, min->x, max->x);
+    dest->y = fr_clamp(a->y, min->y, max->y);
+    dest->z = fr_clamp(a->z, min->z, max->z);
+    dest->w = fr_clamp(a->w, min->w, max->w);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_clamp(const vec4* a, f32 min, f32 max, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = fr_simd_clamp(a->simd, min, max);
+#else
+    dest->x = fr_clamp(a->x, min, max);
+    dest->y = fr_clamp(a->y, min, max);
+    dest->z = fr_clamp(a->z, min, max);
+    dest->w = fr_clamp(a->w, min, max);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_clamp01(const vec4* a, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = fr_simd_clamp(a->simd, 0.0f, 1.0f);
+#else
+    dest->x = fr_clamp(a->x, 0.0f, 1.0f);
+    dest->y = fr_clamp(a->y, 0.0f, 1.0f);
+    dest->z = fr_clamp(a->z, 0.0f, 1.0f);
+    dest->w = fr_clamp(a->w, 0.0f, 1.0f);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_step(const vec4* edge, const vec4* x, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = fr_simd_step(edge->simd, x->simd);
+#else
+    dest->x = fr_step(edge->x, x->x);
+    dest->y = fr_step(edge->y, x->y);
+    dest->z = fr_step(edge->z, x->z);
+    dest->w = fr_step(edge->w, x->w);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_steps(f32 edge, const vec4* x, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = fr_simd_step(_mm_set1_ps(edge), x->simd);
+#else
+    dest->x = fr_step(edge, x->x);
+    dest->y = fr_step(edge, x->y);
+    dest->z = fr_step(edge, x->z);
+    dest->w = fr_step(edge, x->w);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_lerp(const vec4* a, const vec4* b, f32 t, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = fr_simd_lerp(a->simd, b->simd, t);
+#else
+    dest->x = fr_lerp(a->x, b->x, t);
+    dest->y = fr_lerp(a->y, b->y, t);
+    dest->z = fr_lerp(a->z, b->z, t);
+    dest->w = fr_lerp(a->w, b->w, t);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_lerp_clamped(const vec4* a, const vec4* b, f32 t, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = fr_simd_lerp(a->simd, b->simd, fr_clamp_zo(t));
+#else
+    dest->x = fr_lerp_clamped(a->x, b->x, t);
+    dest->y = fr_lerp_clamped(a->y, b->y, t);
+    dest->z = fr_lerp_clamped(a->z, b->z, t);
+    dest->w = fr_lerp_clamped(a->w, b->w, t);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_smoothstep(const vec4* edge0, const vec4* edge1, const vec4* t, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = fr_simd_vsmoothstep(edge0->simd, edge1->simd, t->simd);
+#else
+    dest->x = fr_smoothstep(edge0->x, edge1->x, t->x);
+    dest->y = fr_smoothstep(edge0->y, edge1->y, t->y);
+    dest->z = fr_smoothstep(edge0->z, edge1->z, t->z);
+    dest->w = fr_smoothstep(edge0->w, edge1->w, t->w);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_smoothstep_clamped(const vec4* edge0, const vec4* edge1, const vec4* t, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = fr_simd_vsmoothstep(edge0->simd, edge1->simd, fr_simd_clamp(t->simd, 0.0f, 1.0f));
+#else
+    dest->x = fr_smoothstep(edge0->x, edge1->x, fr_clamp(t->x, 0.0f, 1.0f));
+    dest->y = fr_smoothstep(edge0->y, edge1->y, fr_clamp(t->y, 0.0f, 1.0f));
+    dest->z = fr_smoothstep(edge0->z, edge1->z, fr_clamp(t->z, 0.0f, 1.0f));
+    dest->w = fr_smoothstep(edge0->w, edge1->w, fr_clamp(t->w, 0.0f, 1.0f));
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_smoothsteps(f32 edge0, f32 edge1, const vec4* t, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = fr_simd_vsmoothstep(_mm_set1_ps(edge0), _mm_set1_ps(edge1), t->simd);
+#else
+    dest->x = fr_smoothsteps(edge0, edge1, t->x);
+    dest->y = fr_smoothsteps(edge0, edge1, t->y);
+    dest->z = fr_smoothsteps(edge0, edge1, t->z);
+    dest->w = fr_smoothsteps(edge0, edge1, t->w);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_smoothsteps_clamped(f32 edge0, f32 edge1, const vec4* t, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = fr_simd_vsmoothstep(_mm_set1_ps(edge0), _mm_set1_ps(edge1), fr_simd_clamp(t->simd, 0.0f, 1.0f));
+#else
+    dest->x = fr_smoothstep(edge0, edge1, fr_clamp(t->x, 0.0f, 1.0f));
+    dest->y = fr_smoothstep(edge0, edge1, fr_clamp(t->y, 0.0f, 1.0f));
+    dest->z = fr_smoothstep(edge0, edge1, fr_clamp(t->z, 0.0f, 1.0f));
+    dest->w = fr_smoothstep(edge0, edge1, fr_clamp(t->w, 0.0f, 1.0f));
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_smooth_interp(const vec4* a, const vec4* b, f32 t, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = fr_simd_lerp(a->simd, b->simd, fr_smooth(t));
+#else
+    dest->x = fr_lerp(a->x, b->x, fr_smooth(t));
+    dest->y = fr_lerp(a->y, b->y, fr_smooth(t));
+    dest->z = fr_lerp(a->z, b->z, fr_smooth(t));
+    dest->w = fr_lerp(a->w, b->w, fr_smooth(t));
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_project(const vec4* a, const vec4* b, vec4* dest) {
+#if FR_SIMD == 1
+    __m128 unit_b = fr_simd_unit_vector(b->simd);
+    __m128 dot = fr_simd_vdot(a->simd, b->simd);
+    dest->simd = _mm_mul_ps(unit_b, dot);
+#else
+    f32 dot = fr_vec4_dot(a, b);
+    f32 norm2 = fr_vec4_norm2(b);
+    if (norm2 == 0.0f) {
+        fr_vec4_zero(dest);
+        return;
+    }
+    f32 t = dot / norm2;
+    fr_vec4_scale(b, t, dest);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_project_unsafe(const vec4* a, const vec4* b, vec4* dest) {
+#if FR_SIMD == 1
+    __m128 unit_b = fr_simd_unit_vector_unsafe(b->simd);
+    __m128 dot = fr_simd_vdot(a->simd, b->simd);
+    dest->simd = _mm_mul_ps(unit_b, dot);
+#else
+    f32 dot = fr_vec4_dot(a, b);
+    f32 norm2 = fr_vec4_norm2(b);
+    if (norm2 == 0.0f) {
+        fr_vec4_zero(dest);
+        return;
+    }
+    f32 t = dot / norm2;
+    fr_vec4_scale(b, t, dest);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_reflect(const vec4* incident, const vec4* normal, vec4* dest) {
+#if FR_SIMD == 1
+    __m128 unit_normal = fr_simd_unit_vector(normal->simd);
+    dest->simd = fr_simd_reflect(unit_normal, incident->simd);
+#else
+    vec4 unit_normal;
+    fr_vec4_normalize(normal, &unit_normal);
+    f32 dot = fr_vec4_dot(incident, &unit_normal);
+    fr_vec4_scale(&unit_normal, 2.0f * dot, dest);
+    fr_vec4_sub(incident, dest, dest);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_reflect_unit(const vec4* incident, const vec4* unit_normal, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = fr_simd_reflect(unit_normal->simd, incident->simd);
+#else
+    f32 dot = fr_vec4_dot(incident, unit_normal);
+    fr_vec4_scale(unit_normal, 2.0f * dot, dest);
+    fr_vec4_sub(incident, dest, dest);
 #endif
 }
 
