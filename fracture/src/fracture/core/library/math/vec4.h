@@ -863,4 +863,25 @@ FR_FORCE_INLINE void fr_vec4_reflect_unit(const vec4* incident, const vec4* unit
 #endif
 }
 
-
+FR_FORCE_INLINE void fr_vec4_slerp(const vec4* a, const vec4* b, f32 t, vec4* dest) {
+#if FR_SIMD == 1
+    __m128 const dot = fr_simd_vdot(a->simd, b->simd);
+    f32 const angle = fr_acos(_mm_cvtss_f32(dot));
+    f32 const inv_sin_angle = 1.0f / fr_sin(angle);
+    f32 const a_coeff = fr_sin((1.0f - t) * angle) * inv_sin_angle;
+    f32 const b_coeff = fr_sin(t * angle) * inv_sin_angle;
+    __m128 a_scaled = _mm_mul_ps(a->simd, _mm_set1_ps(a_coeff));
+    __m128 b_scaled = _mm_mul_ps(b->simd, _mm_set1_ps(b_coeff));
+    dest->simd = _mm_add_ps(a_scaled, b_scaled);
+#else
+    f32 const dot = fr_vec4_dot(a, b);
+    f32 const angle = fr_acos(dot);
+    f32 const inv_sin_angle = 1.0f / fr_sin(angle);
+    f32 const a_coeff = fr_sin((1.0f - t) * angle) * inv_sin_angle;
+    f32 const b_coeff = fr_sin(t * angle) * inv_sin_angle;
+    fr_vec4_scale(a, a_coeff, dest);
+    vec4 b_scaled;
+    fr_vec4_scale(b, b_coeff, &b_scaled);
+    fr_vec4_add(dest, &b_scaled, dest);
+#endif
+}
