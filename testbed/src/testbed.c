@@ -38,34 +38,37 @@ b8 testbed_initialize(application_handle *app_handle) {
     fr_vec4(fr_random(), fr_random(), fr_random(), fr_random(), &v0);
     FR_TRACE("v0 %f %f %f %f", v0.x, v0.y, v0.z, v0.w);
     fr_vec4(fr_random(), fr_random(), fr_random(), fr_random(), &v1);
-    fr_vec4(1.0f, 2.0f, 4.0f, 4.0f, &v3);
+    // fr_vec4(1.0f, 2.0f, 4.0f, 4.0f, &v3);
+    // fr_vec4(0.0f, 0.0f, 0.0f, 0.0f, &v0);
     clock c;
-    __m128 m0 = _mm_set_ps(fr_random(), fr_random(), fr_random(), fr_random());
-    __m128 m1 = _mm_set_ps(fr_random(), fr_random(), fr_random(), fr_random());
+    // __m128 m0 = _mm_set_ps(fr_random(), fr_random(), fr_random(), fr_random());
+    // __m128 m1 = _mm_set_ps(fr_random(), fr_random(), fr_random(), fr_random());
     fr_clock_start(&c);
-    for (u32 i = 0; i < 10000000; i++) {
-        m0 = fr_simd_vhmax(m0);
+    for (u32 i = 0; i < 10000001; i++) {
+        // m0 = fr_simd_vhmax(m0);
         // m0 = _mm_set_ps(fr_random(), 0.3f, 0.2f, 0.1f);
-        // fr_vec4_veqs_simd(&v0, fr_random(), &v0);
+        fr_vec4_negate(&v0, &v0);
         // norm = fr_vec4_norm_simd(&v0);
         // fr_vec4_s(fr_random(), &v0);
     }
     fr_clock_update(&c);
-    FR_INFO("m0 %f", _mm_cvtss_f32(m0));
+    // FR_INFO("m0 %f", _mm_cvtss_f32(m0));
     FR_TRACE("vec4_veqv_simd took: %f", c.elapsed_time * 1000.0f);
+    FR_TRACE("v0 %f %f %f %f", v0.x, v0.y, v0.z, v0.w);
     fr_vec4(fr_random(), fr_random(), fr_random(), fr_random(), &v0);
     fr_vec4(fr_random(), fr_random(), fr_random(), fr_random(), &v1);
     fr_clock_start(&c);
-    for (u32 i = 0; i < 10000000; i++) {
-        m0 = fr_simd_vhmax(m0);
+    for (u32 i = 0; i < 10000001; i++) {
+        // m0 = fr_simd_vhmax(m0);
         // m0 = _mm_set_ps(fr_random(), 0.3f, 0.2f, 0.1f);
-        // fr_vec4_veqs(&v0, fr_random(), &v0);
+        fr_vec4_negate(&v0, &v0);
         // norm = fr_vec4_norm(&v0);
         // fr_vec4_s(fr_random(), &v0);
     }
     fr_clock_update(&c);
-    FR_INFO("m0 %f", _mm_cvtss_f32(m0));
+    // FR_INFO("m0 %f", _mm_cvtss_f32(m0));
     FR_TRACE("vec4_veqv took: %f", c.elapsed_time * 1000.0f);
+    FR_TRACE("v0 %f %f %f %f", v0.x, v0.y, v0.z, v0.w);
 
     // unit test for norm
     fr_vec4(1.0f, 2.0f, 3.0f, 4.0f, &v0);

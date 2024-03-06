@@ -10,7 +10,7 @@ FOR /R %%f in (*.c) do (
 
 REM echo "Files: " %cFileNames%
 SET assembly=testbed
-SET comilerFlags=-g
+SET comilerFlags=-g -O3
 REM -Wall -Werror
 SET includeFlags=-Isrc -I..\fracture\src -I..\fracture\includes
 SET linkerFlags=-luser32 -L../bin/ -lfracture.lib

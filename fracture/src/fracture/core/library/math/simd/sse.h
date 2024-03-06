@@ -10,11 +10,11 @@
  */
 #pragma once
 
-#include <xmmintrin.h>
 #include "fracture/core/defines.h"
 
 #if FR_SIMD == 1
 #include <intrin.h>
+
 
 #define FR_SIMD_ALIGNMENT 16
 #define FR_SIGN_BIT_MASK (int)0x80000000 // 1000 0000 0000 0000 0000 0000 0000 0000
@@ -38,8 +38,7 @@
 
 FR_FORCE_INLINE __m128 fr_simd_vhadd(__m128 vec) {
     __m128 x0;
-    x0 = _mm_add_ps(vec, FR_SIMD_SHUFFLE1(vec, 0, 1, 2,
-                                          3));  // x1 = sum(x0, {z, y, x, 0.0f})
+    x0 = _mm_add_ps(vec, FR_SIMD_SHUFFLE1(vec, 0, 1, 2, 3));
     x0 = _mm_add_ps(x0, FR_SIMD_SHUFFLE1(x0, 1, 0, 0, 1));
     return x0;
     // __m128 shuf, sums;
@@ -106,5 +105,29 @@ FR_FORCE_INLINE __m128 fr_simd_vsmoothstep(__m128 edge0, __m128 edge1, f32 x) {
     return _mm_mul_ps(t, t2);
 }
 
+FR_FORCE_INLINE __m128 fr_simd_vdot(__m128 a, __m128 b) {
+    __m128 x0 = _mm_mul_ps(a, b);
+    return fr_simd_vhadd(x0);
+}
+
+FR_FORCE_INLINE __m128 fr_simd_vnorm2(__m128 a) {
+    return fr_simd_vdot(a, a);
+}
+
+FR_FORCE_INLINE __m128 fr_simd_vnorm(__m128 a) {
+    return _mm_sqrt_ps(fr_simd_vdot(a, a));
+}
+
+FR_FORCE_INLINE __m128 fr_simd_vinvnorm(__m128 a) {
+    return _mm_rsqrt_ps(fr_simd_vdot(a, a));
+}
+
+FR_FORCE_INLINE __m128 fr_simd_vnorm1(__m128 a) {
+    return fr_simd_vhadd(fr_simd_abs(a));
+}
+
+FR_FORCE_INLINE __m128 fr_simd_vnorm_inf(__m128 a) {
+    return fr_simd_vhmax(fr_simd_abs(a));
+}
 
 #endif
