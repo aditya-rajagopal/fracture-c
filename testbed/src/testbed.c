@@ -59,7 +59,7 @@ b8 testbed_initialize(application_handle *app_handle) {
     for (u32 i = 0; i < 10000001; i++) {
         // m0 = fr_simd_vhmax(m0);
         // m0 = _mm_set_ps(fr_random(), 0.3f, 0.2f, 0.1f);
-        norm = fr_vec3_norm2_simd(&v0);
+        norm = fr_vec3_norm2(&v0);
         fr_vec3_fill(&v0, fr_random());
         // norm = fr_vec3_norm(&v0);
         // fr_vec3_s(fr_random(), &v0);
