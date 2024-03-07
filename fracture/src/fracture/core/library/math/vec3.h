@@ -635,11 +635,11 @@ FR_FORCE_INLINE f32 fr_vec3_dot(const vec3* v0, const vec3* v1) {
 
 #if 0
 FR_FORCE_INLINE f32 fr_vec3_dot_simd(const vec3* v0, const vec3* v1) {
-#if FR_VEC3_SIMD == 1
+#if FR_VEC3_SIMD == 0
     __m128 x0, x1;
     x0 = _mm_mul_ps(v0->simd, v1->simd);
-    x1 = _mm_add_ps(x0, FR_VEC3_SIMD_SHUFFLE1(x0, 0, 1, 2, 3));
-    x1 = _mm_add_ps(x1, FR_VEC3_SIMD_SHUFFLE1(x1, 1, 0, 0, 1));
+    x1 = _mm_add_ps(x0, FR_SIMD_SHUFFLE1(x0, 0, 1, 2, 3));
+    x1 = _mm_add_ps(x1, FR_SIMD_SHUFFLE1(x1, 1, 0, 0, 1));
     return _mm_cvtss_f32(x1);
     // Supposed faster implementation dont know why it is slower
     // __m128 prod, sum, shuff;
@@ -703,13 +703,11 @@ FR_FORCE_INLINE f32 fr_vec3_norm2(const vec3* v) {
  */
 FR_FORCE_INLINE f32 fr_vec3_norm(const vec3* v) {
 #if FR_VEC3_SIMD == 1  // Simd seems faster by like 8% for 10million iterations
-    __m128 x0, x1;
-    x0 = _mm_mul_ps(v->simd, v->simd);
-    x1 = _mm_add_ps(x0, FR_SIMD_SHUFFLE1(x0, 0, 1, 2, 3));
-    x1 = _mm_add_ps(x1, FR_SIMD_SHUFFLE1(x1, 1, 0, 0, 1));
-    return _mm_cvtss_f32(_mm_sqrt_ss(x1));
+    return _mm_cvtss_f32(fr_simd_vnorm(v->simd))
 #else
-    return fr_sqrt(v->x * v->x + v->y * v->y + v->z * v->z);
+    __m128 x = _mm_setr_ps(v->x, v->y, v->z, 0.0f);
+    return _mm_cvtss_f32(fr_simd_vnorm(x));
+    // return fr_sqrt(v->x * v->x + v->y * v->y + v->z * v->z);
 #endif
 }
 
