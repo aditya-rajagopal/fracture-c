@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <xmmintrin.h>
 #include "fracture/core/defines.h"
 #include "detail/matrix.h"
 #include "simd/sse.h"
@@ -288,4 +289,19 @@ FR_FORCE_INLINE b8 fr_mat2_eq(const mat2* left, const mat2* right) {
            fr_equal(left->m10, right->m10) && fr_equal(left->m11, right->m11);
 #endif
 }
-    
+
+FR_FORCE_INLINE b8 fr_mat2_neq(const mat2* left, const mat2* right) {
+#if FR_SIMD == 1
+    return _mm_movemask_ps(fr_simd_vneq(left->simd, right->simd)) != 0x00;
+#else
+    return !fr_mat2_eq(left, right);
+#endif
+}
+
+FR_FORCE_INLINE b8 fr_mat2_neq_exact(const mat2* left, const mat2* right) {
+#if FR_SIMD == 1
+    return _mm_movemask_ps(_mm_cmpneq_ps(left->simd, right->simd)) != 0x00;
+#else
+    return !fr_mat2_eq_exact(left, right);
+#endif
+}

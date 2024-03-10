@@ -173,4 +173,10 @@ FR_FORCE_INLINE b8 fr_simd_eq(__m128 a, __m128 b) {
     return _mm_movemask_ps(fr_simd_veq(a, b)) == 0x0F;
 }
 
+FR_FORCE_INLINE __m128 fr_simd_vneq(__m128 a, __m128 b) {
+    __m128 threshold = _mm_set1_ps(FLOAT_EPSILON);
+    __m128 abs_diff = fr_simd_abs(_mm_sub_ps(a, b));
+    return _mm_cmpge_ps(abs_diff, threshold);
+}
+
 #endif

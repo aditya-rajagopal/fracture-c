@@ -10,6 +10,8 @@
  */
 #pragma once
 
+#include "fracture/core/library/math/version.h"
+
 #include "fracture/core/library/math/math_types.h"
 #include "fracture/core/library/math/math_constants.h"
 
