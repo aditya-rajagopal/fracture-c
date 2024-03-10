@@ -14,6 +14,9 @@
 
 #if FR_SIMD == 1
 #include <intrin.h>
+#include <xmmintrin.h>
+#include <emmintrin.h>
+#include "fracture/core/library/math/math_constants.h"
 
 
 #define FR_SIMD_ALIGNMENT 16
@@ -158,6 +161,16 @@ FR_FORCE_INLINE __m128 fr_simd_reflect(__m128 unit_normal, __m128 incident) {
     __m128 dot = fr_simd_vdot(unit_normal, incident);
     __m128 x0 = _mm_mul_ps(unit_normal, _mm_mul_ps(dot, _mm_set1_ps(2.0f)));
     return _mm_sub_ps(incident, x0);
+}
+
+FR_FORCE_INLINE __m128 fr_simd_veq(__m128 a, __m128 b) {
+    __m128 threshold = _mm_set1_ps(FLOAT_EPSILON);
+    __m128 abs_diff = fr_simd_abs(_mm_sub_ps(a, b));
+    return _mm_cmplt_ps(abs_diff, threshold);
+}
+
+FR_FORCE_INLINE b8 fr_simd_eq(__m128 a, __m128 b) {
+    return _mm_movemask_ps(fr_simd_veq(a, b)) == 0x0F;
 }
 
 #endif

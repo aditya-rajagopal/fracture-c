@@ -13,6 +13,12 @@
 #include "math_constants.h"
 #include "fracture/core/defines.h"
 #include "fracture/fracture_core.h"
+#include "detail/vec2.h"
+#include "detail/vec3.h"
+#include "detail/vec4.h"
+#include "detail/matrix.h"
+
+#include <stdio.h>
 
 // Min and Max and Clamp
 FR_FORCE_INLINE f32 fr_deg_to_rad(f32 deg) { return deg * DEG_TO_RAD; }
@@ -178,3 +184,9 @@ FR_API i32 fr_next_pow2(i32 val);
 FR_API i32 fr_prev_pow2(i32 val);
 
 FR_API f32 fr_random();
+
+//-----------------------------------------------------------------------------------------------
+// IO
+//-----------------------------------------------------------------------------------------------
+
+FR_API void fr_mat2_print(char* name, int* len, const mat2* m, char* out_string);

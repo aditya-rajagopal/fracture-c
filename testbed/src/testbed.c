@@ -31,55 +31,64 @@ b8 testbed_initialize(application_handle *app_handle) {
     // fr_event_register_handler(EVENT_CODE_KEY_B, NULL_PTR, testbed_on_key_B);
     // fr_event_register_handler(EVENT_CODE_MOUSE_BUTTON_LEFT, NULL_PTR, testbed_on_mouse_button1);
     // Test execution time of vec3_veqv_simd and vec4_veqv
-    vec3 v0, v1, v3, result;
-    f32 norm = 0.0f;
-    f32 res = 0.0f;
-    fr_vec3_new_to(fr_random(), fr_random(), fr_random(), &v0);
-    fr_vec3_new_to(fr_random(), fr_random(), fr_random(), &v1);
-    // fr_vec3(1.0f, 2.0f, 4.0f, 4.0f, &v3);
-    // fr_vec3(0.0f, 0.0f, 0.0f, 0.0f, &v0);
-    clock c;
-    // __m128 m0 = _mm_set_ps(fr_random(), fr_random(), fr_random(), fr_random());
-    // __m128 m1 = _mm_set_ps(fr_random(), fr_random(), fr_random(), fr_random());
-    fr_clock_start(&c);
-    for (u32 i = 0; i < 10000001; i++) {
-        // m0 = fr_simd_vhmax(m0);
-        // m0 = _mm_set_ps(fr_random(), 0.3f, 0.2f, 0.1f);
-        norm = fr_vec3_norm2(&v0);
-        fr_vec3_fill(&v0, fr_random());
-        // norm = fr_vec3_norm_simd(&v0);
-        // fr_vec3_s(fr_random(), &v0);
-    }
-    fr_clock_update(&c);
-    // FR_INFO("m0 %f", _mm_cvtss_f32(m0));
-    FR_TRACE("norm %f", norm);
-    FR_TRACE("vec3_veqv_simd took: %f", c.elapsed_time * 1000.0f);
-    FR_TRACE("v0 %f %f %f %f", v0.x, v0.y, v0.z, v0.w);
-    fr_clock_start(&c);
-    for (u32 i = 0; i < 10000001; i++) {
-        // m0 = fr_simd_vhmax(m0);
-        // m0 = _mm_set_ps(fr_random(), 0.3f, 0.2f, 0.1f);
-        norm = fr_vec3_norm2(&v0);
-        fr_vec3_fill(&v0, fr_random());
-        // norm = fr_vec3_norm(&v0);
-        // fr_vec3_s(fr_random(), &v0);
-    }
-    fr_clock_update(&c);
-    FR_TRACE("norm %f", norm);
-    // FR_INFO("m0 %f", _mm_cvtss_f32(m0));
-    FR_TRACE("vec3_veqv took: %f", c.elapsed_time * 1000.0f);
-    // FR_TRACE("v0 %f %f %f %f", v0.x, v0.y, v0.z, v0.w);
-
-    // unit test for norm
-    // fr_vec3(1.0f, 2.0f, 3.0f, 4.0f, &v0);
-    // norm = fr_vec3_norm(&v0);
-    // FR_INFO("norm of v0: %f", norm);
-    // random vec
-    // fr_vec3(fr_random(), fr_random(), fr_random(), fr_random(), &v0);
-    // norm = fr_vec3_norm(&v0);
-    // FR_INFO("v0 %f %f %f %f", v0.x, v0.y, v0.z, v0.w);
-    // FR_INFO("norm of v0: %f", norm + fr_random());
     
+    // mat2 print test
+    mat2 m;
+    fr_mat2(1.0f, 2.0f, 3.0f, 4.0f, &m);
+    int len = 1024;
+    char out_string[1024];
+    fr_mat2_print("A", &len, &m, out_string);
+    FR_TRACE("%s", out_string);
+    fr_memory_zero(out_string, 1024);
+    mat2 result;
+    fr_mat2_mul(&m, &m, &result);
+    fr_mat2_print("A * A", &len, &result, out_string);
+    FR_TRACE("%s", out_string);
+    fr_memory_zero(out_string, 1024);
+    fr_mat2_mul_glm(&m, &m, &result);
+    fr_mat2_print("A * A GLM", &len, &result, out_string);
+    FR_TRACE("%s", out_string);
+    fr_memory_zero(out_string, 1024);
+
+    // Mat2 speed test
+    mat2* mats = fr_memory_allocate(10000000 * sizeof(mat2), MEMORY_TYPE_MATRIX);
+    for (u32 i = 0; i < 10000000; i++) {
+        fr_mat2(fr_random(), fr_random(), fr_random(),
+                fr_random(), &mats[i]);
+    }
+    clock clk;
+    fr_clock_start(&clk);
+    for (u32 i = 1; i < 10000000; i++) {
+        fr_mat2_mul(&mats[i], &mats[i+1], &mats[i-1]);
+    }
+    fr_clock_update(&clk);
+    fr_memory_zero(out_string, 1024);
+    FR_TRACE("Mat2 mul time: %f", clk.elapsed_time * 1000);
+    fr_mat2_print("mul", &len, &mats[9999998], out_string);
+    FR_TRACE("%s", out_string);
+    fr_memory_zero(out_string, 1024);
+    for (u32 i = 0; i < 10000000; i++) {
+        fr_mat2(fr_random(), fr_random(), fr_random(),
+                fr_random(), &mats[i]);
+    }
+    fr_clock_start(&clk);
+    for (u32 i = 1; i < 10000000; i++) {
+        fr_mat2_mul_glm(&mats[i], &mats[i+1], &mats[i-1]);
+    }
+    fr_clock_update(&clk);
+    FR_TRACE("Mat2 mul glm time: %f", clk.elapsed_time * 1000);
+    fr_mat2_print("mul glm", &len, &mats[9999998], out_string);
+    FR_TRACE("%s", out_string);
+    fr_memory_zero(out_string, 1024);
+
+    for (u32 i = 1; i < 10000000; i++) {
+        fr_mat2_mul_glm(&mats[i-1], &mats[i+1], &mats[i]);
+    }
+    fr_memory_zero(out_string, 1024);
+    fr_mat2_print("mul glm2", &len, &mats[9999998], out_string);
+    FR_TRACE("%s", out_string);
+
+    fr_memory_free(mats, 10000000 * sizeof(mat2), MEMORY_TYPE_MATRIX);
     return TRUE;
 }
 

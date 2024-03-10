@@ -45,3 +45,16 @@ i32 fr_prev_pow2(i32 val) {
 }
 
 f32 fr_random() { return (f32)rand() / (f32)RAND_MAX; }
+
+void fr_mat2_print(char* name, int* len, const mat2* m, char* out_string) {
+    char buffer[1024];
+    u32 offset = 0;
+    offset = snprintf(buffer, 1024, "mat2(float:%s) = \n", name);
+    offset += snprintf(buffer + offset, 1024 - offset, "| %f, %f |\n", m->m00, m->m01);
+    offset += snprintf(buffer + offset, 1024 - offset, "| %f, %f |\n", m->m10, m->m11);
+    if (out_string == NULL_PTR) {
+        *len = offset;
+        return;
+    }
+    snprintf(out_string, *len, "%s", buffer);
+}

@@ -23,3 +23,5 @@
 
 #include "fracture/core/library/math/vec4.h"
 #include "fracture/core/library/math/ivec4.h"
+
+#include "fracture/core/library/math/mat2.h"

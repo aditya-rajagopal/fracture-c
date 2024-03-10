@@ -10,8 +10,6 @@
  */
 #pragma once
 
-#include <emmintrin.h>
-#include <xmmintrin.h>
 #include "detail/vec4.h"
 #include "detail/vec3.h"
 #include "detail/vec2.h"
