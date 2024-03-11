@@ -5,11 +5,15 @@
 #include "fracture/core/systems/event.h"
 #include "fracture/core/systems/input.h"
 
+#define TEST_LEN 10000000
+
 typedef struct testbed_internal_state {
     i32 test;
     i32 postition[4];
     f32 rotation[4];
     f32 scale[4];
+    mat3 matrices[TEST_LEN];
+    mat3 out_matrix[TEST_LEN];
 } testbed_internal_state;
 
 static testbed_internal_state* state = NULL_PTR;
@@ -22,7 +26,7 @@ b8 testbed_on_mouse_button1(u16 event_code, void* sender, void* listener_instanc
 
 b8 testbed_initialize(application_handle *app_handle) {
     // FR_INFO("Client Application initialized: %s", app_handle->app_config.name);
-    // state = fr_memory_allocate(sizeof(testbed_internal_state), MEMORY_TYPE_APPLICATION);
+    state = fr_memory_allocate(sizeof(testbed_internal_state), MEMORY_TYPE_APPLICATION);
     // transform_array = fr_memory_allocate(4 * 4 * sizeof(u32), MEMORY_TYPE_TRANSFORM);
 
     // // Event test
@@ -32,69 +36,45 @@ b8 testbed_initialize(application_handle *app_handle) {
     // fr_event_register_handler(EVENT_CODE_MOUSE_BUTTON_LEFT, NULL_PTR, testbed_on_mouse_button1);
     // Test execution time of vec3_veqv_simd and vec4_veqv
     
-    // mat2 print test
-    mat2 m;
-    fr_mat2(1.0f, 2.0f, 3.0f, 4.0f, &m);
-    int len = 1024;
-    char out_string[1024];
-    fr_mat2_print("A", &len, &m, out_string);
-    FR_TRACE("%s", out_string);
-    fr_memory_zero(out_string, 1024);
-    mat2 result;
-    fr_mat2_mul(&m, &m, &result);
-    fr_mat2_print("A * A", &len, &result, out_string);
-    FR_TRACE("%s", out_string);
-    fr_memory_zero(out_string, 1024);
-    fr_mat2_mul_glm(&m, &m, &result);
-    fr_mat2_print("A * A GLM", &len, &result, out_string);
-    FR_TRACE("%s", out_string);
-    fr_memory_zero(out_string, 1024);
+    // mat3 print test
+    for (u32 i = 0; i < TEST_LEN; i++) {
+        fr_mat3_random(&state->matrices[i]);
+        fr_mat3_random(&state->out_matrix[i]);
+    }
 
-    // Mat2 speed test
-    mat2* mats = fr_memory_allocate(10000000 * sizeof(mat2), MEMORY_TYPE_MATRIX);
-    for (u32 i = 0; i < 10000000; i++) {
-        fr_mat2(fr_random(), fr_random(), fr_random(),
-                fr_random(), &mats[i]);
-    }
-    clock clk;
-    fr_clock_start(&clk);
-    for (u32 i = 1; i < 10000000; i++) {
-        fr_mat2_mul(&mats[i], &mats[i+1], &mats[i-1]);
-    }
-    fr_clock_update(&clk);
-    fr_memory_zero(out_string, 1024);
-    FR_TRACE("Mat2 mul time: %f", clk.elapsed_time * 1000);
-    fr_mat2_print("mul", &len, &mats[9999998], out_string);
-    FR_TRACE("%s", out_string);
-    fr_memory_zero(out_string, 1024);
-    for (u32 i = 0; i < 10000000; i++) {
-        fr_mat2(fr_random(), fr_random(), fr_random(),
-                fr_random(), &mats[i]);
-    }
-    fr_clock_start(&clk);
-    for (u32 i = 1; i < 10000000; i++) {
-        fr_mat2_mul_glm(&mats[i], &mats[i+1], &mats[i-1]);
-    }
-    fr_clock_update(&clk);
-    FR_TRACE("Mat2 mul glm time: %f", clk.elapsed_time * 1000);
-    fr_mat2_print("mul glm", &len, &mats[9999998], out_string);
-    FR_TRACE("%s", out_string);
-    fr_memory_zero(out_string, 1024);
+    vec3 col0 = {1.0f, 2.0f, 3.0f};
+    vec3 col1 = {4.0f, 5.0f, 6.0f};
+    vec3 col2 = {7.0f, 8.0f, 9.0f};
+    f32 random = fr_random();
 
-    for (u32 i = 1; i < 10000000; i++) {
-        fr_mat2_mul_glm(&mats[i-1], &mats[i+1], &mats[i]);
-    }
-    fr_memory_zero(out_string, 1024);
-    fr_mat2_print("mul glm2", &len, &mats[9999998], out_string);
-    FR_TRACE("%s", out_string);
+    f32 values[9] = {0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
 
-    fr_memory_free(mats, 10000000 * sizeof(mat2), MEMORY_TYPE_MATRIX);
+    clock c;
+    fr_clock_start(&c);
+    for (u32 i = 0; i < TEST_LEN - 1; i++) {
+        fr_mat3_scale(&state->matrices[i], random, &state->matrices[i]);
+    }
+    fr_clock_update(&c);
+    FR_TRACE("Time taken to copy TEST_LEN mat3s: %f", c.elapsed_time * 1000.0f);
+
+    // for (u32 i = 0; i < TEST_LEN; i++) {
+    //     fr_mat3_random(&state->matrices[i]);
+    //     fr_mat3_zero(&state->out_matrix[i]);
+    // }
+    
+    fr_clock_start(&c);
+    for (u32 i = 0; i < TEST_LEN - 1; i++) {
+        fr_mat3_scale(&state->out_matrix[i], random, &state->out_matrix[i]);
+    }
+    fr_clock_update(&c);
+    FR_TRACE("Time taken to copy TEST_LEN mat3s using temp: %f", c.elapsed_time * 1000.0f);
+
     return TRUE;
 }
 
 b8 testbed_shutdown(application_handle *app_handle) {
     FR_INFO("Client Application shutdown: %s", app_handle->app_config.name);
-    // fr_memory_free(state, sizeof(testbed_internal_state), MEMORY_TYPE_APPLICATION);
+    fr_memory_free(state, sizeof(testbed_internal_state), MEMORY_TYPE_APPLICATION);
     // fr_memory_free(transform_array, 4 * 4 * sizeof(u32), MEMORY_TYPE_TRANSFORM);
     // fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, NULL_PTR, testbed_on_key_pressed);
     // fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, NULL_PTR, testbed_on_key_pressed);

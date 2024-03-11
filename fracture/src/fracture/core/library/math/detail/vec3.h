@@ -40,7 +40,6 @@ typedef union vec3_u {
 #else
     };
     f32 data[3];
-
 }  vec3;
 #endif
 

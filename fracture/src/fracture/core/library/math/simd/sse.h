@@ -179,4 +179,8 @@ FR_FORCE_INLINE __m128 fr_simd_vneq(__m128 a, __m128 b) {
     return _mm_cmpge_ps(abs_diff, threshold);
 }
 
+FR_FORCE_INLINE __m128 fr_simd_fmadd(__m128 a, __m128 b, __m128 c) {
+    return _mm_add_ps(_mm_mul_ps(a, b), c);
+}
+
 #endif

@@ -77,7 +77,7 @@ FR_FORCE_INLINE void fr_mat2_diag(const vec2* v, mat2* m) {
 #endif
 }
 
-FR_FORCE_INLINE void fr_mat2(f32 m00, f32 m01, f32 m10, f32 m11, mat2* m) {
+FR_FORCE_INLINE void fr_mat2(f32 m00, f32 m10, f32 m01, f32 m11, mat2* m) {
 #if FR_SIMD == 1
     m->simd = _mm_setr_ps(m00, m10, m01, m11);
 #else
@@ -211,19 +211,6 @@ FR_FORCE_INLINE f32 fr_mat2_frobenius_norm(const mat2* m) {
 #else
     return fr_sqrt(m->m00 * m->m00 + m->m01 * m->m01 + m->m10 * m->m10 + m->m11 * m->m11);
 #endif
-}
-
-FR_FORCE_INLINE void fr_mat2_print(char* name, int* len, const mat2* m, char* out_string) {
-    char buffer[1024];
-    u32 offset = 0;
-    offset = snprintf(buffer, 1024, "mat2(float:%s) = \n", name);
-    offset += snprintf(buffer + offset, 1024 - offset, "| %f, %f |\n", m->m00, m->m01);
-    offset += snprintf(buffer + offset, 1024 - offset, "| %f, %f |\n", m->m10, m->m11);
-    if (out_string == NULL_PTR) {
-        *len = offset;
-        return;
-    }
-    snprintf(out_string, *len, "%s", buffer);
 }
 
 //-----------------------------------------------------------------------------------------------

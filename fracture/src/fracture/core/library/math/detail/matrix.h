@@ -20,8 +20,8 @@ typedef union mat2s
 {
     struct
     {
-        f32 m00, m01;
-        f32 m10, m11;
+        f32 m00, m10;
+        f32 m01, m11;
     };
     alignas(16) f32 data[4];
     alignas(16) vec2 columns[2];
@@ -34,9 +34,9 @@ typedef union mat3s
 {
     struct
     {
-        f32 m00, m01, m02;
-        f32 m10, m11, m12;
-        f32 m20, m21, m22;
+        f32 m00, m10, m20;
+        f32 m01, m11, m21;
+        f32 m02, m12, m22;
     };
     f32 data[9];
     vec3 columns[3];

@@ -442,6 +442,18 @@ FR_FORCE_INLINE b8 fr_vec3_eq(const vec3* v0, const vec3* v1) {
            fr_equal(v0->z, v1->z);
 }
 
+FR_FORCE_INLINE void fr_vec3_veq(const vec3* v0, const vec3* v1, vec3* dest) {
+    dest->x = fr_equal(v0->x, v1->x);
+    dest->y = fr_equal(v0->y, v1->y);
+    dest->z = fr_equal(v0->z, v1->z);
+}
+
+FR_FORCE_INLINE void fr_vec3_veqs(const vec3* v0, f32 val, vec3* dest) {
+    dest->x = fr_equal(v0->x, val);
+    dest->y = fr_equal(v0->y, val);
+    dest->z = fr_equal(v0->z, val);
+}
+
 /**
  * @brief Check if two vectors are equal to each other within a certain
  * threshold
