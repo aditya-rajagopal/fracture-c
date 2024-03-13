@@ -28,3 +28,4 @@
 
 #include "fracture/core/library/math/mat2.h"
 #include "fracture/core/library/math/mat3.h"
+#include "fracture/core/library/math/mat4.h"

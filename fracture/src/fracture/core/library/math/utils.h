@@ -192,3 +192,5 @@ FR_API f32 fr_random();
 FR_API void fr_mat2_print(const char* name, int* len, const mat2* m, char* out_string);
 
 FR_API void fr_mat3_print(const char* name, int* len, const mat3* m, char* out_string);
+
+FR_API void fr_mat4_print(const char* name, int* len, const mat4* m, char* out_string);

@@ -72,3 +72,18 @@ void fr_mat3_print(const char* name, int* len, const mat3* m, char* out_string) 
     }
     snprintf(out_string, *len, "%s", buffer);
 }
+
+FR_API void fr_mat4_print(const char* name, int* len, const mat4* m, char* out_string) {
+    char buffer[1024];
+    u32 offset = 0;
+    offset = snprintf(buffer, 1024, "mat4(float:%s) = \n", name);
+    offset += snprintf(buffer + offset, 1024 - offset, "| %f, %f, %f, %f |\n", m->m00, m->m01, m->m02, m->m03);
+    offset += snprintf(buffer + offset, 1024 - offset, "| %f, %f, %f, %f |\n", m->m10, m->m11, m->m12, m->m13);
+    offset += snprintf(buffer + offset, 1024 - offset, "| %f, %f, %f, %f |\n", m->m20, m->m21, m->m22, m->m23);
+    offset += snprintf(buffer + offset, 1024 - offset, "| %f, %f, %f, %f |\n", m->m30, m->m31, m->m32, m->m33);
+    if (out_string == NULL_PTR) {
+        *len = offset;
+        return;
+    }
+    snprintf(out_string, *len, "%s", buffer);
+}

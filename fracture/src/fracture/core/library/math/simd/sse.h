@@ -26,7 +26,13 @@
 #define FR_SIGN_BITf32x4 _mm_set1_ps(-0.0f)
 #define FR_INV_SIGN_BITf32x4 _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF))
 
+// signbit 0 means positive, 1 means negative. We can xor the sign bit with 0x80000000 to flip the sign bit. 
+// xor with 0 to keep the sign bit the same.
+#define FR_SIGNMASK_NPNPf32x4 _mm_castsi128_ps(_mm_set_epi32((int)0x80000000, 0, (int)0x80000000, 0))
+#define FR_SIGNMASK_PNPNf32x4 _mm_castsi128_ps(_mm_set_epi32(0, (int)0x80000000, 0, (int)0x80000000))
+
 // Some useful macros for SIMD operations.
+#define FR_SIMD_SHUFFLE(a, b, z, y, x, w) _mm_shuffle_ps(a, b, _MM_SHUFFLE(z, y, x, w))
 #define FR_SIMD_SHUFFLE1(a, z, y, x, w) _mm_shuffle_ps(a, a, _MM_SHUFFLE(z, y, x, w))
 #define FR_SIMD_SPLAT(mm, i) _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(i, i, i, i))
 #define FR_SIMD_SPLAT_X(mm) FR_SIMD_SPLAT(mm, 0)
@@ -181,6 +187,10 @@ FR_FORCE_INLINE __m128 fr_simd_vneq(__m128 a, __m128 b) {
 
 FR_FORCE_INLINE __m128 fr_simd_fmadd(__m128 a, __m128 b, __m128 c) {
     return _mm_add_ps(_mm_mul_ps(a, b), c);
+}
+
+FR_FORCE_INLINE __m128 fr_simd_fnmadd(__m128 a, __m128 b, __m128 c) {
+    return _mm_sub_ps(c, _mm_mul_ps(a, b));
 }
 
 #endif

@@ -18,7 +18,7 @@
 
 typedef union mat2s
 {
-    struct
+    alignas(16) struct
     {
         f32 m00, m10;
         f32 m01, m11;
@@ -28,7 +28,7 @@ typedef union mat2s
 #if FR_SIMD == 1
     alignas(16) __m128 simd;
 #endif
-} __attribute__((aligned(16))) mat2;
+} mat2;
 
 typedef union mat3s
 {
@@ -44,19 +44,19 @@ typedef union mat3s
 
 typedef union mat4s
 {
-    struct
+    alignas(16) struct
     {
-        f32 m00, m01, m02, m03;
-        f32 m10, m11, m12, m13;
-        f32 m20, m21, m22, m23;
-        f32 m30, m31, m32, m33;
+        f32 m00, m10, m20, m30;
+        f32 m01, m11, m21, m31;
+        f32 m02, m12, m22, m32;
+        f32 m03, m13, m23, m33;
     };
     alignas(16) f32 data[16];
     alignas(16) vec4 columns[4];
 #if FR_SIMD == 1
     alignas(16) __m128 simd[4];
 #endif
-} __attribute__((aligned(16))) mat4;
+} mat4;
 
 typedef mat4 mat4x4;
 typedef mat3 mat3x3;
@@ -64,7 +64,7 @@ typedef mat2 mat2x2;
 
 typedef union mat4x3s
 {
-    struct
+    alignas(16) struct
     {
         f32 m00, m01, m02;
         f32 m10, m11, m12;
@@ -76,11 +76,11 @@ typedef union mat4x3s
 #if FR_SIMD == 1
     alignas(16) __m128 simd[3];
 #endif
-}  __attribute__((aligned(16))) mat4x3;
+} mat4x3;
 
 typedef union mat4x2s
 {
-    struct
+    alignas(16) struct
     {
         f32 m00, m01;
         f32 m10, m11;
@@ -92,11 +92,11 @@ typedef union mat4x2s
 #if FR_SIMD == 1
     alignas(16) __m128 simd[2];
 #endif
-}  __attribute__((aligned(16))) mat4x2;
+} mat4x2;
 
 typedef union mat3x4s
 {
-    struct
+    alignas(16) struct
     {
         f32 m00, m01, m02, m03;
         f32 m10, m11, m12, m13;
@@ -107,7 +107,7 @@ typedef union mat3x4s
 } mat3x4;
 
 typedef union mat2x4s {
-    struct {
+    alignas(16) struct {
         f32 m00, m01, m02, m03;
         f32 m10, m11, m12, m13;
     };
