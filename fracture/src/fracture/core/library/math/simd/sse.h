@@ -30,6 +30,7 @@
 // xor with 0 to keep the sign bit the same.
 #define FR_SIGNMASK_NPNPf32x4 _mm_castsi128_ps(_mm_set_epi32((int)0x80000000, 0, (int)0x80000000, 0))
 #define FR_SIGNMASK_PNPNf32x4 _mm_castsi128_ps(_mm_set_epi32(0, (int)0x80000000, 0, (int)0x80000000))
+#define FR_SIGNMASK_NEGf32x4 _mm_castsi128_ps(_mm_set1_epi32((int)0x80000000))
 
 // Some useful macros for SIMD operations.
 #define FR_SIMD_SHUFFLE(a, b, z, y, x, w) _mm_shuffle_ps(a, b, _MM_SHUFFLE(z, y, x, w))

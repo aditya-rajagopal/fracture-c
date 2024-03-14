@@ -1301,12 +1301,12 @@ FR_FORCE_INLINE void fr_vec3_negative(const vec3* v, vec3* dest) {
  *
  * @param v
  */
-FR_FORCE_INLINE void fr_vec3_normalize(vec3* v) {
+FR_FORCE_INLINE void fr_vec3_normalize(vec3* v, vec3* dest) {
     f32 const norm = fr_vec3_norm(v);
     if (norm == 0.0f) {
         fr_vec3_make_zero(v);
     }
-    fr_vec3_scale(v, 1 / norm, v);
+    fr_vec3_scale(v, 1 / norm, dest);
 }
 
 /**

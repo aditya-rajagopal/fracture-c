@@ -122,9 +122,3 @@ STATIC_ASSERT(sizeof(b8) == 1, "b8 is not 1 byte");
 #else
 #define FR_VEC3_SIMD 0
 #endif
-
-#if defined(_MSC_VER)
-#define FR_ALIGN(X) __declspec(align(X))
-#else
-#define FR_ALIGN(X) __attribute((aligned(X)))
-#endif

@@ -43,46 +43,32 @@ b8 testbed_initialize(application_handle *app_handle) {
 
     f32 values[16] = {1.0f, 1.0f, 2.0f,  -3.0f,  4.0f,  5.0f,  6.0f,  7.0f,
                       8.0f, -9.0f, 10.0f, -11.0f, 12.0f, 13.0f, 14.0f, 15.0f};
+    char buffer[1024];
+    i32 len = 1024;
+    fr_mat4_print("rotation1", &len, &state->matrices[0], buffer);
+    FR_TRACE("Rotation1: %s", buffer);
 
     clock c;
+    vec3 translation = {fr_random(), fr_random(), fr_random()};
+    f32 angle = fr_random();
+    vec3 pivot = {fr_random(), fr_random(), fr_random()};
     fr_clock_start(&c);
-    for (u32 i = 0; i < TEST_LEN - 1; i++) {
-        fr_mat4_inv(&state->matrices[i], &state->out_matrix[i]);
+    for (u32 i = 0; i < TEST_LEN; i++) {
+        fr_affine_spin2(&state->matrices[i], angle, &translation);
     }
     fr_clock_update(&c);
     FR_TRACE("Time taken to copy TEST_LEN mat3s: %f", c.elapsed_time * 1000.0f);
 
     mat4 identity;
-    fr_mat4_identity(&identity);
-
     fr_clock_start(&c);
     for (u32 i = 0; i < TEST_LEN; i++) {
-        fr_mat4_mul(&state->matrices[i], &state->out_matrix[i], &state->out_matrix[i]);
+        fr_affine_spin(&state->out_matrix[i], angle, &translation);
     }
     fr_clock_update(&c);
     FR_TRACE("Time taken to copy TEST_LEN mat3s using temp: %f", c.elapsed_time * 1000.0f);
-    u32 sum = 0;
-    u32 flag = 0;
-    for (u32 i = 0; i < TEST_LEN; i++) {
-        b8 result = fr_mat4_eq(&state->out_matrix[i], &identity); 
-        if (result != TRUE && flag < 5) {
-            char buffer[1024];
-            int len = 1024;
-            fr_mat4_print("out_matrix", &len, &state->out_matrix[i], buffer);
-            FR_TRACE("i=%d\n%s", i, buffer);
-            mat4 eq;
-            fr_mat4_eqm(&state->out_matrix[i], &identity, &eq);
-            fr_mat4_print("eq", &len, &eq, buffer);
-            FR_TRACE("i=%d\n%s", i, buffer);
-            flag++;
-        } else {
-            sum += result;
-        }
-    }
 
-    FR_TRACE("Number of equal matrices: %d", sum);
-   
-
+    fr_mat4_print("rotation2", &len, &state->matrices[0], buffer);
+    FR_TRACE("Rotation2: %s", buffer);
     return TRUE;
 }
 
