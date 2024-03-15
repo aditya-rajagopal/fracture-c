@@ -24,6 +24,10 @@ b8 testbed_on_key_B(u16 event_code, void* sender, void* listener_instance, event
 b8 testbed_on_mouse_button1(u16 event_code, void* sender, void* listener_instance, event_data data);
 
 b8 testbed_initialize(application_handle *app_handle) {
+    clock c;
+    fr_clock_start(&c);
+    fr_random_pcg32_init((u32)c.start_time);
+    fr_random_xorwow_init((u32)c.start_time);
     // FR_INFO("Client Application initialized: %s", app_handle->app_config.name);
     state = fr_memory_allocate(sizeof(testbed_internal_state), MEMORY_TYPE_APPLICATION);
     // transform_array = fr_memory_allocate(4 * 4 * sizeof(u32), MEMORY_TYPE_TRANSFORM);
@@ -36,10 +40,12 @@ b8 testbed_initialize(application_handle *app_handle) {
     // Test execution time of vec3_veqv_simd and vec4_veqv
     
     // mat3 print test
+    fr_clock_start(&c);
     for (u32 i = 0; i < TEST_LEN; i++) {
         fr_mat4_random(&state->matrices[i]);
-        fr_mat4_random(&state->out_matrix[i]);
     }
+    fr_clock_update(&c);
+    FR_TRACE("Time taken to generate TEST_LEN mat3s: %f", c.elapsed_time * 1000.0f);
 
     vec4 v1 = {1.0f, 2.0f, 3.0f, 4.0f};
 
@@ -50,8 +56,6 @@ b8 testbed_initialize(application_handle *app_handle) {
     fr_mat4_print("rotation1", &len, &state->matrices[0], buffer);
     FR_TRACE("Rotation1: %s", buffer);
 
-    clock c;
-    fr_clock_start(&c);
     vec3 translation = {fr_random(), fr_random(), fr_random()};
     f32 angle = fr_random();
     vec3 pivot = {fr_random(), fr_random(), fr_random()};
@@ -61,6 +65,21 @@ b8 testbed_initialize(application_handle *app_handle) {
     }
     fr_clock_update(&c);
     FR_TRACE("Time taken to copy TEST_LEN mat3s: %f", c.elapsed_time * 1000.0f);
+
+    fr_clock_start(&c);
+    for (u32 i = 0; i < TEST_LEN; i++) {
+        f32 data[16] = {
+            fr_random_xorwowf(), fr_random_xorwowf(), fr_random_xorwowf(),
+            fr_random_xorwowf(), fr_random_xorwowf(), fr_random_xorwowf(),
+            fr_random_xorwowf(), fr_random_xorwowf(), fr_random_xorwowf(),
+            fr_random_xorwowf(), fr_random_xorwowf(), fr_random_xorwowf(),
+            fr_random_xorwowf(), fr_random_xorwowf(), fr_random_xorwowf(),
+            fr_random_xorwowf()
+        };
+        fr_mat4_create(data, &state->out_matrix[i]);
+    }
+    fr_clock_update(&c);
+    FR_TRACE("Time taken to create TEST_LEN mat3s: %f", c.elapsed_time * 1000.0f);
 
     mat4 identity;
     fr_clock_start(&c);
