@@ -10,11 +10,11 @@ FOR /R %%f in (*.c) do (
 
 REM echo "Files: " %cFileNames%
 SET assembly=fracture
-SET comilerFlags=-g -shared -Wvarargs -Wall -Werror -msse
+SET comilerFlags=-g -shared -Wvarargs -Wall -Werror
 REM -Wall -Werror
 SET includeFlags=-I..\fracture\src -I%VULKAN_SDK%\Include -I..\platform\src
 SET linkerFlags=-luser32 -lvulkan-1 -L%VULKAN_SDK%/Lib -L..\bin\ -lplatform.lib
-SET defines=-D_DEBUG -DFR_EXPORT -D_CRT_SECURE_NO_WARNINGS -D_ENABLE_ASSERTS -DPLATFORM_WINDOWS -D_STRING_SAFETY_CHECKS -D_SIMD
+SET defines=-D_DEBUG -DFR_EXPORT -D_CRT_SECURE_NO_WARNINGS -D_ENABLE_ASSERTS -DPLATFORM_WINDOWS -D_STRING_SAFETY_CHECKS -D_SIMD -DFR_MATH_FORCE_INLINE
 
 ECHO %VULKAN_SDK%
 

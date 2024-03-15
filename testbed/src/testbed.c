@@ -49,12 +49,13 @@ b8 testbed_initialize(application_handle *app_handle) {
     FR_TRACE("Rotation1: %s", buffer);
 
     clock c;
+    fr_clock_start(&c);
     vec3 translation = {fr_random(), fr_random(), fr_random()};
     f32 angle = fr_random();
     vec3 pivot = {fr_random(), fr_random(), fr_random()};
     fr_clock_start(&c);
     for (u32 i = 0; i < TEST_LEN; i++) {
-        fr_affine_spin2(&state->matrices[i], angle, &translation);
+        fr_mat4_inv(&state->matrices[i], &state->matrices[i]);
     }
     fr_clock_update(&c);
     FR_TRACE("Time taken to copy TEST_LEN mat3s: %f", c.elapsed_time * 1000.0f);
@@ -62,7 +63,7 @@ b8 testbed_initialize(application_handle *app_handle) {
     mat4 identity;
     fr_clock_start(&c);
     for (u32 i = 0; i < TEST_LEN; i++) {
-        fr_affine_spin(&state->out_matrix[i], angle, &translation);
+        fr_mat4_inv(&state->out_matrix[i], &state->out_matrix[i]);
     }
     fr_clock_update(&c);
     FR_TRACE("Time taken to copy TEST_LEN mat3s using temp: %f", c.elapsed_time * 1000.0f);

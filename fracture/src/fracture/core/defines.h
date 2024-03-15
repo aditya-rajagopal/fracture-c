@@ -105,10 +105,14 @@ STATIC_ASSERT(sizeof(b8) == 1, "b8 is not 1 byte");
 #  define FR_ALIGN(X) __attribute((aligned(X)))
 #endif
 
+#if defined(FR_MATH_FORCE_INLINE)
 #if defined(_MSC_VER)
 #  define FR_FORCE_INLINE static __forceinline
 #else
 #  define FR_FORCE_INLINE static inline __attribute((always_inline))
+#endif
+#else
+#define FR_FORCE_INLINE static inline
 #endif
 
 #if defined(_SIMD) && (defined(__SSE2__) || defined(__SSE__))

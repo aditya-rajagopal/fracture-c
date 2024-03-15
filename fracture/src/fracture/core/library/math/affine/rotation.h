@@ -43,27 +43,20 @@ FR_FORCE_INLINE void fr_affine_rotate_z(mat4* transform, f32 angle, mat4* result
 FR_FORCE_INLINE void fr_affine_rotate_around(mat4* transform, vec3* pivot, f32 angle, vec3* axis) {
     fr_affine_translate(transform, pivot);
     fr_affine_rotate(transform, axis, angle);
-    fr_affine_translate(transform, &(vec3){.x=-pivot->x, .y=-pivot->y, .z=-pivot->z});
+    vec3 inv_pivot = (vec3){.x=-pivot->x, .y=-pivot->y, .z=-pivot->z};
+    fr_affine_translate(transform, &inv_pivot);
 }
 
 FR_FORCE_INLINE void fr_affine_rotate_around_to(mat4* transform, vec3* pivot, f32 angle, vec3* axis, mat4* result) {
     fr_affine_translate_to(transform, pivot, result);
     fr_affine_rotate(result, axis, angle);
-    fr_affine_translate(result, &(vec3){.x=-pivot->x, .y=-pivot->y, .z=-pivot->z});
+    vec3 inv_pivot = (vec3){.x=-pivot->x, .y=-pivot->y, .z=-pivot->z};
+    fr_affine_translate(result, &inv_pivot);
 }
 
 FR_FORCE_INLINE void fr_affine_spin(mat4* transform, f32 angle, vec3* axis) {
     mat4 rotation;
-    fr_affine_create_pivot_rotation(
-        &(vec3){.x = transform->m03, .y = transform->m13, .z = transform->m23},
-        axis, angle, &rotation);
-    fr_affine_mul_rot(&rotation, transform, transform);
-}
-
-FR_FORCE_INLINE void fr_affine_spin2(mat4* transform, f32 angle, vec3* axis) {
-    mat4 rotation;
     vec3 pivot = (vec3){.x=transform->m03, .y=transform->m13, .z=transform->m23};
-
     fr_affine_create_pivot_rotation(&pivot, axis, angle, &rotation);
     fr_affine_mul_rot(&rotation, transform, transform);
 }
