@@ -15,6 +15,7 @@
 #include "fracture/core/library/math/simd/sse.h"
 
 typedef union vec4_u {
+    alignas(16) f32 data[4];
     struct {
         union {
             f32 x;
@@ -39,7 +40,6 @@ typedef union vec4_u {
             f32 height;
         };
     };
-    alignas(16) f32 data[4];
 #if FR_SIMD == 1
     alignas(16) __m128 simd;
 #endif

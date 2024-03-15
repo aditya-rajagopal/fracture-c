@@ -42,8 +42,12 @@ typedef union mat3s
     vec3 columns[3];
 }  mat3;
 
-typedef FR_ALIGN(16) union mat4s
-{
+typedef FR_ALIGN(16) union mat4s {
+    f32 data[16];
+    vec4 columns[4];
+#if FR_SIMD == 1
+    __m128 simd[4];
+#endif
     struct
     {
         f32 m00, m10, m20, m30;
@@ -51,11 +55,6 @@ typedef FR_ALIGN(16) union mat4s
         f32 m02, m12, m22, m32;
         f32 m03, m13, m23, m33;
     };
-    f32 data[16];
-    vec4 columns[4];
-#if FR_SIMD == 1
-    __m128 simd[4];
-#endif
 } mat4;
 
 typedef mat4 mat4x4;

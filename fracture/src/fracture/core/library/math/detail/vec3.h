@@ -13,6 +13,7 @@
 #include "fracture/core/defines.h"
 #include "fracture/core/library/math/simd/sse.h"
 typedef union vec3_u {
+    f32 data[3];
     struct {
        union {
            f32 x;
@@ -39,7 +40,6 @@ typedef union vec3_u {
 } __attribute__((aligned(16))) vec3;
 #else
     };
-    f32 data[3];
 }  vec3;
 #endif
 

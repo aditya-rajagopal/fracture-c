@@ -60,3 +60,9 @@ FR_FORCE_INLINE void fr_affine_spin(mat4* transform, f32 angle, vec3* axis) {
     fr_affine_create_pivot_rotation(&pivot, axis, angle, &rotation);
     fr_affine_mul_rot(&rotation, transform, transform);
 }
+
+FR_FORCE_INLINE void fr_affine_left_rotate(f32 angle, vec3* axis, mat4* transform) {
+    mat4 rotation;
+    fr_affine_create_rotation(axis, angle, &rotation);
+    fr_affine_mul_rot(&rotation, transform, transform);
+};
