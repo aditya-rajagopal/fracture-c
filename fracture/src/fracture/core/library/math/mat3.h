@@ -39,16 +39,16 @@ FR_FORCE_INLINE void fr_mat3_identity(mat3* m) {
     m->m21 = 0.0f;
 }
 
-FR_FORCE_INLINE void fr_mat3_random(mat3* m) {
-    m->m00 = fr_random();
-    m->m01 = fr_random();
-    m->m02 = fr_random();
-    m->m10 = fr_random();
-    m->m11 = fr_random();
-    m->m12 = fr_random();
-    m->m20 = fr_random();
-    m->m21 = fr_random();
-    m->m22 = fr_random();
+FR_FORCE_INLINE void fr_mat3_random_uniform(mat3* m, f32 (*PFN_randf)(void* state, f32 min, f32 max), void* state, f32 min, f32 max) {
+    m->m00 = PFN_randf(state, min, max);
+    m->m01 = PFN_randf(state, min, max);
+    m->m02 = PFN_randf(state, min, max);
+    m->m10 = PFN_randf(state, min, max);
+    m->m11 = PFN_randf(state, min, max);
+    m->m12 = PFN_randf(state, min, max);
+    m->m20 = PFN_randf(state, min, max);
+    m->m21 = PFN_randf(state, min, max);
+    m->m22 = PFN_randf(state, min, max);
 }
 
 FR_FORCE_INLINE void fr_mat3_fill(mat3* m, f32 val) {

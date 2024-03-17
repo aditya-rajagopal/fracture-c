@@ -126,3 +126,62 @@ STATIC_ASSERT(sizeof(b8) == 1, "b8 is not 1 byte");
 #else
 #define FR_VEC3_SIMD 0
 #endif
+
+// Define debug break
+#ifdef _ENABLE_ASSERTS
+    #define DEBUG_BREAK() __debugbreak()
+    #define FR_ENABLE_ASSERTS 1
+    #define FR_ASSERT(expression) \
+        if (expression) {         \
+        } else {                  \
+            DEBUG_BREAK();        \
+        }
+#else
+    #define DEBUG_BREAK()
+    #define FR_ENABLE_ASSERTS 0
+    #define FR_ASSERT(expression)
+#endif
+
+#if defined (WIN32) || defined (_WIN32) || defined (__WIN32__)
+    #define FR_PLATFORM_WINDOWS  1
+    #ifndef _WIN64
+        #error "64-bit Windows is required"
+    #endif
+#elif defined (__linux__) || defined (__gnu_linux__)
+    #define FR_PLATFORM_LINUX
+    #ifndef __x86_64__
+        #error "64-bit Linux is required"
+    #endif
+#else
+    #error "Unsupported platform"
+#endif
+
+// Define export macro
+#ifdef FR_EXPORT
+    #ifdef _MSC_VER
+        #define FR_API __declspec(dllexport)
+    #else
+        #define FR_API __attribute__((visibility("default")))
+    #endif
+#elif FR_IMPORT
+    #ifdef _MSC_VER
+        #define FR_API __declspec(dllimport)
+    #else
+        #define FR_API
+    #endif
+#else
+    #define FR_API
+#endif
+
+// Define debug macro
+#ifdef _DEBUG
+    #define FR_DEBUG 1
+#else
+    #define FR_DEBUG 0
+#endif
+
+#ifdef _RELEASE
+    #define FR_RELEASE 1
+#else
+    #define FR_RELEASE 0
+#endif

@@ -14,7 +14,7 @@ SET comilerFlags=-g -O3 -fno-math-errno -fno-trapping-math
 REM -Wall -Werror
 SET includeFlags=-Isrc -I..\fracture\src -I..\fracture\includes
 SET linkerFlags=-luser32 -L../bin/ -lfracture.lib
-SET defines=-D_DEBUG -DFR_IMPORT -D_ENABLE_ASSERTS -D_SIMD -DFR_MATH_FORCE_INLINE
+SET defines=-D_DEBUG -DFR_IMPORT -D_ENABLE_ASSERTS -D_SIMD -DFR_MATH_FORCE_INLINE -D_RNG_XORWOW
 
 ECHO "Buildin %assembly%...."
 clang %cFileNames% %comilerFlags% -o ../bin/%assembly%.exe %defines% %includeFlags% %linkerFlags%

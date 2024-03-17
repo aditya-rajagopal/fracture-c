@@ -10,14 +10,12 @@
  */
 #pragma once
 
-#include <xmmintrin.h>
-
 #include "detail/vec3.h"
-#include "fracture/fracture_core.h"
 #include "math_constants.h"
 #include "simd/sse.h"
 #include "utils.h"
 
+#include "fracture/core/library/random/fr_random.h"
 
 // ---------------------------------------------------------
 // ------------------- Vec3 Constructors -------------------
@@ -386,6 +384,18 @@ FR_FORCE_INLINE void fr_vec3_fill(vec3* dest, f32 val) {
     dest->y = val;
     dest->z = val;
 #endif
+}
+
+FR_FORCE_INLINE void fr_vec3_random_uniform(vec3* dest, void* state) {
+    dest->x = fr_random_uniform(state);
+    dest->y = fr_random_uniform(state);
+    dest->z = fr_random_uniform(state);
+}
+
+FR_FORCE_INLINE void fr_vec3_random_uniform_range(vec3* dest, void* state, f32 min, f32 max) {
+    dest->x = fr_random_uniform_range(state, min, max);
+    dest->y = fr_random_uniform_range(state, min, max);
+    dest->z = fr_random_uniform_range(state, min, max);
 }
 
 // ---------------------------------------------

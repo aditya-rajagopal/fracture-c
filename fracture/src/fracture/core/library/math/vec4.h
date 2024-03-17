@@ -17,6 +17,8 @@
 #include "math_constants.h"
 #include "utils.h"
 
+#include "fracture/core/library/random/fr_random.h"
+
 // ------------------------------------------------------------------------------------------------
 // Constructors
 // ------------------------------------------------------------------------------------------------
@@ -117,6 +119,35 @@ FR_FORCE_INLINE void fr_vec4_arr(const f32* arr, vec4* dest) {
     dest->y = arr[1];
     dest->z = arr[2];
     dest->w = arr[3];
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_random_uniform(vec4* dest, void* state) {
+#if FR_SIMD == 1
+    f32 FR_ALIGN(16)
+        data[4] = {fr_random_uniform(state), fr_random_uniform(state),
+                   fr_random_uniform(state), fr_random_uniform(state)};
+    dest->simd = _mm_load_ps(data);
+#else
+    dest->x = fr_random_uniform(state);
+    dest->y = fr_random_uniform(state);
+    dest->z = fr_random_uniform(state);
+    dest->w = fr_random_uniform(state);
+#endif
+}
+FR_FORCE_INLINE void fr_vec4_random_uniform_range(vec4* dest, void* state, f32 min, f32 max) {
+#if FR_SIMD == 1
+    FR_ALIGN(16)
+    f32 data[4] = {fr_random_uniform_range(state, min, max),
+                   fr_random_uniform_range(state, min, max),
+                   fr_random_uniform_range(state, min, max),
+                   fr_random_uniform_range(state, min, max)};
+    dest->simd = _mm_load_ps(data);
+#else
+    dest->x = fr_random_uniform_range(state, min, max);
+    dest->y = fr_random_uniform_range(state, min, max);
+    dest->z = fr_random_uniform_range(state, min, max);
+    dest->w = fr_random_uniform_range(state, min, max);
 #endif
 }
 

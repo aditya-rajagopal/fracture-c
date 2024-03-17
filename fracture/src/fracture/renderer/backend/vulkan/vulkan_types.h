@@ -22,7 +22,7 @@
         VkResult res = (f);                                 \
         if (res != VK_SUCCESS) {                            \
             FR_CORE_FATAL("Vulkan error %s : %d", #f, res); \
-            FR_CORE_ASSERT(FALSE);                          \
+            FR_ASSERT(FALSE);                          \
             return FALSE;                                   \
         }                                                   \
     }

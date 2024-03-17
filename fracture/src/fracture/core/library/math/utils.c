@@ -1,6 +1,7 @@
 #include "utils.h"
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 f32 fr_sqrt(f32 val) { return sqrtf(val); }
 f32 fr_inv_sqrt(f32 val) { return 1.0f / sqrtf(val); }
@@ -43,8 +44,6 @@ i32 fr_prev_pow2(i32 val) {
     val |= val >> 16;
     return val - (val >> 1);
 }
-
-f32 fr_random() { return (f32)rand() / (f32)RAND_MAX; }
 
 void fr_mat2_print(const char* name, int* len, const mat2* m, char* out_string) {
     char buffer[1024];

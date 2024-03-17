@@ -17,6 +17,8 @@
 #include "simd/sse.h"
 #include "detail/matrix.h"
 
+#include "fracture/core/library/random/fr_random.h"
+
 //--------------------------------------------------------------------------------------------
 // Constructors
 //--------------------------------------------------------------------------------------------
@@ -77,7 +79,7 @@ FR_FORCE_INLINE void fr_mat4_diagsv(mat4* m, vec4* diag) {
 #endif
 }
 
-FR_FORCE_INLINE void fr_mat4_create(f32* data, mat4* m) {
+FR_FORCE_INLINE void fr_mat4_create(const f32* data, mat4* m) {
 #if FR_SIMD == 1
     m->simd[0] = _mm_load_ps(data);
     m->simd[1] = _mm_load_ps(data + 4);
@@ -153,11 +155,27 @@ FR_FORCE_INLINE void fr_mat4_to_mat3t(const mat4* src, mat3* dst) {
     dst->m02 = src->m20; dst->m12 = src->m21; dst->m22 = src->m22;
 }
 
-FR_FORCE_INLINE void fr_mat4_random(mat4* m) {
-    m->m00 = fr_random(); m->m01 = fr_random(); m->m02 = fr_random(); m->m03 = fr_random();
-    m->m10 = fr_random(); m->m11 = fr_random(); m->m12 = fr_random(); m->m13 = fr_random();
-    m->m20 = fr_random(); m->m21 = fr_random(); m->m22 = fr_random(); m->m23 = fr_random();
-    m->m30 = fr_random(); m->m31 = fr_random(); m->m32 = fr_random(); m->m33 = fr_random();
+FR_FORCE_INLINE void fr_mat4_random_uniform_custom(mat4* m, f32 (*PFN_randf_range)(void* state, f32 min, f32 max), void* state, f32 min, f32 max) {
+    FR_ALIGN(16) f32 data[16] = {0.0f};
+    for (u32 i = 0; i < 16; i++) {
+        data[i] = PFN_randf_range(state, min, max);
+    }
+    fr_mat4_create(data, m);
+}
+
+FR_FORCE_INLINE void fr_mat4_random_uniform(mat4* m, void* state) {
+    FR_ALIGN(16) f32 data[16] = {0.0f};
+    for (u32 i = 0; i < 16; i++) {
+        data[i] = fr_random_uniform(state);
+    }
+    fr_mat4_create(data, m);
+}
+FR_FORCE_INLINE void fr_mat4_random_uniform_range(mat4* m, void* state, f32 min, f32 max) {
+    FR_ALIGN(16) f32 data[16] = {0.0f};
+    for (u32 i = 0; i < 16; i++) {
+        data[i] = fr_random_uniform_range(state, min, max);
+    }
+    fr_mat4_create(data, m);
 }
 
 //--------------------------------------------------------------------------------------------
