@@ -38,6 +38,12 @@ FR_API f32 fr_random_xorwow_range(void* config, f32 min, f32 max);
 FR_API i32 fr_random_xorwow_rangei(void* config, i32 min, i32 max);
 FR_API i32 fr_random_xorwow_i0N(void* config, i32 n);
 
+//TODO: Implement alias method for random number generation from a discrete distribution
+//TODO: Implement Box-Muller method for generating random numbers from a normal distribution
+//TODO: Implement Marsaglia polar method for generating random numbers from a normal distribution
+//TODO: Implement a possion distribution generator using the Knuth method or the Marsaglia method
+//TODO: Implement a binomial distribution generator using the Marsaglia method
+
 #ifdef _RNG_XORWOW
     #define fr_random_init fr_random_xorwow_init
     #define fr_random_uniform fr_random_xorwowf
