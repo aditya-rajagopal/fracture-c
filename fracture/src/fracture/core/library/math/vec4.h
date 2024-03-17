@@ -23,6 +23,15 @@
 // Constructors
 // ------------------------------------------------------------------------------------------------
 
+/**
+ * @brief Create a new vec4 from the given values
+ * 
+ * @param x The x component 
+ * @param y The y component
+ * @param z The z component
+ * @param w The w component
+ * @param dest The destination vec4
+ */
 FR_FORCE_INLINE void fr_vec4(f32 x, f32 y, f32 z, f32 w, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_set_ps(w, z, y, x);
@@ -34,6 +43,13 @@ FR_FORCE_INLINE void fr_vec4(f32 x, f32 y, f32 z, f32 w, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Create a new vec4 from the given vec3 and w component
+ * 
+ * @param xyz The vec3
+ * @param w The w component
+ *@param dest The destination vec4
+ */
 FR_FORCE_INLINE void fr_vec4_v3s(const vec3* xyz, f32 w, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_set_ps(w, xyz->z, xyz->y, xyz->x);
@@ -45,18 +61,15 @@ FR_FORCE_INLINE void fr_vec4_v3s(const vec3* xyz, f32 w, vec4* dest) {
 #endif
 }
 
-FR_FORCE_INLINE void fr_vec4_sv3(f32 x, const vec3* yzw, vec4* dest) {
-#if FR_SIMD == 1
-    dest->simd = _mm_set_ps(yzw->z, yzw->y, yzw->x, x);
-#else
-    dest->x = x;
-    dest->y = yzw->x;
-    dest->z = yzw->y;
-    dest->w = yzw->z;
-#endif
-}
-
-FR_FORCE_INLINE void fr_vec4_v2s(const vec2* xy, f32 z, f32 w, vec4* dest) {
+/**
+ * @brief Create a new vec4 from the given vec2 and z, w components
+ * 
+ * @param xy The vec2
+ * @param z The z component
+ * @param w The w component
+ * @param dest The destination vec4
+ */
+FR_FORCE_INLINE void fr_vec4_v2ss(const vec2* xy, f32 z, f32 w, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_set_ps(w, z, xy->y, xy->x);
 #else
@@ -67,6 +80,13 @@ FR_FORCE_INLINE void fr_vec4_v2s(const vec2* xy, f32 z, f32 w, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Create a new vec4 from the given vec2 and vec2
+ * 
+ * @param xy The vec2 for the xy components
+ * @param zw The vec2 for the zw components
+ * @param dest The destination vec4
+ */
 FR_FORCE_INLINE void fr_vec4_v2(const vec2* xy, const vec2* zw, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_set_ps(zw->y, zw->x, xy->y, xy->x);
@@ -78,6 +98,12 @@ FR_FORCE_INLINE void fr_vec4_v2(const vec2* xy, const vec2* zw, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Fill the given vec4 with the given value s
+ * 
+ * @param s The value to fill the vec4 with
+ * @param dest The destination vec4
+ */
 FR_FORCE_INLINE void fr_vec4_fill(f32 s, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_set1_ps(s);
@@ -89,7 +115,12 @@ FR_FORCE_INLINE void fr_vec4_fill(f32 s, vec4* dest) {
 #endif
 }
 
-FR_FORCE_INLINE void fr_vec4_zero(vec4* dest) {
+/**
+ * @brief Fill the given vec4 with zeros
+ * 
+ * @param dest The destination vec4
+ */
+FR_FORCE_INLINE void fr_vec4_zeros(vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_setzero_ps();
 #else
@@ -100,7 +131,12 @@ FR_FORCE_INLINE void fr_vec4_zero(vec4* dest) {
 #endif
 }
 
-FR_FORCE_INLINE void fr_vec4_one(vec4* dest) {
+/**
+ * @brief Fill the given vec4 with ones
+ * 
+ * @param dest The destination vec4
+ */
+FR_FORCE_INLINE void fr_vec4_ones(vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_set1_ps(1.0f);
 #else
@@ -111,22 +147,34 @@ FR_FORCE_INLINE void fr_vec4_one(vec4* dest) {
 #endif
 }
 
-FR_FORCE_INLINE void fr_vec4_arr(const f32* arr, vec4* dest) {
+/**
+ * @brief Create a new vec4 from the given array
+ * 
+ * @param arr The array of f32 with at least 4 elements
+ * @param dest The destination vec4
+ */
+FR_FORCE_INLINE void fr_vec4_create(const f32* restrict data, vec4* dest) {
 #if FR_SIMD == 1
-    dest->simd = _mm_loadu_ps(arr);
+    dest->simd = _mm_loadu_ps(data);
 #else
-    dest->x = arr[0];
-    dest->y = arr[1];
-    dest->z = arr[2];
-    dest->w = arr[3];
+    dest->x = data[0];
+    dest->y = data[1];
+    dest->z = data[2];
+    dest->w = data[3];
 #endif
 }
 
-FR_FORCE_INLINE void fr_vec4_random_uniform(vec4* dest, void* state) {
+/**
+ * @brief Create a new vec4 with random uniform values
+ * 
+ * @param dest The destination vec4
+ * @param state The configuration of the random number generator
+ * @return FR_FORCE_INLINE 
+ */
+FR_FORCE_INLINE void fr_vec4_random_uniform(vec4* dest, void* config) {
 #if FR_SIMD == 1
-    f32 FR_ALIGN(16)
-        data[4] = {fr_random_uniform(state), fr_random_uniform(state),
-                   fr_random_uniform(state), fr_random_uniform(state)};
+    f32 FR_ALIGN(16) data[4] = {
+        fr_random_uniform(config), fr_random_uniform(config), fr_random_uniform(config), fr_random_uniform(config)};
     dest->simd = _mm_load_ps(data);
 #else
     dest->x = fr_random_uniform(state);
@@ -135,6 +183,16 @@ FR_FORCE_INLINE void fr_vec4_random_uniform(vec4* dest, void* state) {
     dest->w = fr_random_uniform(state);
 #endif
 }
+
+/**
+ * @brief Create a new vec4 with random uniform values in the given range
+ * 
+ * @param dest The destination vec4
+ * @param state The configuration of the random number generator
+ * @param min The minimum value
+ * @param max The maximum value
+ * @return FR_FORCE_INLINE 
+ */
 FR_FORCE_INLINE void fr_vec4_random_uniform_range(vec4* dest, void* state, f32 min, f32 max) {
 #if FR_SIMD == 1
     FR_ALIGN(16)
@@ -155,6 +213,13 @@ FR_FORCE_INLINE void fr_vec4_random_uniform_range(vec4* dest, void* state, f32 m
 // Utilities
 // ------------------------------------------------------------------------------------------------
 
+/**
+ * @brief Compare 2 vec4s and store the element-wise equality in a bvec4.
+ * @details The comparison is done with a threshold of FLOAT_EPSILON
+ * @param a
+ * @param b 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_iveqv(const vec4* a, const vec4* b, bvec4* dest) {
 #if FR_SIMD == 1
     __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
@@ -173,36 +238,13 @@ FR_FORCE_INLINE void fr_vec4_iveqv(const vec4* a, const vec4* b, bvec4* dest) {
 #endif
 }
 
-FR_FORCE_INLINE void fr_vec4_veqv(const vec4* a, const vec4* b, vec4* dest) {
-#if FR_SIMD == 1 
-    __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
-    __m128 diff = _mm_sub_ps(a->simd, b->simd);
-    __m128 abs_diff = fr_simd_abs(diff);
-    __m128 mask = _mm_cmplt_ps(abs_diff, thresh);
-    dest->simd = _mm_and_ps(mask, _mm_set1_ps(1.0f));
-#else
-    dest->x = fr_equal(a->x, b->x);
-    dest->y = fr_equal(a->y, b->y);
-    dest->z = fr_equal(a->z, b->z);
-    dest->w = fr_equal(a->w, b->w);
-#endif
-}
-
-
-FR_FORCE_INLINE void fr_vec4_vneqv(const vec4* a, const vec4* b, vec4* dest) {
-#if FR_SIMD == 1
-    __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
-    __m128 diff = _mm_sub_ps(a->simd, b->simd);
-    __m128 abs_diff = fr_simd_abs(diff);
-    __m128 mask = _mm_cmpgt_ps(abs_diff, thresh);
-    dest->simd = _mm_and_ps(mask, _mm_set1_ps(1.0f));
-#else
-    dest->x = (f32)(a->x != b->x);
-    dest->y = (f32)(a->y != b->y);
-    dest->z = (f32)(a->z != b->z);
-    dest->w = (f32)(a->w != b->w);
-#endif
-}
+/**
+ * @brief Compare 2 vec4s and store the element-wise inequality in a bvec4.
+ * @details The comparison is done with a threshold of FLOAT_EPSILON
+ * @param a
+ * @param b 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_ineqv(const vec4* a, const vec4* b, bvec4* dest) {
 #if FR_SIMD == 1
     __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
@@ -221,6 +263,58 @@ FR_FORCE_INLINE void fr_vec4_ineqv(const vec4* a, const vec4* b, bvec4* dest) {
 #endif
 }
 
+
+/**
+ * @brief Compare 2 vec4s and store the element-wise equality in a vec4.
+ * @details The comparison is done with a threshold of FLOAT_EPSILON
+ * @param a
+ * @param b 
+ * @param dest 
+ */
+FR_FORCE_INLINE void fr_vec4_veqv(const vec4* a, const vec4* b, vec4* dest) {
+#if FR_SIMD == 1 
+    __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
+    __m128 diff = _mm_sub_ps(a->simd, b->simd);
+    __m128 abs_diff = fr_simd_abs(diff);
+    __m128 mask = _mm_cmplt_ps(abs_diff, thresh);
+    dest->simd = _mm_and_ps(mask, _mm_set1_ps(1.0f));
+#else
+    dest->x = fr_equal(a->x, b->x);
+    dest->y = fr_equal(a->y, b->y);
+    dest->z = fr_equal(a->z, b->z);
+    dest->w = fr_equal(a->w, b->w);
+#endif
+}
+
+/**
+ * @brief Compare 2 vec4s and store the element-wise inequality in a vec4.
+ * @details The comparison is done with a threshold of FLOAT_EPSILON
+ * @param a
+ * @param b 
+ * @param dest 
+ */
+FR_FORCE_INLINE void fr_vec4_vneqv(const vec4* a, const vec4* b, vec4* dest) {
+#if FR_SIMD == 1
+    __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
+    __m128 diff = _mm_sub_ps(a->simd, b->simd);
+    __m128 abs_diff = fr_simd_abs(diff);
+    __m128 mask = _mm_cmpgt_ps(abs_diff, thresh);
+    dest->simd = _mm_and_ps(mask, _mm_set1_ps(1.0f));
+#else
+    dest->x = (f32)(a->x != b->x);
+    dest->y = (f32)(a->y != b->y);
+    dest->z = (f32)(a->z != b->z);
+    dest->w = (f32)(a->w != b->w);
+#endif
+}
+
+/**
+ * @brief Compare 2 vec4s and return true if they are equal
+ * @details The comparison is done with a threshold of FLOAT_EPSILON
+ * @param a
+ * @param b 
+ * @return b8 TRUE if every component of a is equal to the corresponding component of b
+ */
 FR_FORCE_INLINE b8 fr_vec4_eqv(const vec4* a, const vec4* b) {
 #if FR_SIMD == 1 // In O0 optimization non simd is faster than simd
     __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
@@ -234,6 +328,13 @@ FR_FORCE_INLINE b8 fr_vec4_eqv(const vec4* a, const vec4* b) {
 #endif
 }
 
+/**
+ * @brief Compare 2 vec4s and return true if they are equal exactly
+ *
+ * @param a
+ * @param b 
+ * @return b8 TRUE if every component of a is equal to the corresponding component of b
+ */
 FR_FORCE_INLINE b8 fr_vec4_eqv_exact(const vec4* a, const vec4* b) {
 #if FR_SIMD == 1
     return _mm_movemask_ps(_mm_cmpeq_ps(a->simd, b->simd)) == 0x0F;
@@ -242,6 +343,13 @@ FR_FORCE_INLINE b8 fr_vec4_eqv_exact(const vec4* a, const vec4* b) {
 #endif
 }
 
+/**
+ * @brief Compare 2 vec4s and return true if they are not equal
+ * @details The comparison is done with a threshold of FLOAT_EPSILON
+ * @param a
+ * @param b 
+ * @return b8 TRUE if ANY component of a is not equal to the corresponding component of b
+ */
 FR_FORCE_INLINE b8 fr_vec4_neqv(const vec4* a, const vec4* b) {
 #if FR_SIMD == 1 // In O0 optimization non simd is faster than simd
     __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
@@ -255,6 +363,13 @@ FR_FORCE_INLINE b8 fr_vec4_neqv(const vec4* a, const vec4* b) {
 #endif
 }
 
+/**
+ * @brief Compare 2 vec4s and return true if they are not equal exactly
+ *
+ * @param a
+ * @param b 
+ * @return b8 TRUE if ANY component of a is not equal to the corresponding component of b
+ */
 FR_FORCE_INLINE b8 fr_vec4_neqv_exact(const vec4* a, const vec4* b) {
 #if FR_SIMD == 1
     return _mm_movemask_ps(_mm_cmpneq_ps(a->simd, b->simd)) != 0x0F;
@@ -263,6 +378,13 @@ FR_FORCE_INLINE b8 fr_vec4_neqv_exact(const vec4* a, const vec4* b) {
 #endif
 }
 
+/**
+ * @brief Compare a vec4 with a scalar and store the element-wise equality in a bvec4.
+ * @details The comparison is done with a threshold of FLOAT_EPSILON
+ * @param a
+ * @param b 
+ * @param dest
+ */
 FR_FORCE_INLINE void fr_vec4_iveqs(const vec4* a, f32 s, bvec4* dest) {
 #if FR_SIMD == 1
     __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
@@ -281,6 +403,13 @@ FR_FORCE_INLINE void fr_vec4_iveqs(const vec4* a, f32 s, bvec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compare a vec4 with a scalar and store the element-wise inequality in a bvec4.
+ * @details The comparison is done with a threshold of FLOAT_EPSILON
+ * @param a
+ * @param b 
+ * @param dest
+ */
 FR_FORCE_INLINE void fr_vec4_veqs(const vec4* a, f32 s, vec4* dest) {
 #if FR_SIMD == 1 // Simd is about the same speed as non simd
     __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
@@ -296,6 +425,13 @@ FR_FORCE_INLINE void fr_vec4_veqs(const vec4* a, f32 s, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compare a vec4 with a scalar and store the element-wise inequality in a bvec4.
+ * @details The comparison is done with a threshold of FLOAT_EPSILON
+ * @param a
+ * @param b 
+ * @param dest
+ */
 FR_FORCE_INLINE void fr_vec4_vneqs(const vec4* a, f32 s, vec4* dest) {
 #if FR_SIMD == 1 // Simd is about the same speed as non simd
     __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
@@ -311,6 +447,13 @@ FR_FORCE_INLINE void fr_vec4_vneqs(const vec4* a, f32 s, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compare a vec4 with a scalar and return true if they are equal
+ * @details The comparison is done with a threshold of FLOAT_EPSILON
+ * @param a
+ * @param b 
+ * @return b8 TRUE if every component of a is equal to s
+ */
 FR_FORCE_INLINE b8 fr_vec4_eqs(const vec4* a, f32 s) {
 #if FR_SIMD == 1 // Simd is about the same speed as non simd
     __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
@@ -324,6 +467,13 @@ FR_FORCE_INLINE b8 fr_vec4_eqs(const vec4* a, f32 s) {
 #endif
 }
 
+/**
+ * @brief Compare a vec4 with a scalar and return true if they are not equal
+ * @details The comparison is done with a threshold of FLOAT_EPSILON
+ * @param a
+ * @param b 
+ * @return b8 TRUE if ANY component of a is not equal to s
+ */
 FR_FORCE_INLINE b8 fr_vec4_neqs(const vec4* a, f32 s) {
 #if FR_SIMD == 1 // Simd is about the same speed as non simd
     __m128 thresh = _mm_set1_ps(FLOAT_EPSILON);
@@ -337,6 +487,13 @@ FR_FORCE_INLINE b8 fr_vec4_neqs(const vec4* a, f32 s) {
 #endif
 }
 
+/**
+ * @brief Compare a vec4 with a scalar and return true if they are equal exactly
+ *
+ * @param a
+ * @param b 
+ * @return b8 TRUE if every component of a is equal to s
+ */
 FR_FORCE_INLINE b8 fr_vec4_eqs_exact(const vec4* a, f32 s) {
 #if FR_SIMD == 1
     return _mm_movemask_ps(_mm_cmpeq_ps(a->simd, _mm_set1_ps(s))) == 0x0F;
@@ -345,6 +502,13 @@ FR_FORCE_INLINE b8 fr_vec4_eqs_exact(const vec4* a, f32 s) {
 #endif
 }
 
+/**
+ * @brief Compare a vec4 with a scalar and return true if they are not equal exactly
+ *
+ * @param a
+ * @param b 
+ * @return b8 TRUE if ANY component of a is not equal to s
+ */
 FR_FORCE_INLINE b8 fr_vec4_neqs_exact(const vec4* a, f32 s) {
 #if FR_SIMD == 1
     return _mm_movemask_ps(_mm_cmpneq_ps(a->simd, _mm_set1_ps(s))) != 0x0F;
@@ -353,6 +517,12 @@ FR_FORCE_INLINE b8 fr_vec4_neqs_exact(const vec4* a, f32 s) {
 #endif
 }
 
+/**
+ * @brief Compare 2 vec4s and store the element-wise greater than in a vec4.
+ * @param a
+ * @param b 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_vgtv(const vec4* a, const vec4* b, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_and_ps(_mm_cmpgt_ps(a->simd, b->simd), _mm_set1_ps(1.0f));
@@ -364,6 +534,12 @@ FR_FORCE_INLINE void fr_vec4_vgtv(const vec4* a, const vec4* b, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compare 2 vec4s and store the element-wise less than in a vec4.
+ * @param a
+ * @param b 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_vltv(const vec4* a, const vec4* b, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_and_ps(_mm_cmplt_ps(a->simd, b->simd), _mm_set1_ps(1.0f));
@@ -375,6 +551,12 @@ FR_FORCE_INLINE void fr_vec4_vltv(const vec4* a, const vec4* b, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compare 2 vec4s and store the element-wise greater than or equal in a vec4.
+ * @param a
+ * @param b 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_vgev(const vec4* a, const vec4* b, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_and_ps(_mm_cmpge_ps(a->simd, b->simd), _mm_set1_ps(1.0f));
@@ -386,6 +568,12 @@ FR_FORCE_INLINE void fr_vec4_vgev(const vec4* a, const vec4* b, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compare 2 vec4s and store the element-wise less than or equal in a vec4.
+ * @param a
+ * @param b 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_vlev(const vec4* a, const vec4* b, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_and_ps(_mm_cmple_ps(a->simd, b->simd), _mm_set1_ps(1.0f));
@@ -397,6 +585,12 @@ FR_FORCE_INLINE void fr_vec4_vlev(const vec4* a, const vec4* b, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compare a vec4 with a scalar and store the element-wise greater than in a vec4.
+ * @param a
+ * @param b 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_vgts(const vec4* a, f32 s, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_and_ps(_mm_cmpgt_ps(a->simd, _mm_set1_ps(s)), _mm_set1_ps(1.0f));
@@ -408,6 +602,12 @@ FR_FORCE_INLINE void fr_vec4_vgts(const vec4* a, f32 s, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compare a vec4 with a scalar and store the element-wise less than in a vec4.
+ * @param a
+ * @param b 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_vlts(const vec4* a, f32 s, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_and_ps(_mm_cmplt_ps(a->simd, _mm_set1_ps(s)), _mm_set1_ps(1.0f));
@@ -419,6 +619,12 @@ FR_FORCE_INLINE void fr_vec4_vlts(const vec4* a, f32 s, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compare a vec4 with a scalar and store the element-wise greater than or equal in a vec4.
+ * @param a
+ * @param b 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_vges(const vec4* a, f32 s, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_and_ps(_mm_cmpge_ps(a->simd, _mm_set1_ps(s)), _mm_set1_ps(1.0f));
@@ -430,6 +636,12 @@ FR_FORCE_INLINE void fr_vec4_vges(const vec4* a, f32 s, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compare a vec4 with a scalar and store the element-wise less than or equal in a vec4.
+ * @param a
+ * @param b 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_vles(const vec4* a, f32 s, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_and_ps(_mm_cmple_ps(a->simd, _mm_set1_ps(s)), _mm_set1_ps(1.0f));
@@ -441,6 +653,12 @@ FR_FORCE_INLINE void fr_vec4_vles(const vec4* a, f32 s, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Checks if a vec4 is zero
+ * 
+ * @param a 
+ * @return b8 TRUE if every component of a is equal to 0
+ */
 FR_FORCE_INLINE b8 fr_vec4_iszero(const vec4* a) {
 #if FR_SIMD == 1
     return _mm_movemask_ps(_mm_cmpeq_ps(a->simd, _mm_setzero_ps())) == 0x0F;
@@ -454,6 +672,13 @@ FR_FORCE_INLINE b8 fr_vec4_iszero(const vec4* a) {
 // Arithmetic
 // ------------------------------------------------------------------------------------------------
 
+/**
+ * @brief Compute the dot product of 2 vec4s
+ * 
+ * @param a 
+ * @param b 
+ * @return f32 The dot product of a and b
+ */
 FR_FORCE_INLINE f32 fr_vec4_dot(const vec4* a, const vec4* b) {
 #if FR_SIMD == 1 // In O0 optimization non simd is faster than simd
    return _mm_cvtss_f32(fr_simd_vdot(a->simd, b->simd));
@@ -462,6 +687,12 @@ FR_FORCE_INLINE f32 fr_vec4_dot(const vec4* a, const vec4* b) {
 #endif
 }
 
+/**
+ * @brief Computes the L2 norm of a vec4
+ * 
+ * @param a 
+ * @return f32 The L2 norm of a
+ */
 FR_FORCE_INLINE f32 fr_vec4_norm(const vec4* a) {
 #if 1 // non simd is faster if you dont have O2 optimization
     return _mm_cvtss_f32(fr_simd_vnorm(a->simd));
@@ -470,6 +701,27 @@ FR_FORCE_INLINE f32 fr_vec4_norm(const vec4* a) {
 #endif
 }
 
+
+/**
+ * @brief Computes the inverse of the L2 norm of a vec4 using a fast approximation
+ * 
+ * @param a 
+ * @return f32 The inverse of the L2 norm of a
+ */
+FR_FORCE_INLINE f32 fr_vec4_invnorm_fast(const vec4* a) {
+#if 1 // non simd is faster if you dont have O2 optimization
+    return _mm_cvtss_f32(fr_simd_vinvnorm_fast(a->simd));
+#else
+    return 1.0 / fr_sqrt(a->x * a->x + a->y * a->y + a->z * a->z + a->w * a->w);
+#endif
+}
+
+/**
+ * @brief Computes the inverse of the L2 norm of a vec4
+ * 
+ * @param a 
+ * @return f32 The inverse of the L2 norm of a
+ */
 FR_FORCE_INLINE f32 fr_vec4_invnorm(const vec4* a) {
 #if 1 // non simd is faster if you dont have O2 optimization
     return _mm_cvtss_f32(fr_simd_vinvnorm(a->simd));
@@ -478,6 +730,12 @@ FR_FORCE_INLINE f32 fr_vec4_invnorm(const vec4* a) {
 #endif
 }
 
+/**
+ * @brief Computes the squared L2 norm of a vec4
+ * 
+ * @param a 
+ * @return f32 The squared L2 norm of a
+ */
 FR_FORCE_INLINE f32 fr_vec4_norm2(const vec4* a) {
 #if 1 // non simd is faster if you dont have O2 optimization
     return _mm_cvtss_f32(fr_simd_vnorm2(a->simd));
@@ -486,6 +744,12 @@ FR_FORCE_INLINE f32 fr_vec4_norm2(const vec4* a) {
 #endif
 }
 
+/**
+ * @brief Computes the L1 norm of a vec4
+ * 
+ * @param a 
+ * @return f32 The L1 norm of a
+ */
 FR_FORCE_INLINE f32 fr_vec4_norm1(const vec4* a) {
 #if 1 // non simd is faster if you dont have O2 optimization
     return _mm_cvtss_f32(fr_simd_vnorm1(a->simd));
@@ -494,14 +758,26 @@ FR_FORCE_INLINE f32 fr_vec4_norm1(const vec4* a) {
 #endif
 }
 
+/**
+ * @brief Computes the L_inf norm of a vec4
+ * 
+ * @param a 
+ * @return f32 The L_inf norm of a
+ */
 FR_FORCE_INLINE f32 fr_vec4_norm_inf(const vec4* a) {
 #if 1 // non simd is faster if you dont have O2 optimization
     return _mm_cvtss_f32(fr_simd_vnorm_inf(a->simd));
 #else
-    return fr_max(fr_max(fr_abs(a->x), fr_abs(a->y)), fr_max(fr_abs(a->z), fr_abs(a->w));
+    return fr_max(fr_max(fr_abs(a->x), fr_abs(a->y)), fr_max(fr_abs(a->z), fr_abs(a->w)));
 #endif
 }
 
+/**
+ * @brief Compute a unit vector from the given vec4 and store it in dest
+ * 
+ * @param a 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_normalize(const vec4* a, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_unit_vector(a->simd);
@@ -519,6 +795,13 @@ FR_FORCE_INLINE void fr_vec4_normalize(const vec4* a, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compute a unit vector from the given vec4 and store it in dest
+ * @details This function does not check for division by zero
+ * 
+ * @param a 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_normalize_unsafe(const vec4* a, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_unit_vector_unsafe(a->simd);
@@ -531,6 +814,12 @@ FR_FORCE_INLINE void fr_vec4_normalize_unsafe(const vec4* a, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compute the absolute value of a vec4 and store it in dest
+ * 
+ * @param a 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_abs(const vec4* a, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_abs(a->simd);
@@ -542,6 +831,12 @@ FR_FORCE_INLINE void fr_vec4_abs(const vec4* a, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compute the negation of a vec4 and store it in dest
+ * 
+ * @param a 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_negate(const vec4* a, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_xor_ps(a->simd, FR_SIGN_BITf32x4);
@@ -553,6 +848,13 @@ FR_FORCE_INLINE void fr_vec4_negate(const vec4* a, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compute the sum of 2 vec4s and store it in dest
+ * 
+ * @param a 
+ * @param b 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_add(const vec4* a, const vec4* b, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_add_ps(a->simd, b->simd);
@@ -564,6 +866,13 @@ FR_FORCE_INLINE void fr_vec4_add(const vec4* a, const vec4* b, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compute the sum of a vec4 and a scalar and store it in dest
+ * 
+ * @param a 
+ * @param s 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_adds(const vec4* a, f32 s, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_add_ps(a->simd, _mm_set1_ps(s));

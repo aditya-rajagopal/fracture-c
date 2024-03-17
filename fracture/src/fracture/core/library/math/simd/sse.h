@@ -138,8 +138,12 @@ FR_FORCE_INLINE __m128 fr_simd_vnorm(__m128 a) {
     return _mm_sqrt_ps(fr_simd_vdot(a, a));
 }
 
-FR_FORCE_INLINE __m128 fr_simd_vinvnorm(__m128 a) {
+FR_FORCE_INLINE __m128 fr_simd_vinvnorm_fast(__m128 a) {
     return _mm_rsqrt_ps(fr_simd_vdot(a, a));
+}
+
+FR_FORCE_INLINE __m128 fr_simd_vinvnorm(__m128 a) {
+    return _mm_div_ps(_mm_set1_ps(1.0), fr_simd_vdot(a, a));
 }
 
 FR_FORCE_INLINE __m128 fr_simd_vnorm1(__m128 a) {
