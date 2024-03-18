@@ -848,6 +848,17 @@ FR_FORCE_INLINE void fr_vec4_negate(const vec4* a, vec4* dest) {
 #endif
 }
 
+FR_FORCE_INLINE void fr_vec4_sign(const vec4* a, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = fr_simd_sign(a->simd);
+#else
+    dest->x = fr_sign(a->x);
+    dest->y = fr_sign(a->y);
+    dest->z = fr_sign(a->z);
+    dest->w = fr_sign(a->w);
+#endif
+}
+
 /**
  * @brief Compute the sum of 2 vec4s and store it in dest
  * 
@@ -884,6 +895,13 @@ FR_FORCE_INLINE void fr_vec4_adds(const vec4* a, f32 s, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compute the difference of 2 vec4s and store it in dest
+ * 
+ * @param a 
+ * @param b 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_sub(const vec4* a, const vec4* b, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_sub_ps(a->simd, b->simd);
@@ -895,6 +913,13 @@ FR_FORCE_INLINE void fr_vec4_sub(const vec4* a, const vec4* b, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compute the difference of a vec4 and a scalar and store it in dest
+ * 
+ * @param a 
+ * @param s 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_subs(const vec4* a, f32 s, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_sub_ps(a->simd, _mm_set1_ps(s));
@@ -906,6 +931,13 @@ FR_FORCE_INLINE void fr_vec4_subs(const vec4* a, f32 s, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compute the element-wise product of 2 vec4s and store it in dest
+ * 
+ * @param a 
+ * @param b 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_mul(const vec4* a, const vec4* b, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_mul_ps(a->simd, b->simd);

@@ -198,4 +198,19 @@ FR_FORCE_INLINE __m128 fr_simd_fnmadd(__m128 a, __m128 b, __m128 c) {
     return _mm_sub_ps(c, _mm_mul_ps(a, b));
 }
 
+FR_FORCE_INLINE __m128 fr_simd_sign01(__m128 a) {
+    __m128 sign = _mm_and_ps(FR_SIGN_BITf32x4, a);
+    return _mm_cmpeq_ps(sign, _mm_setzero_ps());
+}
+
+FR_FORCE_INLINE __m128 fr_simd_sign(__m128 a) {
+    __m128 x0, x1, x2, x3;
+    x0 = _mm_set_ps(0.0f, 0.0f, 1.0f, -1.0f);
+    x1 = FR_SIMD_SPLAT_Z(x0);
+
+    x2 = _mm_and_ps(_mm_cmpgt_ps(a, x1), FR_SIMD_SPLAT_Y(x0));
+    x3 = _mm_and_ps(_mm_cmplt_ps(a, x1), FR_SIMD_SPLAT_X(x0));
+    return _mm_or_ps(x2, x3);
+}
+
 #endif
