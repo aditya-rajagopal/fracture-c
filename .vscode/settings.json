@@ -18,7 +18,6 @@
     "C_Cpp.vcFormat.newLine.beforeOpenBrace.function": "sameLine",
     "C_Cpp.vcFormat.space.pointerReferenceAlignment": "left",
     "C_Cpp.clang_format_sortIncludes": false,
-    "C_Cpp.vcFormat.indent.namespaceContents": true,
     "window.zoomLevel": 1,
     "editor.tabCompletion": "on",
     "todohighlight.isEnable": true,

@@ -4,11 +4,18 @@
 #include "fracture/core/systems/event.h"
 #include "fracture/core/systems/input.h"
 
+#define TEST_LEN 10000000
+
 typedef struct testbed_internal_state {
     i32 test;
     i32 postition[4];
     f32 rotation[4];
     f32 scale[4];
+    mat4 trasforms[TEST_LEN];
+    vec4 vectors[TEST_LEN];
+    vec4 out_vector[TEST_LEN];
+    fr_rng_config pcg_state;
+    fr_rng_config xorwow_state;
 } testbed_internal_state;
 
 static testbed_internal_state* state = NULL_PTR;
@@ -20,15 +27,57 @@ b8 testbed_on_key_B(u16 event_code, void* sender, void* listener_instance, event
 b8 testbed_on_mouse_button1(u16 event_code, void* sender, void* listener_instance, event_data data);
 
 b8 testbed_initialize(application_handle *app_handle) {
-    FR_INFO("Client Application initialized: %s", app_handle->app_config.name);
+    clock c;
+    fr_clock_start(&c);
+    // FR_INFO("Client Application initialized: %s", app_handle->app_config.name);
     state = fr_memory_allocate(sizeof(testbed_internal_state), MEMORY_TYPE_APPLICATION);
-    transform_array = fr_memory_allocate(4 * 4 * sizeof(u32), MEMORY_TYPE_TRANSFORM);
+    u32 memory_requirement = 0;
 
-    // Event test
-    fr_event_register_handler(EVENT_CODE_KEY_PRESS, NULL_PTR, testbed_on_key_pressed);
-    fr_event_register_handler(EVENT_CODE_KEY_RELEASE, NULL_PTR, testbed_on_key_pressed);
-    fr_event_register_handler(EVENT_CODE_KEY_B, NULL_PTR, testbed_on_key_B);
-    fr_event_register_handler(EVENT_CODE_MOUSE_BUTTON_LEFT, NULL_PTR, testbed_on_mouse_button1);
+    fr_random_pcg32_init(0, NULL_PTR, &memory_requirement);
+    state->pcg_state.state = fr_memory_allocate(memory_requirement, MEMORY_TYPE_APPLICATION);
+    state->pcg_state.type = FR_RNG_PCG32;
+    fr_random_pcg32_init(c.start_time, &state->pcg_state, NULL_PTR);
+
+    fr_random_xorwow_init(0, NULL_PTR, &memory_requirement);
+    state->xorwow_state.state = fr_memory_allocate(memory_requirement, MEMORY_TYPE_APPLICATION);
+    state->xorwow_state.type = FR_RNG_XORWOW;
+    fr_random_xorwow_init(c.start_time, &state->xorwow_state, NULL_PTR);
+
+    // // Event test
+    // fr_event_register_handler(EVENT_CODE_KEY_PRESS, NULL_PTR, testbed_on_key_pressed);
+    // fr_event_register_handler(EVENT_CODE_KEY_RELEASE, NULL_PTR, testbed_on_key_pressed);
+    // fr_event_register_handler(EVENT_CODE_KEY_B, NULL_PTR, testbed_on_key_B);
+    // fr_event_register_handler(EVENT_CODE_MOUSE_BUTTON_LEFT, NULL_PTR, testbed_on_mouse_button1);
+    // Test execution time of vec3_veqv_simd and vec4_veqv
+    
+    // mat3 print test
+    clock c1;
+    fr_clock_start(&c1);
+    for(u32 i = 0; i < TEST_LEN; i++) {
+        vec3 translation, rotation, scale;
+        fr_vec3(1.0f, 2.0f, 3.0f, &translation);
+        fr_vec3(0.0f, 0.0f, 0.0f, &rotation);
+        fr_vec3(1.0f, 1.0f, 1.0f, &scale);
+        fr_affine_create(&translation, &rotation, &scale, &state->trasforms[i]);
+    }
+    fr_clock_update(&c1);
+    FR_INFO("Time to create %d affine transforms: %f", TEST_LEN, c1.elapsed_time);
+
+    // affine unit test
+    mat4 affine;
+    vec3 translation, rotation, scale;
+    fr_vec3(0.0f, 2.0f, 3.0f, &translation);
+    fr_vec3(PI_2, 0.0f, 0.0f, &rotation);
+    fr_vec3(1.0f, 1.0f, 1.0f, &scale);
+    fr_affine_create(&translation, &rotation, &scale, &affine);
+    char buffer[1024];
+    i32 len = 1024;
+    fr_mat4_print("Affine Transform", &len, &affine, buffer);
+    FR_INFO("%s", buffer);
+    
+    fr_affine_translate(&affine, &translation);
+    fr_mat4_print("Affine Transform", &len, &affine, buffer);
+    FR_INFO("%s", buffer);
 
     return TRUE;
 }
@@ -36,11 +85,12 @@ b8 testbed_initialize(application_handle *app_handle) {
 b8 testbed_shutdown(application_handle *app_handle) {
     FR_INFO("Client Application shutdown: %s", app_handle->app_config.name);
     fr_memory_free(state, sizeof(testbed_internal_state), MEMORY_TYPE_APPLICATION);
-    fr_memory_free(transform_array, 4 * 4 * sizeof(u32), MEMORY_TYPE_TRANSFORM);
-    fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, NULL_PTR, testbed_on_key_pressed);
-    fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, NULL_PTR, testbed_on_key_pressed);
-    fr_event_deregister_handler(EVENT_CODE_KEY_B, NULL_PTR, testbed_on_key_B);
-    fr_event_deregister_handler(EVENT_CODE_MOUSE_BUTTON_LEFT, NULL_PTR, testbed_on_mouse_button1);
+    // fr_memory_free(transform_array, 4 * 4 * sizeof(u32), MEMORY_TYPE_TRANSFORM);
+    // fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, NULL_PTR, testbed_on_key_pressed);
+    // fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, NULL_PTR, testbed_on_key_pressed);
+    // fr_event_deregister_handler(EVENT_CODE_KEY_B, NULL_PTR, testbed_on_key_B);
+    // fr_event_deregister_handler(EVENT_CODE_MOUSE_BUTTON_LEFT, NULL_PTR, testbed_on_mouse_button1);
+
     return TRUE;
 }
 

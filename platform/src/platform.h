@@ -11,7 +11,7 @@
 #pragma once
 
 #include "fracture/core/defines.h"
-#include "fracture/core/types/input_codes.h"
+#include "fracture/core/includes/input_codes.h"
 
 // Function pointers to handle input event callbacks
 typedef void (*PFN_on_key_event)(keys key_code, b8 is_pressed);

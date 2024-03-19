@@ -10,14 +10,18 @@ FOR /R %%f in (*.c) do (
 
 REM echo "Files: " %cFileNames%
 SET assembly=testbed
-SET comilerFlags=-g
+SET comilerFlags=-g -O3 -fno-math-errno -fno-trapping-math
 REM -Wall -Werror
-SET includeFlags=-Isrc -I..\fracture\src
+SET includeFlags=-Isrc -I..\fracture\src -I..\fracture\includes
 SET linkerFlags=-luser32 -L../bin/ -lfracture.lib
-SET defines=-D_DEBUG -DFR_IMPORT -D_ENABLE_ASSERTS
+SET defines=-D_DEBUG -DFR_IMPORT -D_ENABLE_ASSERTS -D_SIMD -DFR_MATH_FORCE_INLINE -D_RNG_XORWOW
 
 ECHO "Buildin %assembly%...."
 clang %cFileNames% %comilerFlags% -o ../bin/%assembly%.exe %defines% %includeFlags% %linkerFlags%
+
+@REM FOR %%f in (%cFileNames%) do (
+@REM     clang -S -fverbose-asm -masm=intel -O3 %compilerFlags% %%f %defines% %includeFlags%
+@REM )
 
 REM "Writing the compile_flags.txt file"
 ECHO "Writing the compile_flags.txt file"

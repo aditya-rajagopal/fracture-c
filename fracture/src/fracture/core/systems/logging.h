@@ -202,7 +202,13 @@ FR_API void fr_logging_filename_set(const char* filename);
 // Assert macros
 
 #if FR_ENABLE_ASSERTS
-    #define FR_CORE_ASSERT(expression) if (!(expression)) { fr_log_message_detailed(LOG_LEVEL_ASSERT, LOG_SOURCE_ENGINE, __FILE__, __LINE__, #expression); DEBUG_BREAK(); }
+#define FR_CORE_ASSERT_MSG(expression)                                         \
+    if (expression) {                                                          \
+    } else {                                                                   \
+        fr_log_message_detailed(LOG_LEVEL_ASSERT, LOG_SOURCE_ENGINE, __FILE__, \
+                                __LINE__, #expression);                        \
+        DEBUG_BREAK();                                                         \
+    }
 #else
     #define FR_CORE_ASSERT(expression)
 #endif
@@ -241,7 +247,13 @@ FR_API void fr_logging_filename_set(const char* filename);
 #endif
 
 #if FR_ENABLE_ASSERTS
-    #define FR_ASSERT(expression) if (!(expression)) { fr_log_message_detailed(LOG_LEVEL_ASSERT, LOG_SOURCE_CLIENT, __FILE__, __LINE__, #expression); DEBUG_BREAK(); }
+#define FR_ASSERT_MSG(expression, message)                                     \
+    if (expression) {                                                          \
+    } else {                                                                   \
+        fr_log_message_detailed(LOG_LEVEL_ASSERT, LOG_SOURCE_CLIENT, __FILE__, \
+                                __LINE__, "%s: %s", #expression, message);     \
+        DEBUG_BREAK();                                                         \
+    }
 #else
     #define FR_ASSERT(expression)
 #endif

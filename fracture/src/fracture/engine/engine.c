@@ -8,7 +8,7 @@
 #include "fracture/core/library/fracture_string.h"
 
 #include "fracture/engine/engine_events.h"
-#include "fracture/core/types/system_event_codes.h"
+#include "fracture/core/includes/system_event_codes.h"
 
 #include "fracture/renderer/renderer_frontend.h"
 

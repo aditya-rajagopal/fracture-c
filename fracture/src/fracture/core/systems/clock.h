@@ -22,7 +22,7 @@ typedef struct clock {
  * 
  * @param c The clock to initialize. 
  */
-void fr_clock_start(clock* c);
+FR_API void fr_clock_start(clock* c);
 
 /**
  * @brief Updates the clock.
@@ -30,7 +30,7 @@ void fr_clock_start(clock* c);
  * will update the elapsed time.
  * @param c The clock to update.
  */
-void fr_clock_update(clock* c);
+FR_API void fr_clock_update(clock* c);
 
 /**
  * @brief Stops the clock.
@@ -38,4 +38,4 @@ void fr_clock_update(clock* c);
  * It will stop the clock and free any resources associated with it.
  * @param c The clock to stop.
  */
-void fr_clock_stop(clock* c);
+FR_API void fr_clock_stop(clock* c);

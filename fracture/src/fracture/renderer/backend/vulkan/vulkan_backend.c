@@ -467,7 +467,7 @@ b8 _backend_create_debugger() {
     PFN_vkCreateDebugUtilsMessengerEXT debug_func =
         (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
             context.instance, "vkCreateDebugUtilsMessengerEXT");
-    FR_CORE_ASSERT(debug_func);
+    FR_ASSERT(debug_func);
     VK_CHECK_RESULT(debug_func(context.instance, &debug_info, context.allocator, &context.debug_messenger));
 #endif
     return TRUE;
@@ -481,7 +481,7 @@ void _backend_destroy_debugger() {
         PFN_vkDestroyDebugUtilsMessengerEXT debug_func =
             (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
                 context.instance, "vkDestroyDebugUtilsMessengerEXT");
-        FR_CORE_ASSERT(debug_func);
+        FR_ASSERT(debug_func);
         debug_func(context.instance, context.debug_messenger, context.allocator);
     }
 #endif

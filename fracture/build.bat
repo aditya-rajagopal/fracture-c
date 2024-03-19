@@ -14,12 +14,12 @@ SET comilerFlags=-g -shared -Wvarargs -Wall -Werror
 REM -Wall -Werror
 SET includeFlags=-I..\fracture\src -I%VULKAN_SDK%\Include -I..\platform\src
 SET linkerFlags=-luser32 -lvulkan-1 -L%VULKAN_SDK%/Lib -L..\bin\ -lplatform.lib
-SET defines=-D_DEBUG -DFR_EXPORT -D_CRT_SECURE_NO_WARNINGS -D_ENABLE_ASSERTS -DPLATFORM_WINDOWS -D_STRING_SAFETY_CHECKS
+SET defines=-D_DEBUG -DFR_EXPORT -D_CRT_SECURE_NO_WARNINGS -D_ENABLE_ASSERTS -DPLATFORM_WINDOWS -D_STRING_SAFETY_CHECKS -D_SIMD -DFR_MATH_FORCE_INLINE -D_RNG_XORWOW
 
 ECHO %VULKAN_SDK%
 
 ECHO "Buildin %assembly%..."
-clang %cFileNames% %comilerFlags% -o ../bin/%assembly%.dll %defines% %includeFlags% %linkerFlags% -MTd
+clang %cFileNames% %comilerFlags% -o ../bin/%assembly%.dll %defines% %includeFlags% %linkerFlags%
 
 REM "Writing the compile_flags.txt file"
 ECHO "Writing the compile_flags.txt file"
