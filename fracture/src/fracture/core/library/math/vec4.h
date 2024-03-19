@@ -165,11 +165,27 @@ FR_FORCE_INLINE void fr_vec4_create(const f32* restrict data, vec4* dest) {
 }
 
 /**
+ * @brief Create a new vec4 from the given 16bit aligned array.
+ * 
+ * @param arr The array of f32 with at least 4 elements
+ * @param dest The destination vec4
+ */
+FR_FORCE_INLINE void fr_vec4_create_aligned(const f32* restrict data, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = _mm_load_ps(data);
+#else
+    dest->x = data[0];
+    dest->y = data[1];
+    dest->z = data[2];
+    dest->w = data[3];
+#endif
+}
+
+/**
  * @brief Create a new vec4 with random uniform values
  * 
  * @param dest The destination vec4
- * @param state The configuration of the random number generator
- * @return FR_FORCE_INLINE 
+ * @param config The configuration of the random number generator
  */
 FR_FORCE_INLINE void fr_vec4_random_uniform(vec4* dest, void* config) {
 #if FR_SIMD == 1
@@ -186,26 +202,25 @@ FR_FORCE_INLINE void fr_vec4_random_uniform(vec4* dest, void* config) {
 
 /**
  * @brief Create a new vec4 with random uniform values in the given range
- * 
+ *
  * @param dest The destination vec4
  * @param state The configuration of the random number generator
  * @param min The minimum value
  * @param max The maximum value
- * @return FR_FORCE_INLINE 
  */
-FR_FORCE_INLINE void fr_vec4_random_uniform_range(vec4* dest, void* state, f32 min, f32 max) {
+FR_FORCE_INLINE void fr_vec4_random_uniform_range(vec4* dest, void* config, f32 min, f32 max) {
 #if FR_SIMD == 1
     FR_ALIGN(16)
-    f32 data[4] = {fr_random_uniform_range(state, min, max),
-                   fr_random_uniform_range(state, min, max),
-                   fr_random_uniform_range(state, min, max),
-                   fr_random_uniform_range(state, min, max)};
+    f32 data[4] = {fr_random_uniform_range(config, min, max),
+                   fr_random_uniform_range(config, min, max),
+                   fr_random_uniform_range(config, min, max),
+                   fr_random_uniform_range(config, min, max)};
     dest->simd = _mm_load_ps(data);
 #else
-    dest->x = fr_random_uniform_range(state, min, max);
-    dest->y = fr_random_uniform_range(state, min, max);
-    dest->z = fr_random_uniform_range(state, min, max);
-    dest->w = fr_random_uniform_range(state, min, max);
+    dest->x = fr_random_uniform_range(config, min, max);
+    dest->y = fr_random_uniform_range(config, min, max);
+    dest->z = fr_random_uniform_range(config, min, max);
+    dest->w = fr_random_uniform_range(config, min, max);
 #endif
 }
 
@@ -848,6 +863,12 @@ FR_FORCE_INLINE void fr_vec4_negate(const vec4* a, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compute the sign of the elements in a vec4 and store it in dest
+ *
+ * @param a
+ * @param dest
+ */
 FR_FORCE_INLINE void fr_vec4_sign(const vec4* a, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_sign(a->simd);
@@ -949,6 +970,13 @@ FR_FORCE_INLINE void fr_vec4_mul(const vec4* a, const vec4* b, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Scale a vec4 by a scalar and store it in dest
+ * 
+ * @param a 
+ * @param s 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_scale(const vec4* a, f32 s, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_mul_ps(a->simd, _mm_set1_ps(s));
@@ -960,6 +988,13 @@ FR_FORCE_INLINE void fr_vec4_scale(const vec4* a, f32 s, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compute the element-wise division of 2 vec4s and store it in dest
+ *
+ * @param a
+ * @param b
+ * @param dest
+ */
 FR_FORCE_INLINE void fr_vec4_div(const vec4* a, const vec4* b, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_div_ps(a->simd, b->simd);
@@ -971,6 +1006,13 @@ FR_FORCE_INLINE void fr_vec4_div(const vec4* a, const vec4* b, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compute the element-wise division of a vec4 and a scalar and store it in dest
+ * @details This function does not check for division by zero
+ * @param a
+ * @param s
+ * @param dest
+ */
 FR_FORCE_INLINE void fr_vec4_divs(const vec4* a, f32 s, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_div_ps(a->simd, _mm_set1_ps(s));
@@ -982,7 +1024,13 @@ FR_FORCE_INLINE void fr_vec4_divs(const vec4* a, f32 s, vec4* dest) {
 #endif
 }
 
-FR_FORCE_INLINE void fr_vec4_vmaxv(const vec4* a, const vec4* b, vec4* dest) {
+/**
+ * @brief Compute the element-wise division of a scalar and a vec4 and store it in dest
+ * @param s
+ * @param a
+ * @param dest
+ */
+FR_FORCE_INLINE void fr_vec4_maxv(const vec4* a, const vec4* b, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_max_ps(a->simd, b->simd);
 #else
@@ -993,7 +1041,13 @@ FR_FORCE_INLINE void fr_vec4_vmaxv(const vec4* a, const vec4* b, vec4* dest) {
 #endif
 }
 
-FR_FORCE_INLINE void fr_vec4_vminv(const vec4* a, const vec4* b, vec4* dest) {
+/**
+ * @brief Compute the element-wise division of a scalar and a vec4 and store it in dest
+ * @param s
+ * @param a
+ * @param dest
+ */
+FR_FORCE_INLINE void fr_vec4_minv(const vec4* a, const vec4* b, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_min_ps(a->simd, b->simd);
 #else
@@ -1004,6 +1058,12 @@ FR_FORCE_INLINE void fr_vec4_vminv(const vec4* a, const vec4* b, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compute the element-wise maximum of a vec4 and a scalar and store it in dest
+ * @param a
+ * @param s
+ * @param dest
+ */
 FR_FORCE_INLINE void fr_vec4_maxs(const vec4* a, f32 s, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_max_ps(a->simd, _mm_set1_ps(s));
@@ -1015,6 +1075,12 @@ FR_FORCE_INLINE void fr_vec4_maxs(const vec4* a, f32 s, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Compute the element-wise minimum of a vec4 and a scalar and store it in dest
+ * @param a
+ * @param s
+ * @param dest
+ */
 FR_FORCE_INLINE void fr_vec4_mins(const vec4* a, f32 s, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = _mm_min_ps(a->simd, _mm_set1_ps(s));
@@ -1026,6 +1092,13 @@ FR_FORCE_INLINE void fr_vec4_mins(const vec4* a, f32 s, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Get a vector in the diretion of a with a magnitude of s
+ * @details If a is a zero vector, the result will be a zero vector 
+ * @param a 
+ * @param s 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_scale_direction(const vec4* a, f32 s, vec4* dest) {
 #if FR_SIMD == 1
     __m128 unit_vector = fr_simd_unit_vector(a->simd);
@@ -1044,6 +1117,14 @@ FR_FORCE_INLINE void fr_vec4_scale_direction(const vec4* a, f32 s, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Clamp the elements of a vec4 between min and max and store the result in dest
+ * 
+ * @param a the vector to clamp
+ * @param min a vector of minimum values
+ * @param max a vector of maximum values
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_clampv(const vec4* a, const vec4* min, const vec4* max, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_clampv(a->simd, min->simd, max->simd);
@@ -1055,6 +1136,14 @@ FR_FORCE_INLINE void fr_vec4_clampv(const vec4* a, const vec4* min, const vec4* 
 #endif
 }
 
+/**
+ * @brief Clamp the elements of a vec4 between min and max and store the result in dest
+ * 
+ * @param a the vector to clamp
+ * @param min the minimum value
+ * @param max the maximum value
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_clamp(const vec4* a, f32 min, f32 max, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_clamp(a->simd, min, max);
@@ -1066,6 +1155,12 @@ FR_FORCE_INLINE void fr_vec4_clamp(const vec4* a, f32 min, f32 max, vec4* dest) 
 #endif
 }
 
+/**
+ * @brief Clamp the elements of a vec4 between 0 and 1 and store the result in dest
+ * 
+ * @param a the vector to clamp
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_clamp01(const vec4* a, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_clamp(a->simd, 0.0f, 1.0f);
@@ -1077,6 +1172,13 @@ FR_FORCE_INLINE void fr_vec4_clamp01(const vec4* a, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief For each component of x, if x[i] < edge[i] then dest[i] = 0 else dest[i] = 1
+ * 
+ * @param edge 
+ * @param x 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_step(const vec4* edge, const vec4* x, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_step(edge->simd, x->simd);
@@ -1088,6 +1190,13 @@ FR_FORCE_INLINE void fr_vec4_step(const vec4* edge, const vec4* x, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief For each component of x, if x[i] < edge then dest[i] = 0 else dest[i] = 1
+ * 
+ * @param edge 
+ * @param x 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_steps(f32 edge, const vec4* x, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_step(_mm_set1_ps(edge), x->simd);
@@ -1099,6 +1208,14 @@ FR_FORCE_INLINE void fr_vec4_steps(f32 edge, const vec4* x, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Linearly interpolate between 2 vec4s with parameter t and store the result in dest
+ * 
+ * @param a 
+ * @param b 
+ * @param t 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_lerp(const vec4* a, const vec4* b, f32 t, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_lerp(a->simd, b->simd, t);
@@ -1110,6 +1227,15 @@ FR_FORCE_INLINE void fr_vec4_lerp(const vec4* a, const vec4* b, f32 t, vec4* des
 #endif
 }
 
+/**
+ * @brief Linearly interpolate between 2 vec4s with parameter t and store the result in dest
+ * @details This function clamps t between 0 and 1
+ * 
+ * @param a 
+ * @param b 
+ * @param t 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_lerp_clamped(const vec4* a, const vec4* b, f32 t, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_lerp(a->simd, b->simd, fr_clamp_zo(t));
@@ -1121,6 +1247,15 @@ FR_FORCE_INLINE void fr_vec4_lerp_clamped(const vec4* a, const vec4* b, f32 t, v
 #endif
 }
 
+/**
+ * @brief Compute a smooth transition between 2 edges with parameter t and store the result in dest
+ * @details for each component of t, the result is 0 if t < edge0, 1 if t > edge1, and the smooth interpolation between
+ * 0 and 1 otherwise using a polynomial of degree 3
+ * @param edge0
+ * @param edge1
+ * @param t
+ * @param dest
+ */
 FR_FORCE_INLINE void fr_vec4_smoothstep(const vec4* edge0, const vec4* edge1, const vec4* t, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_vsmoothstep(edge0->simd, edge1->simd, t->simd);
@@ -1132,6 +1267,16 @@ FR_FORCE_INLINE void fr_vec4_smoothstep(const vec4* edge0, const vec4* edge1, co
 #endif
 }
 
+/**
+ * @brief Compute a smooth transition between 2 edges with parameter t and store the result in dest. t is clamped
+ * between 0 and 1
+ * @details for each component of t, the result is 0 if t < edge0, 1 if t > edge1, and the smooth interpolation between
+ * 0 and 1 otherwise using a polynomial of degree 3
+ * @param edge0
+ * @param edge1
+ * @param t
+ * @param dest
+ */
 FR_FORCE_INLINE void fr_vec4_smoothstep_clamped(const vec4* edge0, const vec4* edge1, const vec4* t, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_vsmoothstep(edge0->simd, edge1->simd, fr_simd_clamp(t->simd, 0.0f, 1.0f));
@@ -1143,6 +1288,15 @@ FR_FORCE_INLINE void fr_vec4_smoothstep_clamped(const vec4* edge0, const vec4* e
 #endif
 }
 
+/**
+ * @brief Compute a smooth transition between 2 edges with parameter t and store the result in dest
+ * @details for each component of t, the result is 0 if t < edge0, 1 if t > edge1, and the smooth interpolation between
+ * 0 and 1 otherwise using a polynomial of degree 5
+ * @param edge0
+ * @param edge1
+ * @param t
+ * @param dest
+ */
 FR_FORCE_INLINE void fr_vec4_smoothsteps(f32 edge0, f32 edge1, const vec4* t, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_vsmoothstep(_mm_set1_ps(edge0), _mm_set1_ps(edge1), t->simd);
@@ -1154,6 +1308,16 @@ FR_FORCE_INLINE void fr_vec4_smoothsteps(f32 edge0, f32 edge1, const vec4* t, ve
 #endif
 }
 
+/**
+ * @brief Compute a smooth transition between 2 edges with parameter t and store the result in dest. t is clamped
+ * between 0 and 1
+ * @details for each component of t, the result is 0 if t < edge0, 1 if t > edge1, and the smooth interpolation between
+ * 0 and 1 otherwise using a polynomial of degree 5
+ * @param edge0
+ * @param edge1
+ * @param t
+ * @param dest
+ */
 FR_FORCE_INLINE void fr_vec4_smoothsteps_clamped(f32 edge0, f32 edge1, const vec4* t, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_vsmoothstep(_mm_set1_ps(edge0), _mm_set1_ps(edge1), fr_simd_clamp(t->simd, 0.0f, 1.0f));
@@ -1165,6 +1329,14 @@ FR_FORCE_INLINE void fr_vec4_smoothsteps_clamped(f32 edge0, f32 edge1, const vec
 #endif
 }
 
+/**
+ * @brief Generates a linearly interpolated value between 2 vec4s using a parameter t smoothed by a polynomial of degree 3
+ * 
+ * @param a 
+ * @param b 
+ * @param t 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_smooth_interp(const vec4* a, const vec4* b, f32 t, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_lerp(a->simd, b->simd, fr_smooth(t));
@@ -1176,6 +1348,13 @@ FR_FORCE_INLINE void fr_vec4_smooth_interp(const vec4* a, const vec4* b, f32 t, 
 #endif
 }
 
+/**
+ * @brief Projects a onto b and stores the result in dest
+ * 
+ * @param a 
+ * @param b 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_project(const vec4* a, const vec4* b, vec4* dest) {
 #if FR_SIMD == 1
     __m128 unit_b = fr_simd_unit_vector(b->simd);
@@ -1193,6 +1372,14 @@ FR_FORCE_INLINE void fr_vec4_project(const vec4* a, const vec4* b, vec4* dest) {
 #endif
 }
 
+/**
+ * @brief Projects a onto b and stores the result in dest
+ * @details This function does not check for division by zero for the norm of b
+ * 
+ * @param a 
+ * @param b 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_project_unsafe(const vec4* a, const vec4* b, vec4* dest) {
 #if FR_SIMD == 1
     __m128 unit_b = fr_simd_unit_vector_unsafe(b->simd);
@@ -1210,6 +1397,13 @@ FR_FORCE_INLINE void fr_vec4_project_unsafe(const vec4* a, const vec4* b, vec4* 
 #endif
 }
 
+/**
+ * @brief Reflects the incident vector off the plane defined by the normal vector and stores the result in dest
+ * 
+ * @param incident 
+ * @param normal 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_reflect(const vec4* incident, const vec4* normal, vec4* dest) {
 #if FR_SIMD == 1
     __m128 unit_normal = fr_simd_unit_vector(normal->simd);
@@ -1223,6 +1417,13 @@ FR_FORCE_INLINE void fr_vec4_reflect(const vec4* incident, const vec4* normal, v
 #endif
 }
 
+/**
+ * @brief Reflects the incident vector off the plane defined by the unit normal vector and stores the result in dest
+ * 
+ * @param incident 
+ * @param unit_normal 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_reflect_unit(const vec4* incident, const vec4* unit_normal, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = fr_simd_reflect(unit_normal->simd, incident->simd);
@@ -1233,6 +1434,14 @@ FR_FORCE_INLINE void fr_vec4_reflect_unit(const vec4* incident, const vec4* unit
 #endif
 }
 
+/**
+ * @brief Sphereical linear interpolation between 2 vec4s with parameter t and store the result in dest
+ * 
+ * @param a 
+ * @param b 
+ * @param t 
+ * @param dest 
+ */
 FR_FORCE_INLINE void fr_vec4_slerp(const vec4* a, const vec4* b, f32 t, vec4* dest) {
 #if FR_SIMD == 1
     __m128 const dot = fr_simd_vdot(a->simd, b->simd);
