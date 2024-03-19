@@ -10,16 +10,15 @@
  */
 #pragma once
 
-#include <stdalign.h>
 #include "fracture/core/defines.h"
 #include "fracture/core/library/math/simd/sse.h"
 
 typedef FR_ALIGN(16) union vec4_u {
-    FR_ALIGN(16) f32 data[4];
+    f32 data[4];
 #if FR_SIMD == 1
     __m128 simd;
 #endif
-    FR_ALIGN(16) struct {
+    struct {
         union {
             f32 x;
             f32 r;
@@ -48,7 +47,7 @@ typedef FR_ALIGN(16) union vec4_u {
 typedef vec4 colour;
 typedef vec4 rect_2d;
 
-typedef union bvec4_u {
+typedef FR_ALIGN(16) union bvec4_u {
     struct {
         union {
             b32 x;
@@ -71,8 +70,8 @@ typedef union bvec4_u {
             b32 q;
         };
     };
-    alignas(16) b32 data[4];
+     b32 data[4];
 #if FR_SIMD == 1
-    alignas(16) __m128i simd;
+    __m128i simd;
 #endif
-} __attribute__((aligned(16))) bvec4;
+} bvec4;

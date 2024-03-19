@@ -11,8 +11,7 @@ typedef struct testbed_internal_state {
     i32 postition[4];
     f32 rotation[4];
     f32 scale[4];
-    mat4 matrices[TEST_LEN];
-    mat4 out_matrix[TEST_LEN];
+    mat4 trasforms[TEST_LEN];
     vec4 vectors[TEST_LEN];
     vec4 out_vector[TEST_LEN];
     fr_rng_config pcg_state;
@@ -52,61 +51,34 @@ b8 testbed_initialize(application_handle *app_handle) {
     // Test execution time of vec3_veqv_simd and vec4_veqv
     
     // mat3 print test
-    fr_clock_start(&c);
-    for (u32 i = 0; i < TEST_LEN; i++) {
-        fr_mat4_random_uniform(&state->matrices[i], &state->xorwow_state);
+    clock c1;
+    fr_clock_start(&c1);
+    for(u32 i = 0; i < TEST_LEN; i++) {
+        vec3 translation, rotation, scale;
+        fr_vec3(1.0f, 2.0f, 3.0f, &translation);
+        fr_vec3(0.0f, 0.0f, 0.0f, &rotation);
+        fr_vec3(1.0f, 1.0f, 1.0f, &scale);
+        fr_affine_create(&translation, &rotation, &scale, &state->trasforms[i]);
     }
-    fr_clock_update(&c);
-    FR_TRACE("Time taken to generate TEST_LEN mat3s: %f", c.elapsed_time * 1000.0f);
+    fr_clock_update(&c1);
+    FR_INFO("Time to create %d affine transforms: %f", TEST_LEN, c1.elapsed_time);
 
-    fr_clock_start(&c);
-    for (u32 i = 0; i < TEST_LEN; i++) {
-        fr_vec4_random_uniform(&state->vectors[i], &state->xorwow_state);
-    }
-    fr_clock_update(&c);
-    FR_TRACE("Time taken to generate TEST_LEN vec3s: %f", c.elapsed_time * 1000.0f);
-
-    fr_clock_start(&c);
-    for (u32 i = 0; i < TEST_LEN; i++) {
-        fr_vec4_random_uniform(&state->out_vector[i], &state->xorwow_state);
-    }
-    fr_clock_update(&c);
-    FR_TRACE("Time taken to generate TEST_LEN vec3s using temp: %f", c.elapsed_time * 1000.0f);
-
-    vec4 v1 = {1.0f, 2.0f, 3.0f, 4.0f};
-
-    f32 values[16] = {1.0f, 1.0f, 2.0f,  -3.0f,  4.0f,  5.0f,  6.0f,  7.0f,
-                      8.0f, -9.0f, 10.0f, -11.0f, 12.0f, 13.0f, 14.0f, 15.0f};
+    // affine unit test
+    mat4 affine;
+    vec3 translation, rotation, scale;
+    fr_vec3(0.0f, 2.0f, 3.0f, &translation);
+    fr_vec3(PI_2, 0.0f, 0.0f, &rotation);
+    fr_vec3(1.0f, 1.0f, 1.0f, &scale);
+    fr_affine_create(&translation, &rotation, &scale, &affine);
     char buffer[1024];
     i32 len = 1024;
-    fr_mat4_print("rotation1", &len, &state->matrices[0], buffer);
-    FR_TRACE("Rotation1: %s", buffer);
+    fr_mat4_print("Affine Transform", &len, &affine, buffer);
+    FR_INFO("%s", buffer);
+    
+    fr_affine_translate(&affine, &translation);
+    fr_mat4_print("Affine Transform", &len, &affine, buffer);
+    FR_INFO("%s", buffer);
 
-    fr_clock_start(&c);
-    for (u32 i = 0; i < TEST_LEN; i++) {
-        fr_mat4_inv(&state->matrices[i], &state->matrices[i]);
-    }
-    fr_clock_update(&c);
-    FR_TRACE("Time taken to copy TEST_LEN mat3s: %f", c.elapsed_time * 1000.0f);
-
-    fr_clock_start(&c);
-    for (u32 i = 0; i < TEST_LEN; i++) {
-        fr_mat4_random_uniform(&state->matrices[i], &state->xorwow_state);
-        // fr_mat4_random_uniform_xorwow(&state->matrices[i], &state->xorwow_state, -1.0f, 1.0f);
-    }
-    fr_clock_update(&c);
-    FR_TRACE("Time taken to create TEST_LEN mat3s: %f", c.elapsed_time * 1000.0f);
-
-    mat4 identity;
-    fr_clock_start(&c);
-    for (u32 i = 0; i < TEST_LEN; i++) {
-        fr_mat4_inv(&state->out_matrix[i], &state->out_matrix[i]);
-    }
-    fr_clock_update(&c);
-    FR_TRACE("Time taken to copy TEST_LEN mat3s using temp: %f", c.elapsed_time * 1000.0f);
-
-    fr_mat4_print("rotation2", &len, &state->matrices[0], buffer);
-    FR_TRACE("Rotation2: %s", buffer);
     return TRUE;
 }
 

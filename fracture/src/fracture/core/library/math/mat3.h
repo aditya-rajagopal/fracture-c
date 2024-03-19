@@ -186,8 +186,8 @@ FR_FORCE_INLINE b8 fr_mat3_eq(const mat3* a, const mat3* b) {
 }
 
 FR_FORCE_INLINE b8 fr_mat3_eqs(const mat3* m, f32 val) {
-    return fr_vec3_eq_scalar(&m->columns[0], val) && fr_vec3_eq_scalar(&m->columns[1], val) &&
-           fr_vec3_eq_scalar(&m->columns[2], val);
+    return fr_vec3_eqs(&m->columns[0], val) && fr_vec3_eqs(&m->columns[1], val) &&
+           fr_vec3_eqs(&m->columns[2], val);
 }
 
 FR_FORCE_INLINE void fr_mat3_meq(const mat3* a, const mat3* b, mat3* out) {

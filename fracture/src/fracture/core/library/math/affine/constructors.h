@@ -18,21 +18,21 @@
 #include "operations.h"
 #include "translation.h"
 
-FR_FORCE_INLINE void fr_affine_create_translation(vec3* translation, mat4* out) {
+FR_FORCE_INLINE void fr_affine_create_translation(const vec3* translation, mat4* out) {
     out->simd[0] = _mm_setr_ps(1.0f, 0.0f, 0.0f, 0.0f);
     out->simd[1] = _mm_setr_ps(0.0f, 1.0f, 0.0f, 0.0f);
     out->simd[2] = _mm_setr_ps(0.0f, 0.0f, 1.0f, 0.0f);
     out->simd[3] = _mm_setr_ps(translation->x, translation->y, translation->z, 1.0f);
 }
 
-FR_FORCE_INLINE void fr_affine_create_scale(vec3* scale, mat4* out) {
+FR_FORCE_INLINE void fr_affine_create_scale(const vec3* scale, mat4* out) {
     out->simd[0] = _mm_setr_ps(scale->x, 0.0f, 0.0f, 0.0f);
     out->simd[1] = _mm_setr_ps(0.0f, scale->y, 0.0f, 0.0f);
     out->simd[2] = _mm_setr_ps(0.0f, 0.0f, scale->z, 0.0f);
     out->simd[3] = _mm_setr_ps(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-FR_FORCE_INLINE void fr_affine_create_rotation(vec3* axis, f32 angle, mat4* out) {
+FR_FORCE_INLINE void fr_affine_create_rotation(const vec3* axis, f32 angle, mat4* out) {
     const f32 c = fr_cos(angle);
     const f32 s = fr_sin(angle);
     const f32 t = 1.0f - c;
@@ -80,7 +80,7 @@ FR_FORCE_INLINE void fr_affine_create_rotation_z(f32 angle, mat4* out) {
     out->simd[3] = _mm_setr_ps(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-FR_FORCE_INLINE void fr_affine_create_pivot_rotation(vec3* pivot, vec3* axis, f32 angle, mat4* out) {
+FR_FORCE_INLINE void fr_affine_create_pivot_rotation(const vec3* pivot, const vec3* axis, f32 angle, mat4* out) {
     fr_affine_create_translation(pivot, out); // T to pivot
     mat4 rotation;
     fr_affine_create_rotation(axis, angle, &rotation); // R
@@ -88,4 +88,17 @@ FR_FORCE_INLINE void fr_affine_create_pivot_rotation(vec3* pivot, vec3* axis, f3
     vec3 neg_pivot;
     fr_vec3_negative(pivot, &neg_pivot);
     fr_affine_translate(out, &neg_pivot); // T * R * -T back to origianl position
+}
+
+FR_FORCE_INLINE void fr_affine_create(const vec3* translation, const vec3* euler_rotation, const vec3* scale, mat4* out) {
+    mat4 translation_mat, scale_mat, rotation_mat_x, rotation_mat_y, rotation_mat_z;
+    fr_affine_create_translation(translation, &translation_mat);
+    fr_affine_create_rotation_x(euler_rotation->x, &rotation_mat_x);
+    fr_affine_create_rotation_y(euler_rotation->y, &rotation_mat_y);
+    fr_affine_create_rotation_z(euler_rotation->z, &rotation_mat_z);
+    fr_affine_mul_rot(&rotation_mat_x, &rotation_mat_y, &rotation_mat_x);
+    fr_affine_mul_rot(&rotation_mat_x, &rotation_mat_z, &rotation_mat_x);
+    fr_affine_create_scale(scale, &scale_mat);
+    fr_affine_mul_rot(&translation_mat, &rotation_mat_x, out);
+    fr_affine_mul(out, &scale_mat, out);
 }
