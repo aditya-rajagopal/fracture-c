@@ -110,3 +110,45 @@ FR_FORCE_INLINE void fr_affine_inv(const mat4* transform, mat4* out) {
     out->simd[3] = T;
 #endif
 }
+
+FR_FORCE_INLINE void fr_affine_get_forward(const mat4* transform, vec3* out) {
+    out->x = -transform->m20;
+    out->y = -transform->m21;
+    out->z = -transform->m22;
+    fr_vec3_normalize(out, out);
+}
+
+FR_FORCE_INLINE void fr_affine_get_backward(const mat4* transform, vec3* out) {
+    out->x = transform->m20;
+    out->y = transform->m21;
+    out->z = transform->m22;
+    fr_vec3_normalize(out, out);
+}
+
+FR_FORCE_INLINE void fr_affine_get_up(const mat4* transform, vec3* out) {
+    out->x = transform->m10;
+    out->y = transform->m11;
+    out->z = transform->m12;
+    fr_vec3_normalize(out, out);
+}
+
+FR_FORCE_INLINE void fr_affine_get_down(const mat4* transform, vec3* out) {
+    out->x = -transform->m10;
+    out->y = -transform->m11;
+    out->z = -transform->m12;
+    fr_vec3_normalize(out, out);
+}
+
+FR_FORCE_INLINE void fr_affine_get_right(const mat4* transform, vec3* out) {
+    out->x = transform->m00;
+    out->y = transform->m01;
+    out->z = transform->m02;
+    fr_vec3_normalize(out, out);
+}
+
+FR_FORCE_INLINE void fr_affine_get_left(const mat4* transform, vec3* out) {
+    out->x = -transform->m00;
+    out->y = -transform->m01;
+    out->z = -transform->m02;
+    fr_vec3_normalize(out, out);
+}

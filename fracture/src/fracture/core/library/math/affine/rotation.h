@@ -41,6 +41,12 @@ FR_FORCE_INLINE void fr_affine_rotate_z(const mat4* transform, f32 angle, mat4* 
     fr_affine_mul_rot(transform, &rotation, result);
 }
 
+FR_FORCE_INLINE void fr_affine_rotate_xyz(const mat4* transform, f32 x, f32 y, f32 z, mat4* result) {
+    mat4 rotation;
+    fr_affine_create_rotation_xyz(x, y, z, &rotation);
+    fr_affine_mul_rot(transform, &rotation, result);
+}
+
 FR_FORCE_INLINE void fr_affine_rotate_around(mat4* transform, const vec3* pivot, f32 angle, const vec3* axis) {
     fr_affine_translate(transform, pivot);
     fr_affine_rotate(transform, axis, angle);

@@ -80,6 +80,15 @@ FR_FORCE_INLINE void fr_affine_create_rotation_z(f32 angle, mat4* out) {
     out->simd[3] = _mm_setr_ps(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+FR_FORCE_INLINE void fr_affine_create_rotation_xyz(f32 x, f32 y, f32 z, mat4* out) {
+    mat4 rotation_x, rotation_y, rotation_z;
+    fr_affine_create_rotation_x(x, &rotation_x);
+    fr_affine_create_rotation_y(y, &rotation_y);
+    fr_affine_create_rotation_z(z, &rotation_z);
+    fr_affine_mul_rot(&rotation_x, &rotation_y, out);
+    fr_affine_mul_rot(out, &rotation_z, out);
+}
+
 FR_FORCE_INLINE void fr_affine_create_pivot_rotation(const vec3* pivot, const vec3* axis, f32 angle, mat4* out) {
     fr_affine_create_translation(pivot, out); // T to pivot
     mat4 rotation;
