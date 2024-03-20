@@ -143,6 +143,16 @@ FR_FORCE_INLINE void fr_quat_from_axis_angle(const vec3* axis, f32 angle, b8 nor
     }
 }
 
+FR_FORCE_INLINE void fr_quat_to_axis_angle(const quat* q, b8 normalize, vec3* out_axis, f32* out_angle) {
+    fr_vec3_create(q->data, out_axis);
+    const f32 sin_half_angle = fr_vec3_norm(out_axis);
+    const f32 cos_half_angle = q->w;
+    *out_angle = 2.0f * fr_atan2(sin_half_angle, cos_half_angle);
+    if (normalize) {
+        fr_vec3_normalize(out_axis, out_axis);
+    }
+}
+
 FR_FORCE_INLINE void fr_quat_lerp(const quat* from, const quat* to, f32 percentage, quat* out) {
     fr_vec4_lerp(from, to, percentage, out);
 }

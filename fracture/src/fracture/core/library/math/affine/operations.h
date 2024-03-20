@@ -14,7 +14,7 @@
 #include "../mat4.h"
 #include "../simd/sse.h"
 
-FR_FORCE_INLINE void fr_affine_mul(mat4* a, mat4* b, mat4* dst) {
+FR_FORCE_INLINE void fr_affine_mul(const mat4* a, const mat4* b, mat4* dst) {
 #if FR_SIMD == 1
     __m128 c = a->simd[0];
     
@@ -51,7 +51,7 @@ FR_FORCE_INLINE void fr_affine_mul(mat4* a, mat4* b, mat4* dst) {
 #endif
 }
 
-FR_FORCE_INLINE void fr_affine_mul_rot(mat4* a, mat4* b, mat4* dst) {
+FR_FORCE_INLINE void fr_affine_mul_rot(const mat4* a, const mat4* b, mat4* dst) {
 #if FR_SIMD == 1
     __m128 c = a->simd[0];
     
@@ -81,7 +81,7 @@ FR_FORCE_INLINE void fr_affine_mul_rot(mat4* a, mat4* b, mat4* dst) {
 #endif
 }
 
-FR_FORCE_INLINE void fr_affine_inv(mat4* transform, mat4* out) {
+FR_FORCE_INLINE void fr_affine_inv(const mat4* transform, mat4* out) {
 #if FR_SIMD == 1
     // | R T | has the inverse | R^T -R^T * T |
     // | 0 1 |                 | 0          1 |

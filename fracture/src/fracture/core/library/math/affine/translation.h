@@ -14,13 +14,13 @@
 #include "../mat4.h"
 #include "../simd/sse.h"
 
-FR_FORCE_INLINE void fr_affine_left_translate(vec3* translation, mat4* transform) {
+FR_FORCE_INLINE void fr_affine_left_translate(const vec3* translation, mat4* transform) {
     transform->simd[3] = _mm_add_ps(
         transform->simd[3],
         _mm_setr_ps(translation->x, translation->y, translation->z, 1.0f));
 }
 
-FR_FORCE_INLINE void fr_affine_left_translate_to(vec3* translation, mat4* transform, mat4* out) {
+FR_FORCE_INLINE void fr_affine_left_translate_to(const vec3* translation, const mat4* transform, mat4* out) {
     __m128 t = _mm_add_ps(
         transform->simd[3],
         _mm_setr_ps(translation->x, translation->y, translation->z, 1.0f));
@@ -30,7 +30,7 @@ FR_FORCE_INLINE void fr_affine_left_translate_to(vec3* translation, mat4* transf
     out->simd[3] = t;
 }
 
-FR_FORCE_INLINE void fr_affine_translate(mat4* transform, vec3* translation) {
+FR_FORCE_INLINE void fr_affine_translate(mat4* transform, const vec3* translation) {
     __m128 c0 = transform->simd[0];
     __m128 c1 = transform->simd[1];
     __m128 c2 = transform->simd[2];
@@ -43,7 +43,7 @@ FR_FORCE_INLINE void fr_affine_translate(mat4* transform, vec3* translation) {
     transform->simd[3] = t;
 }
 
-FR_FORCE_INLINE void fr_affine_translate_to(mat4* transform, vec3* translation, mat4* out) {
+FR_FORCE_INLINE void fr_affine_translate_to(const mat4* transform, const vec3* translation, mat4* out) {
     __m128 c0 = transform->simd[0];
     __m128 c1 = transform->simd[1];
     __m128 c2 = transform->simd[2];
