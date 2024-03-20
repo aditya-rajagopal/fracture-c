@@ -368,13 +368,27 @@ FR_FORCE_INLINE void fr_mat4_mulv(const mat4* m, const vec4* v, vec4* dst) {
 #endif
 }
 
+// Multiply a vector by the transpose of a matrix
+FR_FORCE_INLINE void fr_mat4_vmul(const vec4* v, const mat4* m, vec4* dst) {
+#if FR_SIMD == 1
+    mat4 mt;
+    fr_mat4_transpose(m, &mt);
+    fr_mat4_mulv(&mt, v, dst);
+#else
+    dst->x = m->m00 * v->x + m->m10 * v->y + m->m20 * v->z + m->m30 * v->w;
+    dst->y = m->m01 * v->x + m->m11 * v->y + m->m21 * v->z + m->m31 * v->w;
+    dst->z = m->m02 * v->x + m->m12 * v->y + m->m22 * v->z + m->m32 * v->w;
+    dst->w = m->m03 * v->x + m->m13 * v->y + m->m23 * v->z + m->m33 * v->w;
+#endif
+}
+
 FR_FORCE_INLINE void fr_mat4_mulv3(const mat4* m, const vec3* v, f32 w, vec3* dst) {
 #if FR_SIMD == 1
     __m128 c = _mm_mul_ps(m->simd[0], _mm_set1_ps(v->x));
     c = fr_simd_fmadd(m->simd[1], _mm_set1_ps(v->y), c);
     c = fr_simd_fmadd(m->simd[2], _mm_set1_ps(v->z), c);
     c = fr_simd_fmadd(m->simd[3], _mm_set1_ps(w), c);
-    static __attribute__((aligned(16))) f32 f[4];
+    FR_ALIGN(16) f32 f[4];
     _mm_store_ps(f, c);
     dst->x = f[0];
     dst->y = f[1];

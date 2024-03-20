@@ -52,20 +52,34 @@ b8 testbed_initialize(application_handle *app_handle) {
     
     // mat3 print test
     clock c1;
+    vec3 translation, rotation, scale;
+    fr_vec3(1.0f, 2.0f, 3.0f, &translation);
+    fr_vec3(0.0f, 0.0f, 0.0f, &rotation);
+    fr_vec3(1.0f, 1.0f, 1.0f, &scale);
     fr_clock_start(&c1);
     for(u32 i = 0; i < TEST_LEN; i++) {
-        vec3 translation, rotation, scale;
-        fr_vec3(1.0f, 2.0f, 3.0f, &translation);
-        fr_vec3(0.0f, 0.0f, 0.0f, &rotation);
-        fr_vec3(1.0f, 1.0f, 1.0f, &scale);
         fr_affine_create(&translation, &rotation, &scale, &state->trasforms[i]);
     }
     fr_clock_update(&c1);
-    FR_INFO("Time to create %d affine transforms: %f", TEST_LEN, c1.elapsed_time);
+    FR_INFO("Time to create %d affine transforms: %f", TEST_LEN, c1.elapsed_time * 1000.0f);
+
+    fr_clock_start(&c1);
+    for(u32 i = 0; i < TEST_LEN; i++) {
+        fr_affine_inv(&state->trasforms[i], &state->trasforms[i]);
+    }
+    fr_clock_update(&c1);
+    FR_INFO("Time to invert %d affine transforms: %f", TEST_LEN, c1.elapsed_time * 1000.0f);
+
+    fr_clock_start(&c1);
+    for(u32 i = 0; i < TEST_LEN; i++) {
+        fr_affine_mul(&state->trasforms[i], &state->trasforms[i], &state->trasforms[i]);
+    }
+    fr_clock_update(&c1);
+    FR_INFO("Time to multiply %d affine transforms: %f", TEST_LEN, c1.elapsed_time * 1000.0f);
 
     // affine unit test
     mat4 affine;
-    vec3 translation, rotation, scale;
+    // vec3 translation, rotation, scale;
     fr_vec3(0.0f, 2.0f, 3.0f, &translation);
     fr_vec3(PI_2, 0.0f, 0.0f, &rotation);
     fr_vec3(1.0f, 1.0f, 1.0f, &scale);
@@ -74,9 +88,20 @@ b8 testbed_initialize(application_handle *app_handle) {
     i32 len = 1024;
     fr_mat4_print("Affine Transform", &len, &affine, buffer);
     FR_INFO("%s", buffer);
-    
+
     fr_affine_translate(&affine, &translation);
     fr_mat4_print("Affine Transform", &len, &affine, buffer);
+    FR_INFO("%s", buffer);
+    fr_affine_left_translate(&translation, &affine);
+    fr_mat4_print("Affine Transform", &len, &affine, buffer);
+    FR_INFO("%s", buffer);
+
+    vec4 tr;
+    fr_vec4(0.0f, 2.0f, 3.0f, 1.0f, &tr);
+    fr_vec4_print("Vector", &len, &tr, buffer);
+    FR_INFO("%s", buffer);
+    fr_mat4_mulv(&affine, &tr, &tr);
+    fr_vec4_print("Transformed Vector", &len, &tr, buffer);
     FR_INFO("%s", buffer);
 
     return TRUE;

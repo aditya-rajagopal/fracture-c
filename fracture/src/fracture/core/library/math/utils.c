@@ -86,3 +86,16 @@ FR_API void fr_mat4_print(const char* name, int* len, const mat4* m, char* out_s
     }
     snprintf(out_string, *len, "%s", buffer);
 }
+
+
+FR_API void fr_vec4_print(const char* name, int* len, const vec4* v, char* out_string) {
+    char buffer[1024];
+    u32 offset = 0;
+    offset = snprintf(buffer, 1024, "vec4(float:%s) = \n", name);
+    offset += snprintf(buffer + offset, 1024 - offset, "[%f, %f, %f, %f]\n", v->x, v->y, v->z, v->w);
+    if (out_string == NULL_PTR) {
+        *len = offset;
+        return;
+    }
+    snprintf(out_string, *len, "%s", buffer);
+}

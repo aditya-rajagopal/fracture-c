@@ -14,15 +14,15 @@
 #include "../mat4.h"
 #include "../simd/sse.h"
 
-FR_FORCE_INLINE void fr_affine_left_tanslate(vec3* translation, mat4* transform) {
+FR_FORCE_INLINE void fr_affine_left_translate(vec3* translation, mat4* transform) {
     transform->simd[3] = _mm_add_ps(
-        transform->simd[0],
+        transform->simd[3],
         _mm_setr_ps(translation->x, translation->y, translation->z, 1.0f));
 }
 
-FR_FORCE_INLINE void fr_affine_left_tanslate_to(vec3* translation, mat4* transform, mat4* out) {
+FR_FORCE_INLINE void fr_affine_left_translate_to(vec3* translation, mat4* transform, mat4* out) {
     __m128 t = _mm_add_ps(
-        transform->simd[0],
+        transform->simd[3],
         _mm_setr_ps(translation->x, translation->y, translation->z, 1.0f));
     out->simd[0] = transform->simd[0];
     out->simd[1] = transform->simd[1];
@@ -60,15 +60,15 @@ FR_FORCE_INLINE void fr_affine_translate_to(mat4* transform, vec3* translation, 
     out->simd[3] = t;
 }
 
-FR_FORCE_INLINE void fr_affine_left_tanslate_x(f32 x, mat4* transform) {
+FR_FORCE_INLINE void fr_affine_left_translate_x(f32 x, mat4* transform) {
     transform->m03 += x;
 }
 
-FR_FORCE_INLINE void fr_affine_left_tanslate_y(f32 y, mat4* transform) {
+FR_FORCE_INLINE void fr_affine_left_translate_y(f32 y, mat4* transform) {
     transform->m13 += y;
 }
 
-FR_FORCE_INLINE void fr_affine_left_tanslate_z(f32 z, mat4* transform) {
+FR_FORCE_INLINE void fr_affine_left_translate_z(f32 z, mat4* transform) {
     transform->m23 += z;
 }
 
