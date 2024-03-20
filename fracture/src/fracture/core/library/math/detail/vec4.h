@@ -46,6 +46,7 @@ typedef FR_ALIGN(16) union vec4_u {
 
 typedef vec4 colour;
 typedef vec4 rect_2d;
+typedef vec4 quat;
 
 typedef FR_ALIGN(16) union bvec4_u {
     struct {
