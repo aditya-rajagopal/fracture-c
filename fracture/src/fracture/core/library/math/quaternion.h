@@ -110,6 +110,31 @@ FR_FORCE_INLINE void fr_quat_to_mat4(const quat* q, mat4* out) {
     out->m33 = 1.0f;
 }
 
+FR_FORCE_INLINE void fr_quat_to_mat4t(const quat* q, mat4* out) {
+    quat normq;
+    fr_quat_normalize(q, &normq);
+
+    out->m00 = 1.0f - 2.0f * (normq.y * normq.y + normq.z * normq.z);
+    out->m01 = 2.0f * (normq.x * normq.y + normq.z * normq.w);
+    out->m02 = 2.0f * (normq.x * normq.z - normq.y * normq.w);
+    out->m03 = 0.0f;
+
+    out->m10 = 2.0f * (normq.x * normq.y - normq.z * normq.w);
+    out->m11 = 1.0f - 2.0f * (normq.x * normq.x + normq.z * normq.z);
+    out->m12 = 2.0f * (normq.y * normq.z + normq.x * normq.w);
+    out->m13 = 0.0f;
+
+    out->m20 = 2.0f * (normq.x * normq.z + normq.y * normq.w);
+    out->m21 = 2.0f * (normq.y * normq.z - normq.x * normq.w);
+    out->m22 = 1.0f - 2.0f * (normq.x * normq.x + normq.y * normq.y);
+    out->m23 = 0.0f;
+
+    out->m30 = 0.0f;
+    out->m31 = 0.0f;
+    out->m32 = 0.0f;
+    out->m33 = 1.0f;
+}
+
 FR_FORCE_INLINE void fr_quat_to_rotation_matrix(const quat* q, const vec3* center, mat4* out) {
     out->m00 = (q->x * q->x) - (q->y * q->y) - (q->z * q->z) + (q->w * q->w);
     out->m01 = 2.0f * ((q->x * q->y) + (q->z * q->w));

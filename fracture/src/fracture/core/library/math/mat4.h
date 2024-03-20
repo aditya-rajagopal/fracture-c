@@ -382,7 +382,7 @@ FR_FORCE_INLINE void fr_mat4_vmul(const vec4* v, const mat4* m, vec4* dst) {
 #endif
 }
 
-FR_FORCE_INLINE void fr_mat4_mulv3(const mat4* m, const vec3* v, f32 w, vec3* dst) {
+FR_FORCE_INLINE void fr_mat4_mulv3(const mat4* m, const vec3* v, f32 w, vec4* dst) {
 #if FR_SIMD == 1
     __m128 c = _mm_mul_ps(m->simd[0], _mm_set1_ps(v->x));
     c = fr_simd_fmadd(m->simd[1], _mm_set1_ps(v->y), c);
@@ -393,6 +393,7 @@ FR_FORCE_INLINE void fr_mat4_mulv3(const mat4* m, const vec3* v, f32 w, vec3* ds
     dst->x = f[0];
     dst->y = f[1];
     dst->z = f[2];
+    dst->w = w;
 #else
 #endif
 }

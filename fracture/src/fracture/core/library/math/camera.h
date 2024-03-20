@@ -80,3 +80,13 @@ FR_FORCE_INLINE void fr_camera_look_at(vec3* position, vec3* target, vec3* up, m
     out->m23 = fr_vec3_dot(&z_axis, position);
     out->m33 = 1.0f;
 }
+
+FR_FORCE_INLINE void fr_camera_look(const vec3* eye, const quat* orientation, mat4* out) {
+    fr_quat_to_mat4t(orientation, out);
+
+    fr_mat4_mulv3(out, eye, 1.0f, &out->columns[3]);
+    out->m03 = -out->m03;
+    out->m13 = -out->m13;
+    out->m23 = -out->m23;
+}
+
