@@ -59,7 +59,7 @@ FR_API void* _darray_create(u64 size, u64 element_size);
  * @return void* A pointer to the newly created dynamic array.
  */
 #define darray_create(type)                                                    \
-    _darray_create(DARRAY_DEFAULT_CAPACITY, sizeof(type))
+    (type*)_darray_create(DARRAY_DEFAULT_CAPACITY, sizeof(type))
 
 /**
  * @brief Created a new dynamic array with the given size and the given type.
@@ -68,7 +68,7 @@ FR_API void* _darray_create(u64 size, u64 element_size);
  * @param type The type of the elements in the dynamic array.
  * @return void* A pointer to the newly created dynamic array.
  */
-#define darray_reserve(size, type) _darray_create(size, sizeof(type))
+#define darray_reserve(size, type) (type*)_darray_create(size, sizeof(type))
 
 /**
  * @brief Destroys the given dynamic array and frees the memory.

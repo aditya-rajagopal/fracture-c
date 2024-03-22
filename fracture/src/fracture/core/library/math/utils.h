@@ -17,17 +17,6 @@
 #include "detail/vec4.h"
 #include "detail/matrix.h"
 
-// Min and Max and Clamp
-FR_FORCE_INLINE f32 fr_deg_to_rad(f32 deg) { return deg * DEG_TO_RAD; }
-FR_FORCE_INLINE f32 fr_rad_to_deg(f32 rad) { return rad * RAD_TO_DEG; }
-FR_FORCE_INLINE f32 fr_deg_to_rev(f32 deg) { return deg * DEG_TO_REV; }
-FR_FORCE_INLINE f32 fr_rev_to_deg(f32 rev) { return rev * REV_TO_DEG; }
-FR_FORCE_INLINE f32 fr_rad_to_rev(f32 rad) { return rad * RAD_TO_REV; }
-FR_FORCE_INLINE f32 fr_rev_to_rad(f32 rev) { return rev * REV_TO_RAD; }
-
-FR_FORCE_INLINE void fr_make_deg(f32* rad) { *rad *= RAD_TO_DEG; }
-FR_FORCE_INLINE void fr_make_rad(f32* deg) { *deg *= DEG_TO_RAD; }
-
 FR_FORCE_INLINE f32 fr_min(f32 a, f32 b) { return a < b ? a : b; }
 FR_FORCE_INLINE f32 fr_max(f32 a, f32 b) { return a > b ? a : b; }
 FR_FORCE_INLINE i32 fr_imin(i32 a, i32 b) { return a < b ? a : b; }
