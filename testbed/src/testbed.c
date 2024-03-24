@@ -14,6 +14,8 @@ typedef struct testbed_internal_state {
     mat4 trasforms[TEST_LEN];
     vec4 vectors[TEST_LEN];
     vec4 out_vector[TEST_LEN];
+    vec3 vec3s[TEST_LEN];
+    quat quaternions[TEST_LEN];
     fr_rng_config pcg_state;
     fr_rng_config xorwow_state;
 } testbed_internal_state;
@@ -52,58 +54,30 @@ b8 testbed_initialize(application_handle *app_handle) {
     
     // mat3 print test
     clock c1;
-    vec3 translation, rotation, scale;
-    fr_vec3(1.0f, 2.0f, 3.0f, &translation);
-    fr_vec3(0.0f, 0.0f, 0.0f, &rotation);
-    fr_vec3(1.0f, 1.0f, 1.0f, &scale);
+    for (u32 i = 0; i < TEST_LEN; i++) {
+        fr_vec3(fr_random_uniform(&state->xorwow_state),
+                fr_random_uniform(&state->xorwow_state),
+                fr_random_uniform(&state->xorwow_state),
+                &state->vec3s[i]);
+        fr_quat(fr_random_uniform(&state->xorwow_state),
+                fr_random_uniform(&state->xorwow_state),
+                fr_random_uniform(&state->xorwow_state),
+                fr_random_uniform(&state->xorwow_state),
+                &state->quaternions[i]);
+    }
     fr_clock_start(&c1);
-    for(u32 i = 0; i < TEST_LEN; i++) {
-        fr_affine_create(&translation, &rotation, &scale, &state->trasforms[i]);
+    for (u32 i = 0; i < TEST_LEN; i++) {
+        fr_quat_vec3_rot(&state->vec3s[i], &state->quaternions[i], &state->vec3s[i]);
     }
     fr_clock_update(&c1);
-    FR_INFO("Time to create %d affine transforms: %f", TEST_LEN, c1.elapsed_time * 1000.0f);
+    FR_INFO("Time to rotate %d vec3s with quaternions: %f", TEST_LEN, c1.elapsed_time);
 
-    fr_clock_start(&c1);
-    for(u32 i = 0; i < TEST_LEN; i++) {
-        fr_affine_inv(&state->trasforms[i], &state->trasforms[i]);
-    }
-    fr_clock_update(&c1);
-    FR_INFO("Time to invert %d affine transforms: %f", TEST_LEN, c1.elapsed_time * 1000.0f);
-
-    fr_clock_start(&c1);
-    for(u32 i = 0; i < TEST_LEN; i++) {
-        fr_affine_mul(&state->trasforms[i], &state->trasforms[i], &state->trasforms[i]);
-    }
-    fr_clock_update(&c1);
-    FR_INFO("Time to multiply %d affine transforms: %f", TEST_LEN, c1.elapsed_time * 1000.0f);
-
-    // affine unit test
-    mat4 affine;
-    // vec3 translation, rotation, scale;
-    fr_vec3(0.0f, 2.0f, 3.0f, &translation);
-    fr_vec3(PI_2, 0.0f, 0.0f, &rotation);
-    fr_vec3(1.0f, 1.0f, 1.0f, &scale);
-    fr_affine_create(&translation, &rotation, &scale, &affine);
-    char buffer[1024];
-    i32 len = 1024;
-    fr_mat4_print("Affine Transform", &len, &affine, buffer);
-    FR_INFO("%s", buffer);
-
-    fr_affine_translate(&affine, &translation);
-    fr_mat4_print("Affine Transform", &len, &affine, buffer);
-    FR_INFO("%s", buffer);
-    fr_affine_left_translate(&translation, &affine);
-    fr_mat4_print("Affine Transform", &len, &affine, buffer);
-    FR_INFO("%s", buffer);
-
-    vec4 tr;
-    fr_vec4(0.0f, 2.0f, 3.0f, 1.0f, &tr);
-    fr_vec4_print("Vector", &len, &tr, buffer);
-    FR_INFO("%s", buffer);
-    fr_mat4_mulv(&affine, &tr, &tr);
-    fr_vec4_print("Transformed Vector", &len, &tr, buffer);
-    FR_INFO("%s", buffer);
-
+    // quaternion unit test
+    vec3 point = {1.0f, 2.0f, 3.0f};
+    quat q;
+    fr_quat_from_eulers321(PI_2, 0.0f, 0.0f, &q);
+    fr_quat_vec3_rot(&point, &q, &point);
+    FR_INFO("Rotated point: (%f, %f, %f)", point.x, point.y, point.z);
     return TRUE;
 }
 

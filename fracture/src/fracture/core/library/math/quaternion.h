@@ -50,6 +50,14 @@ FR_FORCE_INLINE void fr_quat_inverse(const quat* q, quat* out) {
     out->simd = _mm_mul_ps(out->simd, invnorm);
 }
 
+FR_FORCE_INLINE f32 fr_quat_real(const quat* q) {
+    return q->w;
+}
+
+FR_FORCE_INLINE void fr_quat_imag(const quat* q, vec3* out) {
+    fr_vec3_create(q->data, out);
+}
+
 FR_FORCE_INLINE void fr_quat_mul(const quat* a, const quat* b, quat* out) {
     /*
      * (a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y)i
@@ -176,6 +184,32 @@ FR_FORCE_INLINE void fr_quat_to_axis_angle(const quat* q, b8 normalize, vec3* ou
     if (normalize) {
         fr_vec3_normalize(out_axis, out_axis);
     }
+}
+
+FR_FORCE_INLINE void fr_quat_from_eulers321(f32 z, f32 y, f32 x, quat* out) {
+    const f32 c1 = fr_cos(x * 0.5f);
+    const f32 c2 = fr_cos(y * 0.5f);
+    const f32 c3 = fr_cos(z * 0.5f);
+    const f32 s1 = fr_sin(x * 0.5f);
+    const f32 s2 = fr_sin(y * 0.5f);
+    const f32 s3 = fr_sin(z * 0.5f);
+
+    out->x = s1 * c2 * c3 - c1 * s2 * s3;
+    out->y = c1 * s2 * c3 + s1 * c2 * s3;
+    out->z = c1 * c2 * s3 - s1 * s2 * c3;
+    out->w = c1 * c2 * c3 + s1 * s2 * s3;
+}
+
+FR_FORCE_INLINE void fr_quat_vec3_rot(const vec3* v, const quat* q, vec3* out) {
+    vec3 vec_q, temp;
+    fr_quat_imag(q, &vec_q);
+    fr_vec3_cross(&vec_q, v, &temp);
+    vec3 t_cross;
+    fr_vec3_cross(&vec_q, &temp, &t_cross);
+    fr_vec3_scale(&temp, 2.0f * q->w, &temp);
+    fr_vec3_scale(&t_cross, 2.0f, &t_cross);
+    fr_vec3_add(v, &temp, out);
+    fr_vec3_add(out, &t_cross, out);
 }
 
 FR_FORCE_INLINE void fr_quat_lerp(const quat* from, const quat* to, f32 percentage, quat* out) {
