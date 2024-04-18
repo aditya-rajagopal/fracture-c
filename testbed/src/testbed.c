@@ -1,6 +1,5 @@
 #include "testbed.h"
 
-#include "fracture/core/containers/darrays.h"
 #include "fracture/core/systems/event.h"
 #include "fracture/core/systems/input.h"
 
@@ -28,7 +27,7 @@ b8 testbed_on_key_pressed(u16 event_code, void* sender, void* listener_instance,
 b8 testbed_on_key_B(u16 event_code, void* sender, void* listener_instance, event_data data);
 b8 testbed_on_mouse_button1(u16 event_code, void* sender, void* listener_instance, event_data data);
 
-b8 testbed_initialize(application_handle *app_handle) {
+b8 testbed_initialize(application_handle* app_handle) {
     clock c;
     fr_clock_start(&c);
     // FR_INFO("Client Application initialized: %s", app_handle->app_config.name);
@@ -51,7 +50,7 @@ b8 testbed_initialize(application_handle *app_handle) {
     // fr_event_register_handler(EVENT_CODE_KEY_B, NULL_PTR, testbed_on_key_B);
     // fr_event_register_handler(EVENT_CODE_MOUSE_BUTTON_LEFT, NULL_PTR, testbed_on_mouse_button1);
     // Test execution time of vec3_veqv_simd and vec4_veqv
-    
+
     // mat3 print test
     clock c1;
     for (u32 i = 0; i < TEST_LEN; i++) {
@@ -81,7 +80,7 @@ b8 testbed_initialize(application_handle *app_handle) {
     return TRUE;
 }
 
-b8 testbed_shutdown(application_handle *app_handle) {
+b8 testbed_shutdown(application_handle* app_handle) {
     FR_INFO("Client Application shutdown: %s", app_handle->app_config.name);
     fr_memory_free(state, sizeof(testbed_internal_state), MEMORY_TYPE_APPLICATION);
     // fr_memory_free(transform_array, 4 * 4 * sizeof(u32), MEMORY_TYPE_TRANSFORM);
@@ -93,8 +92,7 @@ b8 testbed_shutdown(application_handle *app_handle) {
     return TRUE;
 }
 
-b8 testbed_update(application_handle *app_handle, f64 delta_time) {
-
+b8 testbed_update(application_handle* app_handle, f64 delta_time) {
     if (fr_input_is_key_pressed_this_frame(KEY_G)) {
         FR_INFO("G key was pressed this frame");
     }
@@ -106,13 +104,9 @@ b8 testbed_update(application_handle *app_handle, f64 delta_time) {
     return TRUE;
 }
 
-b8 testbed_render(application_handle *app_handle, f64 delta_time) {
-    return TRUE;
-}
+b8 testbed_render(application_handle* app_handle, f64 delta_time) { return TRUE; }
 
-b8 testbed_on_resize(application_handle *app_handle, u32 width, u32 height) {
-    return TRUE;
-}
+b8 testbed_on_resize(application_handle* app_handle, u32 width, u32 height) { return TRUE; }
 
 b8 testbed_on_key_pressed(u16 event_code, void* sender, void* listener_instance, event_data data) {
     if (event_code == EVENT_CODE_KEY_PRESS) {
@@ -122,17 +116,18 @@ b8 testbed_on_key_pressed(u16 event_code, void* sender, void* listener_instance,
         i16 mouse_y = (i16)data.data.du16[3];
         switch (key) {
             case KEY_T:
-                FR_INFO(
-                    "T key pressed at position: (%d, %d) and is %s repeated",
-                    mouse_x, mouse_y, is_repeated ? "" : "not");
+                FR_INFO("T key pressed at position: (%d, %d) and is %s repeated",
+                        mouse_x,
+                        mouse_y,
+                        is_repeated ? "" : "not");
                 return FALSE;
             case KEY_R:
                 FR_INFO("R key was pressed this frame %d", fr_input_is_key_pressed_this_frame(KEY_R));
                 FR_INFO("R key pressed at position: (%d, %d)", mouse_x, mouse_y);
                 return FALSE;
-        case KEY_LCONTROL:
-        case KEY_RCONTROL:
-            FR_INFO("Ctrl key pressed at position: (%d, %d)", mouse_x, mouse_y);
+            case KEY_LCONTROL:
+            case KEY_RCONTROL:
+                FR_INFO("Ctrl key pressed at position: (%d, %d)", mouse_x, mouse_y);
             default:
                 break;
         }
@@ -156,7 +151,7 @@ b8 testbed_on_key_B(u16 event_code, void* sender, void* listener_instance, event
     i16 mouse_x = (i16)data.data.du16[2];
     i16 mouse_y = (i16)data.data.du16[3];
     b8 pressed = (b8)data.data.du16[4];
-    if(pressed) {
+    if (pressed) {
         FR_INFO("B key pressed at position: (%d, %d) and is %s repeated", mouse_x, mouse_y, is_repeated ? "" : "not");
     } else {
         FR_INFO("B key released at position: (%d, %d)", mouse_x, mouse_y);
@@ -168,7 +163,7 @@ b8 testbed_on_mouse_button1(u16 event_code, void* sender, void* listener_instanc
     i16 mouse_x = (i16)data.data.du16[2];
     i16 mouse_y = (i16)data.data.du16[3];
     b8 pressed = (b8)data.data.du16[4];
-    if(pressed) {
+    if (pressed) {
         FR_INFO("Mouse button 1 pressed at position: (%d, %d)", mouse_x, mouse_y);
     } else {
         FR_INFO("Mouse button 1 released at position: (%d, %d)", mouse_x, mouse_y);

@@ -1,18 +1,15 @@
 #include "engine.h"
 
-#include "fracture/core/systems/logging.h"
-#include "fracture/core/systems/fracture_memory.h"
-#include "fracture/core/systems/event.h"
-#include "fracture/core/systems/input.h"
-#include "fracture/core/systems/clock.h"
-#include "fracture/core/library/fracture_string.h"
-
-#include "fracture/engine/engine_events.h"
-#include "fracture/core/includes/system_event_codes.h"
-
-#include "fracture/renderer/renderer_frontend.h"
-
 #include <platform.h>
+
+#include "fracture/core/includes/system_event_codes.h"
+#include "fracture/core/systems/clock.h"
+#include "fracture/core/systems/event.h"
+#include "fracture/core/systems/fracture_memory.h"
+#include "fracture/core/systems/input.h"
+#include "fracture/core/systems/logging.h"
+#include "fracture/engine/engine_events.h"
+#include "fracture/renderer/renderer_frontend.h"
 
 typedef struct engine_state {
     application_handle* app_handle;
@@ -35,10 +32,12 @@ b8 _engine_on_key_event(u16 event_code, void* sender, void* listener_instance, e
 
 b8 engine_initialize(application_handle* app_handle) {
     if (is_initialized) {
-      FR_CORE_FATAL("An application has already been intialized: %s but "
-                    "initializing a new one: %s",
-                    state.name, app_handle->app_config.name);
-      return FALSE;
+        FR_CORE_FATAL(
+            "An application has already been intialized: %s but "
+            "initializing a new one: %s",
+            state.name,
+            app_handle->app_config.name);
+        return FALSE;
     }
 
     state.name = app_handle->app_config.name;
@@ -58,10 +57,12 @@ b8 engine_initialize(application_handle* app_handle) {
     state.plat_state.on_window_close = fr_engine_process_window_close;
     state.plat_state.on_window_resize = fr_engine_process_window_resize;
 
-    if (!platform_startup(
-            &state.plat_state, app_handle->app_config.name,
-            app_handle->app_config.start_width, app_handle->app_config.start_height,
-            app_handle->app_config.start_x_pos, app_handle->app_config.start_y_pos)) {
+    if (!platform_startup(&state.plat_state,
+                          app_handle->app_config.name,
+                          app_handle->app_config.start_width,
+                          app_handle->app_config.start_height,
+                          app_handle->app_config.start_x_pos,
+                          app_handle->app_config.start_y_pos)) {
         FR_CORE_FATAL("Failed to initialize platform");
         return FALSE;
     }
@@ -104,8 +105,7 @@ b8 engine_initialize(application_handle* app_handle) {
         FR_CORE_FATAL("Failed to initialize client application");
         return FALSE;
     }
-    FR_CORE_INFO("Client Application initialized: %s",
-                 app_handle->app_config.name);
+    FR_CORE_INFO("Client Application initialized: %s", app_handle->app_config.name);
 
     is_initialized = TRUE;
     return TRUE;
@@ -152,10 +152,10 @@ b8 engine_run(application_handle* app_handle) {
     f64 target_frame_seconds = 1.0F / app_handle->app_config.target_frame_rate;
 
     FR_CORE_INFO("Running application: %s", app_handle->app_config.name);
-    
+
     fr_memory_print_stats();
 
-    while(state.is_running) {
+    while (state.is_running) {
         if (!platform_pump_messages(&state.plat_state)) {
             state.is_running = FALSE;
         }
@@ -182,7 +182,7 @@ b8 engine_run(application_handle* app_handle) {
                 // TODO: We dont want to create the packet here every frame.
                 renderer_packet packet = {0};
                 packet.delta_time = delta_time;
-                if(!fr_renderer_draw_frame(&packet)) {
+                if (!fr_renderer_draw_frame(&packet)) {
                     FR_CORE_ERROR("Failed to draw frame");
                 }
             }
@@ -191,7 +191,6 @@ b8 engine_run(application_handle* app_handle) {
             f64 frame_time = frame_end_time - frame_start_time;
             // total_run_time += frame_time;
             f64 sleep_time = target_frame_seconds - frame_time;
-
 
             if (sleep_time > 0.0 && app_handle->app_config.lock_frame_rate) {
                 u64 sleep_time_ms = (u64)(sleep_time * 1000);
@@ -202,16 +201,14 @@ b8 engine_run(application_handle* app_handle) {
             fr_input_update(delta_time);
             // frame_count++;
             state.last_frame_time = state.app_clock.elapsed_time;
-
         }
-
     }
 
     state.is_running = FALSE;
     return TRUE;
 }
 
-void engine_get_framebuffer_size(u32 *width, u32 *height) {
+void engine_get_framebuffer_size(u32* width, u32* height) {
     *width = state.current_width;
     *height = state.current_height;
 }
@@ -240,8 +237,7 @@ b8 _engine_on_event(u16 event_code, void* sender, void* listener_instance, event
                     state.is_supended = FALSE;
                 }
                 state.app_handle->on_resize(state.app_handle, state.current_width, state.current_height);
-                fr_renderer_on_window_resize(state.current_width,
-                                             state.current_height);
+                fr_renderer_on_window_resize(state.current_width, state.current_height);
             }
             return TRUE;
     }
@@ -262,9 +258,10 @@ b8 _engine_on_key_event(u16 event_code, void* sender, void* listener_instance, e
                 fr_event_dispatch(EVENT_CODE_APPLICATION_QUIT, 0, data);
                 return FALSE;
             case KEY_A:
-                FR_CORE_INFO(
-                    "A key pressed at position: (%d, %d) and is %s repeated",
-                    mouse_x, mouse_y, is_repeated ? "" : "not");
+                FR_CORE_INFO("A key pressed at position: (%d, %d) and is %s repeated",
+                             mouse_x,
+                             mouse_y,
+                             is_repeated ? "" : "not");
                 return FALSE;
             default:
                 break;
