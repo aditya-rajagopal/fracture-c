@@ -18,26 +18,20 @@
  */
 #pragma once
 
-#include "fracture/fracture_core.h"
-
+#include "fracture/core/defines.h"
 /**
  * @brief A dynamic array data structure.
  * NOTE: This is currently not used in the engine and is a work in progress.
- * 
+ *
  */
 typedef struct darray {
     u64 length;       /**< The length of the dynamic array i.e where is the current valid element */
-    u64 capacity;   /**< The capacity of the dynamic array. */
+    u64 capacity;     /**< The capacity of the dynamic array. */
     u64 element_size; /**< The size of each element in the dynamic array. */
-    void* data;     /**< A pointer to the data in the dynamic array. */
+    void* data;       /**< A pointer to the data in the dynamic array. */
 } darray;
 
-typedef enum darray_fields {
-    DARRAY_LENGTH,
-    DARRAY_CAPACITY,
-    DARRAY_ELEMENT_SIZE,
-    DARRAY_FIELDS_LENGTH
-} darray_fields;
+typedef enum darray_fields { DARRAY_LENGTH, DARRAY_CAPACITY, DARRAY_ELEMENT_SIZE, DARRAY_FIELDS_LENGTH } darray_fields;
 
 #define DARRAY_DEFAULT_CAPACITY 8
 #define DARRAY_GROWTH_FACTOR 2
@@ -58,8 +52,7 @@ FR_API void* _darray_create(u64 size, u64 element_size);
  * @param type The type of the elements in the dynamic array.
  * @return void* A pointer to the newly created dynamic array.
  */
-#define darray_create(type)                                                    \
-    (type*)_darray_create(DARRAY_DEFAULT_CAPACITY, sizeof(type))
+#define darray_create(type) (type*)_darray_create(DARRAY_DEFAULT_CAPACITY, sizeof(type))
 
 /**
  * @brief Created a new dynamic array with the given size and the given type.
@@ -127,10 +120,10 @@ FR_API void* _darray_insert_at(void* darray, void* element, u64 index);
  * @param element The element to push.
  * @return void* A pointer to the dynamic array with the pushed element.
  */
-#define darray_push(darray, element)                                           \
-    {                                                                          \
-      typeof(element) _element = element;                                      \
-      darray = _darray_push(darray, &_element);                                         \
+#define darray_push(darray, element)              \
+    {                                             \
+        typeof(element) _element = element;       \
+        darray = _darray_push(darray, &_element); \
     }
 
 /**
@@ -142,10 +135,10 @@ FR_API void* _darray_insert_at(void* darray, void* element, u64 index);
  * @param index The index to insert the element at.
  * @return void* A pointer to the dynamic array with the inserted element.
  */
-#define darray_insert_at(darray, element, index)                               \
-    {                                                                          \
-      typeof(element) _element = element;                                      \
-      darray = _darray_insert_at(darray, &_element, index);                             \
+#define darray_insert_at(darray, element, index)              \
+    {                                                         \
+        typeof(element) _element = element;                   \
+        darray = _darray_insert_at(darray, &_element, index); \
     }
 
 /**
@@ -216,5 +209,4 @@ FR_API void* darray_resize(void* darray, u64 new_capacity);
  * @param darray A pointer to the dynamic array to grow.
  * @return void* A pointer to the grown dynamic array.
  */
-#define darray_grow(darray)                                                    \
-    darray_resize(darray, DARRAY_GROWTH_FACTOR * darray_capacity(darray));
+#define darray_grow(darray) darray_resize(darray, DARRAY_GROWTH_FACTOR* darray_capacity(darray));

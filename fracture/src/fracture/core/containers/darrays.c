@@ -19,7 +19,10 @@ void darray_destroy(void* darray) {
         return;
     }
     u64* darray_header = (u64*)darray - DARRAY_FIELDS_LENGTH;
-    fr_memory_free(darray_header, darray_header[DARRAY_CAPACITY] * darray_header[DARRAY_ELEMENT_SIZE] + sizeof(u64) * DARRAY_FIELDS_LENGTH, MEMORY_TYPE_DARRAY);
+    fr_memory_free(
+        darray_header,
+        darray_header[DARRAY_CAPACITY] * darray_header[DARRAY_ELEMENT_SIZE] + sizeof(u64) * DARRAY_FIELDS_LENGTH,
+        MEMORY_TYPE_DARRAY);
 }
 
 void* darray_resize(void* darray, u64 new_capacity) {
@@ -27,11 +30,10 @@ void* darray_resize(void* darray, u64 new_capacity) {
     u64 length = darray_header[DARRAY_LENGTH];
     u64 stride = darray_header[DARRAY_ELEMENT_SIZE];
     void* new_darray = _darray_create(new_capacity, stride);
-    if (length > new_capacity){
+    if (length > new_capacity) {
         fr_memory_copy(new_darray, darray, new_capacity * stride);
         darray_length_set(new_darray, new_capacity);
-    }
-    else {
+    } else {
         fr_memory_copy(new_darray, darray, length * stride);
         darray_length_set(new_darray, length);
     }
@@ -47,7 +49,7 @@ void* darray_pop(void* darray, void* dest) {
 void* darray_pop_at(void* darray, void* dest, u64 index) {
     u64 length = darray_length(darray);
     u64 stride = darray_element_size(darray);
-    if ( index >= length ) {
+    if (index >= length) {
         FR_CORE_ERROR("Attempting to access index: %d of darray with length: %d", index, length);
         return NULL_PTR;
     }
@@ -55,10 +57,8 @@ void* darray_pop_at(void* darray, void* dest, u64 index) {
     address += index * stride;
     fr_memory_copy(dest, (void*)address, stride);
     if (index != length - 1) {
-        fr_memory_copy((void *)address, (void *)(address + stride),
-                       (length - index) * stride);
-    }
-    else {
+        fr_memory_copy((void*)address, (void*)(address + stride), (length - index) * stride);
+    } else {
         fr_memory_zero((void*)address, stride);
     }
     darray_length_set(darray, length - 1);
@@ -77,12 +77,15 @@ void* _darray_insert_at(void* darray, void* element, u64 index) {
     u64 capacity = darray_header[DARRAY_CAPACITY];
 
     if (index > length) {
-        FR_CORE_ERROR("Attempting to insert array into darray at index: %d "
-                      "into array of length: %d",
-                      index, length);
-        FR_CORE_ERROR("Can only insert into indices within the array or append "
-                      "at the end with %d",
-                      length);
+        FR_CORE_ERROR(
+            "Attempting to insert array into darray at index: %d "
+            "into array of length: %d",
+            index,
+            length);
+        FR_CORE_ERROR(
+            "Can only insert into indices within the array or append "
+            "at the end with %d",
+            length);
         return darray;
     }
     if (length >= capacity) {
@@ -90,12 +93,11 @@ void* _darray_insert_at(void* darray, void* element, u64 index) {
     }
     u64 address = (u64)darray;
     if (index != length) {
-        fr_memory_copy((void *)(address + (index + 1) * stride),
-                       (void *)(address + index * stride),
-                       (length - index) * stride);
+        fr_memory_copy(
+            (void*)(address + (index + 1) * stride), (void*)(address + index * stride), (length - index) * stride);
     }
     fr_memory_copy((void*)(address + index * stride), element, stride);
-    darray_length_set(darray, length + 1); 
+    darray_length_set(darray, length + 1);
     return darray;
 }
 
@@ -107,22 +109,16 @@ void* darray_clear(void* darray) {
     return darray;
 }
 
-u64 darray_length(void *darray) {
-    return ((u64*)darray - DARRAY_FIELDS_LENGTH)[DARRAY_LENGTH];
-}
+u64 darray_length(void* darray) { return ((u64*)darray - DARRAY_FIELDS_LENGTH)[DARRAY_LENGTH]; }
 
 void darray_length_set(void* darray, u64 length) {
     u64* darray_header = (u64*)darray - DARRAY_FIELDS_LENGTH;
     darray_header[DARRAY_LENGTH] = length;
 }
 
-u64 darray_capacity(void *darray) {
-    return ((u64*)darray - DARRAY_FIELDS_LENGTH)[DARRAY_CAPACITY];
-}
+u64 darray_capacity(void* darray) { return ((u64*)darray - DARRAY_FIELDS_LENGTH)[DARRAY_CAPACITY]; }
 
-u64 darray_element_size(void *darray) {
-    return ((u64*)darray - DARRAY_FIELDS_LENGTH)[DARRAY_ELEMENT_SIZE];
-}
+u64 darray_element_size(void* darray) { return ((u64*)darray - DARRAY_FIELDS_LENGTH)[DARRAY_ELEMENT_SIZE]; }
 
 void* darray_copy(void* darray) {
     u64* darray_header = (u64*)darray - DARRAY_FIELDS_LENGTH;

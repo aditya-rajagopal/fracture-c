@@ -4,19 +4,19 @@
  * @brief Defines all the types and macros used in the Fracture Game Engine
  * @version 0.0.1
  * @date 2024-02-10
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
-// Unsigned int types 
+// Unsigned int types
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 typedef unsigned long long u64;
 
-// Signed integer types 
+// Signed integer types
 typedef signed char i8;
 typedef signed short i16;
 typedef signed int i32;
@@ -62,12 +62,11 @@ typedef char b8;
 #define CLAMP(x, min, max) (x < min ? min : (x > max ? max : x))
 
 // Define static assert
-#if defined (__clang__) || defined (__gcc__)
-    #define STATIC_ASSERT _Static_assert
+#if defined(__clang__) || defined(__gcc__)
+#define STATIC_ASSERT _Static_assert
 #else
-    #define STATIC_ASSERT static_assert
+#define STATIC_ASSERT static_assert
 #endif
-
 
 // Ensure all types are of the correct size
 STATIC_ASSERT(sizeof(u8) == 1, "u8 is not 1 byte");
@@ -87,29 +86,29 @@ STATIC_ASSERT(sizeof(b32) == 4, "b32 is not 4 bytes");
 STATIC_ASSERT(sizeof(b8) == 1, "b8 is not 1 byte");
 
 #ifdef _DEBUG
-    #define CORE_DEBUG 1
+#define CORE_DEBUG 1
 #else
-    #define CORE_DEBUG 0
+#define CORE_DEBUG 0
 #endif
 
 // Taken from cglm library
 #if defined(_MSC_VER)
 /* do not use alignment for older visual studio versions */
-#  if _MSC_VER < 1913 /*  Visual Studio 2017 version 15.6  */
-#    define FR_ALL_UNALIGNED
-#    define FR_ALIGN(X) /* no alignment */
-#  else
-#    define FR_ALIGN(X) __declspec(align(X))
-#  endif
+#if _MSC_VER < 1913 /*  Visual Studio 2017 version 15.6  */
+#define FR_ALL_UNALIGNED
+#define FR_ALIGN(X) /* no alignment */
 #else
-#  define FR_ALIGN(X) __attribute((aligned(X)))
+#define FR_ALIGN(X) __declspec(align(X))
+#endif
+#else
+#define FR_ALIGN(X) __attribute((aligned(X)))
 #endif
 
 #if defined(FR_MATH_FORCE_INLINE)
 #if defined(_MSC_VER)
-#  define FR_FORCE_INLINE static __forceinline
+#define FR_FORCE_INLINE static __forceinline
 #else
-#  define FR_FORCE_INLINE static inline __attribute((always_inline))
+#define FR_FORCE_INLINE static inline __attribute((always_inline))
 #endif
 #else
 #define FR_FORCE_INLINE static inline
@@ -129,59 +128,59 @@ STATIC_ASSERT(sizeof(b8) == 1, "b8 is not 1 byte");
 
 // Define debug break
 #ifdef _ENABLE_ASSERTS
-    #define DEBUG_BREAK() __debugbreak()
-    #define FR_ENABLE_ASSERTS 1
-    #define FR_ASSERT(expression) \
-        if (expression) {         \
-        } else {                  \
-            DEBUG_BREAK();        \
-        }
+#define DEBUG_BREAK() __debugbreak()
+#define FR_ENABLE_ASSERTS 1
+#define FR_ASSERT(expression) \
+    if (expression) {         \
+    } else {                  \
+        DEBUG_BREAK();        \
+    }
 #else
-    #define DEBUG_BREAK()
-    #define FR_ENABLE_ASSERTS 0
-    #define FR_ASSERT(expression)
+#define DEBUG_BREAK()
+#define FR_ENABLE_ASSERTS 0
+#define FR_ASSERT(expression)
 #endif
 
-#if defined (WIN32) || defined (_WIN32) || defined (__WIN32__)
-    #define FR_PLATFORM_WINDOWS  1
-    #ifndef _WIN64
-        #error "64-bit Windows is required"
-    #endif
-#elif defined (__linux__) || defined (__gnu_linux__)
-    #define FR_PLATFORM_LINUX
-    #ifndef __x86_64__
-        #error "64-bit Linux is required"
-    #endif
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
+#define FR_PLATFORM_WINDOWS 1
+#ifndef _WIN64
+#error "64-bit Windows is required"
+#endif
+#elif defined(__linux__) || defined(__gnu_linux__)
+#define FR_PLATFORM_LINUX
+#ifndef __x86_64__
+#error "64-bit Linux is required"
+#endif
 #else
-    #error "Unsupported platform"
+#error "Unsupported platform"
 #endif
 
 // Define export macro
 #ifdef FR_EXPORT
-    #ifdef _MSC_VER
-        #define FR_API __declspec(dllexport)
-    #else
-        #define FR_API __attribute__((visibility("default")))
-    #endif
-#elif FR_IMPORT
-    #ifdef _MSC_VER
-        #define FR_API __declspec(dllimport)
-    #else
-        #define FR_API
-    #endif
+#ifdef _MSC_VER
+#define FR_API __declspec(dllexport)
 #else
-    #define FR_API
+#define FR_API __attribute__((visibility("default")))
+#endif
+#elif FR_IMPORT
+#ifdef _MSC_VER
+#define FR_API __declspec(dllimport)
+#else
+#define FR_API
+#endif
+#else
+#define FR_API
 #endif
 
 // Define debug macro
 #ifdef _DEBUG
-    #define FR_DEBUG 1
+#define FR_DEBUG 1
 #else
-    #define FR_DEBUG 0
+#define FR_DEBUG 0
 #endif
 
 #ifdef _RELEASE
-    #define FR_RELEASE 1
+#define FR_RELEASE 1
 #else
-    #define FR_RELEASE 0
+#define FR_RELEASE 0
 #endif

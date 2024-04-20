@@ -28,6 +28,9 @@ b8 testbed_on_key_B(u16 event_code, void* sender, void* listener_instance, event
 b8 testbed_on_mouse_button1(u16 event_code, void* sender, void* listener_instance, event_data data);
 
 b8 testbed_initialize(application_handle* app_handle) {
+    testbed_state* app_state = (testbed_state*)app_handle->application_data;
+    app_state->is_running = TRUE;
+
     clock c;
     fr_clock_start(&c);
     // FR_INFO("Client Application initialized: %s", app_handle->app_config.name);
@@ -81,8 +84,10 @@ b8 testbed_initialize(application_handle* app_handle) {
 }
 
 b8 testbed_shutdown(application_handle* app_handle) {
-    FR_INFO("Client Application shutdown: %s", app_handle->app_config.name);
+    testbed_state* app_state = (testbed_state*)app_handle->application_data;
+    app_state->is_running = FALSE;
     fr_memory_free(state, sizeof(testbed_internal_state), MEMORY_TYPE_APPLICATION);
+    FR_INFO("Client Application shutdown: %s", app_handle->app_config.name);
     // fr_memory_free(transform_array, 4 * 4 * sizeof(u32), MEMORY_TYPE_TRANSFORM);
     // fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, NULL_PTR, testbed_on_key_pressed);
     // fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, NULL_PTR, testbed_on_key_pressed);

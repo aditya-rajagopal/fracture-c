@@ -236,6 +236,7 @@ b8 _engine_on_event(u16 event_code, void* sender, void* listener_instance, event
                     state.is_minimized = FALSE;
                     state.is_supended = FALSE;
                 }
+
                 state.app_handle->on_resize(state.app_handle, state.current_width, state.current_height);
                 fr_renderer_on_window_resize(state.current_width, state.current_height);
             }

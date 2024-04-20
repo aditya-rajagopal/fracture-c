@@ -1,12 +1,12 @@
 /**
  * @file vec4.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-02-29
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
@@ -42,7 +42,7 @@ typedef FR_ALIGN(16) union vec4_u {
             f32 height;
         };
     };
-}  vec4;
+} vec4;
 
 typedef vec4 colour;
 typedef vec4 rect_2d;
@@ -71,7 +71,7 @@ typedef FR_ALIGN(16) union bvec4_u {
             b32 q;
         };
     };
-     b32 data[4];
+    b32 data[4];
 #if FR_SIMD == 1
     __m128i simd;
 #endif

@@ -1,12 +1,9 @@
-#include "testbed.h"
-
 #include <fracture/engine/entry.h>
-
-#include <stdlib.h>
 #include <string.h>
 
-b8 create_client_application(application_handle* app_handle) {
+#include "testbed.h"
 
+b8 create_client_application(application_handle* app_handle) {
     app_handle->app_config.name = "Testbed";
     app_handle->app_config.start_width = 1280;
     app_handle->app_config.start_height = 720;
@@ -29,11 +26,11 @@ b8 create_client_application(application_handle* app_handle) {
     app_handle->on_resize = testbed_on_resize;
 
     app_handle->application_data = fr_memory_allocate(sizeof(testbed_state), MEMORY_TYPE_APPLICATION);
-    memset(app_handle->application_data, 1, sizeof(testbed_state));
+    memset(app_handle->application_data, 0, sizeof(testbed_state));
     return TRUE;
 }
 
-b8 destroy_client_application(application_handle *app_handle) {
+b8 destroy_client_application(application_handle* app_handle) {
     fr_memory_free(app_handle->application_data, sizeof(testbed_state), MEMORY_TYPE_APPLICATION);
     return TRUE;
 }

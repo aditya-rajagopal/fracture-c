@@ -12,9 +12,13 @@ The items in this list are not in any particular order. This list will be update
   - [x] Immediate mode event system
   - [ ] Deferred event system
   - [ ] Multithreaded event system
-- [ ] clock
+- [x] clock
 - [ ] testing framework
 - [ ] math library (vector math, etc)
+  - [x] vec3 SIMD
+  - [x] vec4 SIMD
+  - [x] mat3
+  - [x] mat4 SIMD
 - [x] Memory system 
 - [ ] Generic sorting function/library.
 - [ ] Allocators:
@@ -32,7 +36,7 @@ The items in this list are not in any particular order. This list will be update
   - [ ] bitmap font 
   - [ ] system font 
   - [ ] scene
-- [ ] SIMD
+- [x] SIMD
 - [ ] Containers:
   - [x] darray
   - [ ] stack
@@ -171,7 +175,7 @@ The items in this list are not in any particular order. This list will be update
    - [ ] pipeline statistic querying
    - [ ] compute support
  - [ ] OpenGL Renderer Plugin 
-
+ - [ ] WGL Renderer Plugin
 
 ## Standard UI: (separated section because number of controls)
 - [ ] Standard UI system

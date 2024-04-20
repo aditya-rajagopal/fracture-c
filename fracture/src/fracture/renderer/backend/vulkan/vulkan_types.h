@@ -1,28 +1,27 @@
 /**
  * @file vulkan_types.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-02-19
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 
 #pragma once
 
-#include "fracture/fracture_core.h"
+#include <vulkan/vulkan.h>
+
 #include "fracture/core/systems/logging.h"
 #include "vulkan/vulkan_core.h"
-
-#include <vulkan/vulkan.h>
 
 #define VK_CHECK_RESULT(f)                                  \
     {                                                       \
         VkResult res = (f);                                 \
         if (res != VK_SUCCESS) {                            \
             FR_CORE_FATAL("Vulkan error %s : %d", #f, res); \
-            FR_ASSERT(FALSE);                          \
+            FR_ASSERT(FALSE);                               \
             return FALSE;                                   \
         }                                                   \
     }
@@ -112,7 +111,7 @@ typedef enum vulkan_renderpass_state {
 
 /**
  * @brief The struct that holds information about a renderpass
- * 
+ *
  */
 typedef struct vulkan_renderpass {
     /** @brief The handle for the renderpass */
@@ -130,7 +129,7 @@ typedef struct vulkan_renderpass {
 } vulkan_renderpass;
 
 typedef struct vulkan_frame_buffer {
-    /** @brief The handle for the framebuffer */    
+    /** @brief The handle for the framebuffer */
     VkFramebuffer handle;
     /** @brief the number of attachments in the framebuffer */
     u32 attachment_count;
@@ -200,7 +199,7 @@ typedef struct vulkan_context {
     /** @brief The handle for the window surface */
     VkSurfaceKHR surface;
 
-    /** 
+    /**
      * @brief The width of the framebuffer we are currently rendering to.
      * @details the height of the framebuffer we are currently rendering to. We
      * want to store this in the context as it might be useful in many rendering
