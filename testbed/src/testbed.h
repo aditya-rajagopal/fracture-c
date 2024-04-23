@@ -1,7 +1,7 @@
 #pragma once
 
-#include <fracture/core/defines.h>
 #include <fracture.h>
+#include <fracture/core/defines.h>
 
 typedef struct testbed_state {
     b8 is_running;

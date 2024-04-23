@@ -10,8 +10,8 @@
  */
 #pragma once
 
+#include "fracture/core/defines.h"
 #include "fracture/engine/application_types.h"
-#include "fracture/fracture_core.h"
 
 /**
  * @brief Initializes the application with the given configuration

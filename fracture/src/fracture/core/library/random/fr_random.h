@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#include "fracture/fracture_core.h"
+#include "fracture/core/defines.h"
 
 typedef enum fr_rng_type { FR_RNG_UNKNOWN = 0, FR_RNG_PCG32, FR_RNG_XORWOW, FR_RNG_TOTAL } fr_rng_type;
 
@@ -40,12 +40,14 @@ FR_API i32 fr_random_xorwow_i0N(void* config, i32 n);
 // TODO: Implement a binomial distribution generator using the Marsaglia method
 
 #ifdef _RNG_XORWOW
+#define FR_RANDOM_DEFAULT FR_RNG_XORWOW
 #define fr_random_init fr_random_xorwow_init
 #define fr_random_uniform fr_random_xorwowf
 #define fr_random_uniform_range fr_random_xorwow_range
 #define fr_random_uniform_rangei fr_random_xorwow_rangei
 #define fr_random_uniform_i0N fr_random_xorwow_i0N
 #elif defined(_RNG_PCG32)
+#define FR_RANDOM_DEFAULT FR_RNG_PCG32
 #define fr_random_init fr_random_pcg32_init
 #define fr_random_uniform fr_random_pcg32f
 #define fr_random_uniform_range fr_random_pcg32_range

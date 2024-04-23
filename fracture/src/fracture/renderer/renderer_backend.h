@@ -10,7 +10,6 @@
  */
 #pragma once
 
-#include "fracture/fracture_core.h"
 #include "fracture/renderer/renderer_types.h"
 
 struct platform_state;

@@ -1,4 +1,4 @@
-/**
+/* *
  * @file clock.h
  * @author Aditya Rajagopal
  * @brief A simple clock system for measuring time in the engine.
@@ -69,3 +69,10 @@ FR_API f64 fr_clock_get_elapsed_time_ms(clock* c);
  * @return f64 the elapsed time in micro-seconds
  */
 FR_API f64 fr_clock_get_elapsed_time_us(clock* c);
+
+/**
+ * @brief Get the elapsed time of provided clock
+ *
+ * @return f64 the current platform time
+ */
+FR_API f64 fr_clock_get_absolute_time_s();

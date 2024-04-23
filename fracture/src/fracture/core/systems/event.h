@@ -15,8 +15,8 @@
  */
 #pragma once
 
+#include "fracture/core/defines.h"
 #include "fracture/core/includes/system_event_codes.h"
-#include "fracture/fracture_core.h"
 
 typedef struct event_data {
     // 128 bytes of data

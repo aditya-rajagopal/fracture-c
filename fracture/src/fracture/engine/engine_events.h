@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#include "fracture/fracture_core.h"
+#include "fracture/core/defines.h"
 
 /**
  * @brief Function called by the platform layer to process window close events.

@@ -63,3 +63,5 @@ FR_API f64 fr_clock_get_elapsed_time_us(clock* c) {
 
     return c->elapsed_time * 1000.0F * 1000.0F;
 }
+
+FR_API f64 fr_clock_get_absolute_time_s() { return platform_get_absolute_time(); }

@@ -147,7 +147,7 @@ b8 engine_run(application_handle* app_handle) {
     }
     fr_clock_start(&state.app_clock);
     fr_clock_update(&state.app_clock);
-    state.last_frame_time = state.app_clock.elapsed_time;
+    state.last_frame_time = fr_clock_get_elapsed_time_s(&state.app_clock);
     // f64 total_run_time = 0.0;
     // u64 frame_count = 0;
     f64 target_frame_seconds = 1.0F / app_handle->app_config.target_frame_rate;
@@ -163,7 +163,7 @@ b8 engine_run(application_handle* app_handle) {
 
         if (!state.is_supended) {
             fr_clock_update(&state.app_clock);
-            f64 delta_time = state.app_clock.elapsed_time - state.last_frame_time;
+            f64 delta_time = fr_clock_get_elapsed_time_s(&state.app_clock) - state.last_frame_time;
             f64 frame_start_time = platform_get_absolute_time();
 
             if (!app_handle->update(app_handle, delta_time)) {
@@ -201,7 +201,7 @@ b8 engine_run(application_handle* app_handle) {
 
             fr_input_update(delta_time);
             // frame_count++;
-            state.last_frame_time = state.app_clock.elapsed_time;
+            state.last_frame_time = fr_clock_get_elapsed_time_s(&state.app_clock);
         }
     }
 

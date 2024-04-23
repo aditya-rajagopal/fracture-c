@@ -10,8 +10,8 @@
  */
 #pragma once
 
+#include "fracture/core/defines.h"
 #include "fracture/core/systems/logging.h"
-#include "fracture/fracture_core.h"
 
 /**
  * @brief Application configuration struct

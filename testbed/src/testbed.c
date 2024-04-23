@@ -1,5 +1,6 @@
 #include "testbed.h"
 
+#include "fracture/core/library/random/fr_random.h"
 #include "fracture/core/systems/clock.h"
 #include "fracture/core/systems/event.h"
 #include "fracture/core/systems/input.h"
@@ -8,16 +9,9 @@
 
 typedef struct testbed_internal_state {
     i32 test;
-    i32 postition[4];
-    f32 rotation[4];
-    f32 scale[4];
-    mat4 trasforms[TEST_LEN];
-    vec4 vectors[TEST_LEN];
-    vec4 out_vector[TEST_LEN];
     vec3 vec3s[TEST_LEN];
     quat quaternions[TEST_LEN];
-    fr_rng_config pcg_state;
-    fr_rng_config xorwow_state;
+    fr_rng_config rng_state;
 } testbed_internal_state;
 
 static testbed_internal_state* state = NULL_PTR;
@@ -31,49 +25,41 @@ b8 testbed_on_mouse_button1(u16 event_code, void* sender, void* listener_instanc
 b8 testbed_initialize(application_handle* app_handle) {
     testbed_state* app_state = (testbed_state*)app_handle->application_data;
     app_state->is_running = TRUE;
-
-    clock c;
-    fr_clock_start(&c);
-    // FR_INFO("Client Application initialized: %s", app_handle->app_config.name);
     state = fr_memory_allocate(sizeof(testbed_internal_state), MEMORY_TYPE_APPLICATION);
+
+    // Event test
+    fr_event_register_handler(EVENT_CODE_KEY_PRESS, NULL_PTR, testbed_on_key_pressed);
+    fr_event_register_handler(EVENT_CODE_KEY_RELEASE, NULL_PTR, testbed_on_key_pressed);
+    fr_event_register_handler(EVENT_CODE_KEY_B, NULL_PTR, testbed_on_key_B);
+    fr_event_register_handler(EVENT_CODE_MOUSE_BUTTON_LEFT, NULL_PTR, testbed_on_mouse_button1);
+
+    f64 current_time = fr_clock_get_absolute_time_s();
     u32 memory_requirement = 0;
-
-    fr_random_pcg32_init(0, NULL_PTR, &memory_requirement);
-    state->pcg_state.state = fr_memory_allocate(memory_requirement, MEMORY_TYPE_APPLICATION);
-    state->pcg_state.type = FR_RNG_PCG32;
-    fr_random_pcg32_init(c.start_time, &state->pcg_state, NULL_PTR);
-
     fr_random_xorwow_init(0, NULL_PTR, &memory_requirement);
-    state->xorwow_state.state = fr_memory_allocate(memory_requirement, MEMORY_TYPE_APPLICATION);
-    state->xorwow_state.type = FR_RNG_XORWOW;
-    fr_random_xorwow_init(c.start_time, &state->xorwow_state, NULL_PTR);
-
-    // // Event test
-    // fr_event_register_handler(EVENT_CODE_KEY_PRESS, NULL_PTR, testbed_on_key_pressed);
-    // fr_event_register_handler(EVENT_CODE_KEY_RELEASE, NULL_PTR, testbed_on_key_pressed);
-    // fr_event_register_handler(EVENT_CODE_KEY_B, NULL_PTR, testbed_on_key_B);
-    // fr_event_register_handler(EVENT_CODE_MOUSE_BUTTON_LEFT, NULL_PTR, testbed_on_mouse_button1);
-    // Test execution time of vec3_veqv_simd and vec4_veqv
+    state->rng_state.state = fr_memory_allocate(memory_requirement, MEMORY_TYPE_APPLICATION);
+    state->rng_state.type = FR_RANDOM_DEFAULT;
+    fr_random_xorwow_init(current_time, &state->rng_state, NULL_PTR);
 
     // mat3 print test
-    clock c1;
+    clock c;
     for (u32 i = 0; i < TEST_LEN; i++) {
-        fr_vec3(fr_random_uniform(&state->xorwow_state),
-                fr_random_uniform(&state->xorwow_state),
-                fr_random_uniform(&state->xorwow_state),
+        fr_vec3(fr_random_uniform(&state->rng_state),
+                fr_random_uniform(&state->rng_state),
+                fr_random_uniform(&state->rng_state),
                 &state->vec3s[i]);
-        fr_quat(fr_random_uniform(&state->xorwow_state),
-                fr_random_uniform(&state->xorwow_state),
-                fr_random_uniform(&state->xorwow_state),
-                fr_random_uniform(&state->xorwow_state),
+        fr_quat(fr_random_uniform(&state->rng_state),
+                fr_random_uniform(&state->rng_state),
+                fr_random_uniform(&state->rng_state),
+                fr_random_uniform(&state->rng_state),
                 &state->quaternions[i]);
     }
-    fr_clock_start(&c1);
+
+    fr_clock_start(&c);
     for (u32 i = 0; i < TEST_LEN; i++) {
         fr_quat_vec3_rot(&state->vec3s[i], &state->quaternions[i], &state->vec3s[i]);
     }
-    fr_clock_update(&c1);
-    FR_INFO("Time to rotate %d vec3s with quaternions: %f", TEST_LEN, fr_clock_get_elapsed_time_s(&c1));
+    fr_clock_update(&c);
+    FR_INFO("Time to rotate %d vec3s with quaternions: %f", TEST_LEN, fr_clock_get_elapsed_time_s(&c));
 
     // quaternion unit test
     vec3 point = {1.0f, 2.0f, 3.0f};
@@ -81,6 +67,7 @@ b8 testbed_initialize(application_handle* app_handle) {
     fr_quat_from_eulers321(PI_2, 0.0f, 0.0f, &q);
     fr_quat_vec3_rot(&point, &q, &point);
     FR_INFO("Rotated point: (%f, %f, %f)", point.x, point.y, point.z);
+    FR_INFO("Client Application initialized: %s", app_handle->app_config.name);
     return TRUE;
 }
 
@@ -88,13 +75,12 @@ b8 testbed_shutdown(application_handle* app_handle) {
     testbed_state* app_state = (testbed_state*)app_handle->application_data;
     app_state->is_running = FALSE;
     fr_memory_free(state, sizeof(testbed_internal_state), MEMORY_TYPE_APPLICATION);
-    FR_INFO("Client Application shutdown: %s", app_handle->app_config.name);
-    // fr_memory_free(transform_array, 4 * 4 * sizeof(u32), MEMORY_TYPE_TRANSFORM);
-    // fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, NULL_PTR, testbed_on_key_pressed);
-    // fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, NULL_PTR, testbed_on_key_pressed);
-    // fr_event_deregister_handler(EVENT_CODE_KEY_B, NULL_PTR, testbed_on_key_B);
-    // fr_event_deregister_handler(EVENT_CODE_MOUSE_BUTTON_LEFT, NULL_PTR, testbed_on_mouse_button1);
+    fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, NULL_PTR, testbed_on_key_pressed);
+    fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, NULL_PTR, testbed_on_key_pressed);
+    fr_event_deregister_handler(EVENT_CODE_KEY_B, NULL_PTR, testbed_on_key_B);
+    fr_event_deregister_handler(EVENT_CODE_MOUSE_BUTTON_LEFT, NULL_PTR, testbed_on_mouse_button1);
 
+    FR_INFO("Client Application shutdown: %s", app_handle->app_config.name);
     return TRUE;
 }
 
