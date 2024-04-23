@@ -1,7 +1,7 @@
 #include "fr_random.h"
 
 static u64 const multiplier = 6364136223846793005u;
-static u64 const increment  = 1442695040888963407u;
+static u64 const increment = 1442695040888963407u;
 
 static u32 _rotr32(u32 x, u32 r);
 
@@ -35,26 +35,16 @@ u32 fr_random_pcg32(void* config) {
     return _rotr32((u32)(oldstate >> 27), count);
 }
 
-f32 fr_random_pcg32f(void* config) {
-    return (f32)fr_random_pcg32(config) / (f32)0xFFFFFFFF;
-}
+f32 fr_random_pcg32f(void* config) { return (f32)fr_random_pcg32(config) / (f32)0xFFFFFFFF; }
 
-f32 fr_random_pcg32_range(void* config, f32 min, f32 max) {
-    return min + (max - min) * fr_random_pcg32f(config);
-}
+f32 fr_random_pcg32_range(void* config, f32 min, f32 max) { return min + (max - min) * fr_random_pcg32f(config); }
 
-i32 fr_random_pcg32_rangei(void* config, i32 min, i32 max) {
-    return min + fr_random_pcg32(config) % (max - min);
-}
+i32 fr_random_pcg32_rangei(void* config, i32 min, i32 max) { return min + fr_random_pcg32(config) % (max - min); }
 
-i32 fr_random_pcg32_i0N(void* config, i32 n) {
-    return fr_random_pcg32(config) % n;
-}
+i32 fr_random_pcg32_i0N(void* config, i32 n) { return fr_random_pcg32(config) % n; }
 
 //---------------------------------------------------------------------
 // Private functions
 //---------------------------------------------------------------------
 
-static u32 _rotr32(u32 x, u32 r) {
-    return (x >> r) | (x << (-r & 31));
-}
+static u32 _rotr32(u32 x, u32 r) { return (x >> r) | (x << (-r & 31)); }

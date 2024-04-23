@@ -1,18 +1,16 @@
 /**
  * @file mat3.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-03-10
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
-#include "fracture/core/library/math/version.h"
 #include "fracture/core/library/math/vec3.h"
-#include "utils.h"
 #include "simd/sse.h"
 
 FR_FORCE_INLINE void fr_mat3_zero(mat3* m) {
@@ -39,7 +37,8 @@ FR_FORCE_INLINE void fr_mat3_identity(mat3* m) {
     m->m21 = 0.0f;
 }
 
-FR_FORCE_INLINE void fr_mat3_random_uniform(mat3* m, f32 (*PFN_randf)(void* state, f32 min, f32 max), void* state, f32 min, f32 max) {
+FR_FORCE_INLINE void fr_mat3_random_uniform(
+    mat3* m, f32 (*PFN_randf)(void* state, f32 min, f32 max), void* state, f32 min, f32 max) {
     m->m00 = PFN_randf(state, min, max);
     m->m01 = PFN_randf(state, min, max);
     m->m02 = PFN_randf(state, min, max);
@@ -117,10 +116,7 @@ FR_FORCE_INLINE void fr_mat3_copy(const mat3* restrict src, mat3* dst) {
     dst->m22 = src->m22;
 }
 
-FR_FORCE_INLINE void fr_mat3_write_column(const vec3* v, u32 column, mat3* m) {
-    m->columns[column] = *v;
-}
-
+FR_FORCE_INLINE void fr_mat3_write_column(const vec3* v, u32 column, mat3* m) { m->columns[column] = *v; }
 
 FR_FORCE_INLINE void fr_mat3_create(const f32* restrict src, mat3* dst) {
     dst->m00 = src[0];
@@ -180,14 +176,12 @@ FR_FORCE_INLINE void fr_mat3_swapr(mat3* m, u32 r1, u32 r2) {
 }
 
 FR_FORCE_INLINE b8 fr_mat3_eq(const mat3* a, const mat3* b) {
-    return fr_vec3_eq(&a->columns[0], &b->columns[0]) &&
-           fr_vec3_eq(&a->columns[1], &b->columns[1]) &&
+    return fr_vec3_eq(&a->columns[0], &b->columns[0]) && fr_vec3_eq(&a->columns[1], &b->columns[1]) &&
            fr_vec3_eq(&a->columns[2], &b->columns[2]);
 }
 
 FR_FORCE_INLINE b8 fr_mat3_eqs(const mat3* m, f32 val) {
-    return fr_vec3_eqs(&m->columns[0], val) && fr_vec3_eqs(&m->columns[1], val) &&
-           fr_vec3_eqs(&m->columns[2], val);
+    return fr_vec3_eqs(&m->columns[0], val) && fr_vec3_eqs(&m->columns[1], val) && fr_vec3_eqs(&m->columns[2], val);
 }
 
 FR_FORCE_INLINE void fr_mat3_meq(const mat3* a, const mat3* b, mat3* out) {
@@ -230,8 +224,7 @@ FR_FORCE_INLINE void fr_mat3_sub(const mat3* a, const mat3* b, mat3* out) {
     out->m22 = a->m22 - b->m22;
 }
 
-FR_FORCE_INLINE void fr_mat3_mul(const mat3* m1, const mat3* m2,
-                                      mat3* out) {
+FR_FORCE_INLINE void fr_mat3_mul(const mat3* m1, const mat3* m2, mat3* out) {
 #if FR_SIMD == 1
     // Taken from GLM library. This is a SIMD optimized version of matrix multiplication
     // I have not written this code, but I have modified it to fit the Fracture API
@@ -316,9 +309,7 @@ FR_FORCE_INLINE void fr_mat3_scale(const mat3* m, f32 s, mat3* out) {
     out->m22 = m->m22 * s;
 }
 
-FR_FORCE_INLINE f32 fr_mat3_trace(const mat3* m) {
-    return m->m00 + m->m11 + m->m22;
-}
+FR_FORCE_INLINE f32 fr_mat3_trace(const mat3* m) { return m->m00 + m->m11 + m->m22; }
 
 FR_FORCE_INLINE void fr_mat3_tracev(const mat3* m, vec3* out) {
     out->x = m->m00;

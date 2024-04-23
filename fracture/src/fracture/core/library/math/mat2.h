@@ -1,20 +1,21 @@
 /**
  * @file mat2.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-03-09
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
 #include <stdio.h>
 #include <string.h>
 #include <xmmintrin.h>
-#include "fracture/core/defines.h"
+
 #include "detail/matrix.h"
+#include "fracture/core/defines.h"
 #include "simd/sse.h"
 #include "vec2.h"
 
@@ -129,8 +130,7 @@ FR_FORCE_INLINE void fr_mat2_mul(const mat2* left, const mat2* right, mat2* out)
     __m128 r = right->simd;
     __m128 x0 = FR_SIMD_SHUFFLE1(r, 3, 3, 0, 0);
     __m128 x1 = FR_SIMD_SHUFFLE1(r, 2, 2, 1, 1);
-    out->simd = _mm_add_ps(_mm_mul_ps(l, x0),
-                           _mm_mul_ps(FR_SIMD_SHUFFLE1(l, 1, 0, 3, 2), x1));
+    out->simd = _mm_add_ps(_mm_mul_ps(l, x0), _mm_mul_ps(FR_SIMD_SHUFFLE1(l, 1, 0, 3, 2), x1));
 #else
     out->m00 = left->m00 * right->m00 + left->m01 * right->m10;
     out->m01 = left->m00 * right->m01 + left->m01 * right->m11;
@@ -155,9 +155,7 @@ FR_FORCE_INLINE f32 fr_mat2_vmulv(const vec2* v1, const mat2* m, const vec2* v2)
     return fr_vec2_dot(&temp, v2);
 }
 
-FR_FORCE_INLINE f32 fr_mat2_determinant(const mat2* m) {
-    return m->m00 * m->m11 - m->m01 * m->m10;
-}
+FR_FORCE_INLINE f32 fr_mat2_determinant(const mat2* m) { return m->m00 * m->m11 - m->m01 * m->m10; }
 
 FR_FORCE_INLINE void fr_mat2_inverse(const mat2* m, mat2* out) {
     f32 det = fr_mat2_determinant(m);
@@ -201,9 +199,7 @@ FR_FORCE_INLINE void fr_mat2_sub(const mat2* left, const mat2* right, mat2* out)
 #endif
 }
 
-FR_FORCE_INLINE f32 fr_mat2_trace(const mat2* m) {
-    return m->m00 + m->m11;
-}
+FR_FORCE_INLINE f32 fr_mat2_trace(const mat2* m) { return m->m00 + m->m11; }
 
 FR_FORCE_INLINE f32 fr_mat2_frobenius_norm(const mat2* m) {
 #if FR_SIMD == 1
@@ -272,8 +268,8 @@ FR_FORCE_INLINE b8 fr_mat2_eq(const mat2* left, const mat2* right) {
 #if FR_SIMD == 1
     return fr_simd_eq(left->simd, right->simd);
 #else
-    return fr_equal(left->m00, right->m00) && fr_equal(left->m01, right->m01) &&
-           fr_equal(left->m10, right->m10) && fr_equal(left->m11, right->m11);
+    return fr_equal(left->m00, right->m00) && fr_equal(left->m01, right->m01) && fr_equal(left->m10, right->m10) &&
+           fr_equal(left->m11, right->m11);
 #endif
 }
 

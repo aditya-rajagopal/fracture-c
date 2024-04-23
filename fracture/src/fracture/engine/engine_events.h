@@ -4,9 +4,9 @@
  * @brief Contains the implementation of the application events to be handles.
  * @version 0.0.1
  * @date 2024-02-18
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 

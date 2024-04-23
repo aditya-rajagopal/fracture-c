@@ -1,32 +1,32 @@
 /**
  * @file sse.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-03-03
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
 #include "fracture/core/defines.h"
 
 #if FR_SIMD == 1
+#include <emmintrin.h>
 #include <intrin.h>
 #include <xmmintrin.h>
-#include <emmintrin.h>
+
 #include "fracture/core/library/math/math_constants.h"
 
-
 #define FR_SIMD_ALIGNMENT 16
-#define FR_SIGN_BIT_MASK (int)0x80000000 // 1000 0000 0000 0000 0000 0000 0000 0000
-#define FR_SIGN_BIT_INV_MASK (int)0x7FFFFFFF // 0111 1111 1111 1111 1111 1111 1111 1111
+#define FR_SIGN_BIT_MASK (int)0x80000000      // 1000 0000 0000 0000 0000 0000 0000 0000
+#define FR_SIGN_BIT_INV_MASK (int)0x7FFFFFFF  // 0111 1111 1111 1111 1111 1111 1111 1111
 
 #define FR_SIGN_BITf32x4 _mm_set1_ps(-0.0f)
 #define FR_INV_SIGN_BITf32x4 _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF))
 
-// signbit 0 means positive, 1 means negative. We can xor the sign bit with 0x80000000 to flip the sign bit. 
+// signbit 0 means positive, 1 means negative. We can xor the sign bit with 0x80000000 to flip the sign bit.
 // xor with 0 to keep the sign bit the same.
 #define FR_SIGNMASK_NPNPf32x4 _mm_castsi128_ps(_mm_set_epi32((int)0x80000000, 0, (int)0x80000000, 0))
 #define FR_SIGNMASK_PNPNf32x4 _mm_castsi128_ps(_mm_set_epi32(0, (int)0x80000000, 0, (int)0x80000000))
@@ -59,13 +59,9 @@ FR_FORCE_INLINE __m128 fr_simd_vhadd(__m128 vec) {
     // return sums;
 }
 
-FR_FORCE_INLINE f32 fr_simd_hadd(__m128 vec) {
-    return _mm_cvtss_f32(fr_simd_vhadd(vec));
-}
+FR_FORCE_INLINE f32 fr_simd_hadd(__m128 vec) { return _mm_cvtss_f32(fr_simd_vhadd(vec)); }
 
-FR_FORCE_INLINE __m128 fr_simd_abs(__m128 vec) {
-    return _mm_and_ps(vec, FR_INV_SIGN_BITf32x4);
-}
+FR_FORCE_INLINE __m128 fr_simd_abs(__m128 vec) { return _mm_and_ps(vec, FR_INV_SIGN_BITf32x4); }
 
 FR_FORCE_INLINE __m128 fr_simd_vhmax(__m128 a) {
     __m128 x0;
@@ -74,9 +70,7 @@ FR_FORCE_INLINE __m128 fr_simd_vhmax(__m128 a) {
     return x0;
 }
 
-FR_FORCE_INLINE f32 fr_simd_hmax(__m128 a) {
-    return _mm_cvtss_f32(fr_simd_vhmax(a));
-}
+FR_FORCE_INLINE f32 fr_simd_hmax(__m128 a) { return _mm_cvtss_f32(fr_simd_vhmax(a)); }
 
 // FR_FORCE_INLINE __m128 fr_simd_vhmax_glm(__m128 a) {
 //     __m128 x0, x1, x2;
@@ -93,9 +87,7 @@ FR_FORCE_INLINE __m128 fr_simd_vhmin(__m128 a) {
     return x0;
 }
 
-FR_FORCE_INLINE f32 fr_simd_hmin(__m128 a) {
-    return _mm_cvtss_f32(fr_simd_vhmin(a));
-}
+FR_FORCE_INLINE f32 fr_simd_hmin(__m128 a) { return _mm_cvtss_f32(fr_simd_vhmin(a)); }
 
 FR_FORCE_INLINE __m128 fr_simd_clampv(__m128 val, __m128 min, __m128 max) {
     return _mm_min_ps(_mm_max_ps(val, min), max);
@@ -130,29 +122,17 @@ FR_FORCE_INLINE __m128 fr_simd_vdot(__m128 a, __m128 b) {
     return fr_simd_vhadd(x0);
 }
 
-FR_FORCE_INLINE __m128 fr_simd_vnorm2(__m128 a) {
-    return fr_simd_vdot(a, a);
-}
+FR_FORCE_INLINE __m128 fr_simd_vnorm2(__m128 a) { return fr_simd_vdot(a, a); }
 
-FR_FORCE_INLINE __m128 fr_simd_vnorm(__m128 a) {
-    return _mm_sqrt_ps(fr_simd_vdot(a, a));
-}
+FR_FORCE_INLINE __m128 fr_simd_vnorm(__m128 a) { return _mm_sqrt_ps(fr_simd_vdot(a, a)); }
 
-FR_FORCE_INLINE __m128 fr_simd_vinvnorm_fast(__m128 a) {
-    return _mm_rsqrt_ps(fr_simd_vdot(a, a));
-}
+FR_FORCE_INLINE __m128 fr_simd_vinvnorm_fast(__m128 a) { return _mm_rsqrt_ps(fr_simd_vdot(a, a)); }
 
-FR_FORCE_INLINE __m128 fr_simd_vinvnorm(__m128 a) {
-    return _mm_div_ps(_mm_set1_ps(1.0), fr_simd_vdot(a, a));
-}
+FR_FORCE_INLINE __m128 fr_simd_vinvnorm(__m128 a) { return _mm_div_ps(_mm_set1_ps(1.0), fr_simd_vdot(a, a)); }
 
-FR_FORCE_INLINE __m128 fr_simd_vnorm1(__m128 a) {
-    return fr_simd_vhadd(fr_simd_abs(a));
-}
+FR_FORCE_INLINE __m128 fr_simd_vnorm1(__m128 a) { return fr_simd_vhadd(fr_simd_abs(a)); }
 
-FR_FORCE_INLINE __m128 fr_simd_vnorm_inf(__m128 a) {
-    return fr_simd_vhmax(fr_simd_abs(a));
-}
+FR_FORCE_INLINE __m128 fr_simd_vnorm_inf(__m128 a) { return fr_simd_vhmax(fr_simd_abs(a)); }
 
 FR_FORCE_INLINE __m128 fr_simd_unit_vector_unsafe(__m128 a) {
     __m128 inv_norm = fr_simd_vinvnorm(a);
@@ -180,9 +160,7 @@ FR_FORCE_INLINE __m128 fr_simd_veq(__m128 a, __m128 b) {
     return _mm_cmplt_ps(abs_diff, threshold);
 }
 
-FR_FORCE_INLINE b8 fr_simd_eq(__m128 a, __m128 b) {
-    return _mm_movemask_ps(fr_simd_veq(a, b)) == 0x0F;
-}
+FR_FORCE_INLINE b8 fr_simd_eq(__m128 a, __m128 b) { return _mm_movemask_ps(fr_simd_veq(a, b)) == 0x0F; }
 
 FR_FORCE_INLINE __m128 fr_simd_vneq(__m128 a, __m128 b) {
     __m128 threshold = _mm_set1_ps(FLOAT_EPSILON);
@@ -190,13 +168,9 @@ FR_FORCE_INLINE __m128 fr_simd_vneq(__m128 a, __m128 b) {
     return _mm_cmpge_ps(abs_diff, threshold);
 }
 
-FR_FORCE_INLINE __m128 fr_simd_fmadd(__m128 a, __m128 b, __m128 c) {
-    return _mm_add_ps(_mm_mul_ps(a, b), c);
-}
+FR_FORCE_INLINE __m128 fr_simd_fmadd(__m128 a, __m128 b, __m128 c) { return _mm_add_ps(_mm_mul_ps(a, b), c); }
 
-FR_FORCE_INLINE __m128 fr_simd_fnmadd(__m128 a, __m128 b, __m128 c) {
-    return _mm_sub_ps(c, _mm_mul_ps(a, b));
-}
+FR_FORCE_INLINE __m128 fr_simd_fnmadd(__m128 a, __m128 b, __m128 c) { return _mm_sub_ps(c, _mm_mul_ps(a, b)); }
 
 FR_FORCE_INLINE __m128 fr_simd_sign01(__m128 a) {
     __m128 sign = _mm_and_ps(FR_SIGN_BITf32x4, a);

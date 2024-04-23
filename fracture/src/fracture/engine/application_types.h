@@ -4,23 +4,23 @@
  * @brief Contains types to handle application data and configuration
  * @version 0.0.1
  * @date 2024-02-16
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
-#include "fracture/fracture_core.h"
 #include "fracture/core/systems/logging.h"
+#include "fracture/fracture_core.h"
 
 /**
- * @brief Application configuration struct 
- * 
+ * @brief Application configuration struct
+ *
  */
 typedef struct application_config {
     /** @brief Name of the application */
     const char* name;
-    
+
     /** @brief Width of the application window */
     u32 start_width;
 
@@ -45,7 +45,7 @@ typedef struct application_config {
 
 /**
  * @brief Application handle struct that contains all the necessary information for the application to run
- * 
+ *
  */
 typedef struct application_handle {
     /** @brief Application configuration */

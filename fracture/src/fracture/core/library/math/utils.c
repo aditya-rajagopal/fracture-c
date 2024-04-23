@@ -1,6 +1,6 @@
 #include "utils.h"
+
 #include <math.h>
-#include <stdlib.h>
 #include <stdio.h>
 
 f32 fr_sqrt(f32 val) { return sqrtf(val); }
@@ -86,7 +86,6 @@ FR_API void fr_mat4_print(const char* name, int* len, const mat4* m, char* out_s
     }
     snprintf(out_string, *len, "%s", buffer);
 }
-
 
 FR_API void fr_vec4_print(const char* name, int* len, const vec4* v, char* out_string) {
     char buffer[1024];

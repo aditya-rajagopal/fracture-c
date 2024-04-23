@@ -1,12 +1,12 @@
 /**
  * @file math_constants.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-02-29
- * 
+ *
  * @copyright racture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
@@ -70,6 +70,6 @@
 #define F_LN_TEN 2.30258509299404568402f
 
 // Machine epsilon for float precision. Used for floating point comparisons.
-#define FLOAT_EPSILON 1E-06f//1.19209290E-07f
+#define FLOAT_EPSILON 1E-06f  // 1.19209290E-07f
 #define DOUBLE_EPSILON 2.2204460492503131E-16F
 #define LONG_DOUBLE_EPSILON 1.08420217248550443401E-19Lf

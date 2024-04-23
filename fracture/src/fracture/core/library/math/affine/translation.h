@@ -1,29 +1,26 @@
 /**
  * @file translation.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-03-13
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
-#include "fracture/core/defines.h"
-#include "../mat4.h"
 #include "../simd/sse.h"
+#include "fracture/core/defines.h"
+#include "fracture/core/library/math/detail/matrix.h"
 
 FR_FORCE_INLINE void fr_affine_left_translate(const vec3* translation, mat4* transform) {
-    transform->simd[3] = _mm_add_ps(
-        transform->simd[3],
-        _mm_setr_ps(translation->x, translation->y, translation->z, 1.0f));
+    transform->simd[3] =
+        _mm_add_ps(transform->simd[3], _mm_setr_ps(translation->x, translation->y, translation->z, 1.0f));
 }
 
 FR_FORCE_INLINE void fr_affine_left_translate_to(const vec3* translation, const mat4* transform, mat4* out) {
-    __m128 t = _mm_add_ps(
-        transform->simd[3],
-        _mm_setr_ps(translation->x, translation->y, translation->z, 1.0f));
+    __m128 t = _mm_add_ps(transform->simd[3], _mm_setr_ps(translation->x, translation->y, translation->z, 1.0f));
     out->simd[0] = transform->simd[0];
     out->simd[1] = transform->simd[1];
     out->simd[2] = transform->simd[2];
@@ -60,17 +57,11 @@ FR_FORCE_INLINE void fr_affine_translate_to(const mat4* transform, const vec3* t
     out->simd[3] = t;
 }
 
-FR_FORCE_INLINE void fr_affine_left_translate_x(f32 x, mat4* transform) {
-    transform->m03 += x;
-}
+FR_FORCE_INLINE void fr_affine_left_translate_x(f32 x, mat4* transform) { transform->m03 += x; }
 
-FR_FORCE_INLINE void fr_affine_left_translate_y(f32 y, mat4* transform) {
-    transform->m13 += y;
-}
+FR_FORCE_INLINE void fr_affine_left_translate_y(f32 y, mat4* transform) { transform->m13 += y; }
 
-FR_FORCE_INLINE void fr_affine_left_translate_z(f32 z, mat4* transform) {
-    transform->m23 += z;
-}
+FR_FORCE_INLINE void fr_affine_left_translate_z(f32 z, mat4* transform) { transform->m23 += z; }
 
 FR_FORCE_INLINE void fr_affine_translate_x(mat4* transform, f32 x) {
     __m128 c0 = transform->simd[0];

@@ -123,6 +123,7 @@ b8 engine_shutdown(application_handle* app_handle) {
     fr_event_deregister_handler(EVENT_CODE_APPLICATION_QUIT, 0, _engine_on_event);
     fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, 0, _engine_on_key_event);
     fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, 0, _engine_on_key_event);
+    fr_event_deregister_handler(EVENT_CODE_WINDOW_RESIZE, 0, _engine_on_event);
 
     fr_renderer_shutdown();
     FR_CORE_INFO("Renderer shutdown: %s", app_handle->app_config.name);

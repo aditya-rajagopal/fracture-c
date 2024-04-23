@@ -1,9 +1,9 @@
 #include "fracture_string.h"
 
+#include <string.h>
+
 #include "fracture/core/systems/fracture_memory.h"
 #include "fracture/core/systems/logging.h"
-
-#include <string.h>
 
 char* fr_string_duplicate(const char* string) {
 #if FR_STRING_SAFETY_CHECKS == 1
@@ -22,7 +22,7 @@ char* fr_string_duplicate(const char* string) {
     return result;
 }
 
-u64 fr_string_length(const char *string) {
+u64 fr_string_length(const char* string) {
 #if FR_STRING_SAFETY_CHECKS == 1
     if (string == NULL_PTR) {
         FR_CORE_ERROR("Cannot get the length of a NULL string");

@@ -1,32 +1,41 @@
 /**
  * @file camera.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-03-19
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
 #include "fracture/core/defines.h"
 #include "fracture/core/library/math/mat4.h"
+#include "fracture/core/library/math/quaternion.h"
 #include "fracture/core/library/math/vec3.h"
-#include "fracture/core/library/math/vec4.h"
-#include "fracture/core/library/math/affine/constructors.h"
-#include "fracture/core/library/math/affine/rotation.h"
-#include "fracture/core/library/math/affine/translation.h"
 
 FR_FORCE_INLINE void fr_camera_orthographic(f32 left, f32 right, f32 bottom, f32 top, f32 near, f32 far, mat4* out) {
     const f32 lr = 1.0f / (right - left);
     const f32 bt = 1.0f / (top - bottom);
     const f32 nf = 1.0f / (far - near);
 
-    out->m00 = 2.0f * lr; out->m01 = 0.0f       ; out->m02 = 0.0f       ; out->m03 = -(right + left) * lr;
-    out->m10 = 0.0f     ; out->m11 = 2.0f * bt  ; out->m12 = 0.0f       ; out->m13 = -(top + bottom) * bt;
-    out->m20 = 0.0f     ; out->m21 = 0.0f       ; out->m22 = -2.0f * nf ; out->m23 = -(far + near) * nf;
-    out->m30 = 0.0f     ; out->m31 = 0.0f       ; out->m32 = 0.0f       ; out->m33 = 1.0f;
+    out->m00 = 2.0f * lr;
+    out->m01 = 0.0f;
+    out->m02 = 0.0f;
+    out->m03 = -(right + left) * lr;
+    out->m10 = 0.0f;
+    out->m11 = 2.0f * bt;
+    out->m12 = 0.0f;
+    out->m13 = -(top + bottom) * bt;
+    out->m20 = 0.0f;
+    out->m21 = 0.0f;
+    out->m22 = -2.0f * nf;
+    out->m23 = -(far + near) * nf;
+    out->m30 = 0.0f;
+    out->m31 = 0.0f;
+    out->m32 = 0.0f;
+    out->m33 = 1.0f;
 }
 
 FR_FORCE_INLINE void fr_camera_perspective(f32 fov_radians, f32 aspect_ratio, f32 near_clip, f32 far_clia, mat4* out) {
@@ -89,4 +98,3 @@ FR_FORCE_INLINE void fr_camera_look(const vec3* eye, const quat* orientation, ma
     out->m13 = -out->m13;
     out->m23 = -out->m23;
 }
-

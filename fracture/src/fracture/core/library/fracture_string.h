@@ -1,21 +1,21 @@
 /**
  * @file fracture_string.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-02-20
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
-#include "fracture/fracture_core.h"
+#include "fracture/core/defines.h"
 
 #ifdef _STRING_SAFETY_CHECKS
-    #define FR_STRING_SAFETY_CHECKS 1
+#define FR_STRING_SAFETY_CHECKS 1
 #else
-    #define FR_STRING_SAFETY_CHECKS 0
+#define FR_STRING_SAFETY_CHECKS 0
 #endif
 
 /**

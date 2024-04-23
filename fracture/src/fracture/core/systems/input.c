@@ -1,11 +1,11 @@
 #include "input.h"
 
-#include "fracture/core/systems/logging.h"
 #include "fracture/core/systems/event.h"
 #include "fracture/core/systems/fracture_memory.h"
+#include "fracture/core/systems/logging.h"
 
 typedef struct keyboard_state {
-    b8 keys[TOTAL_KEYS];    
+    b8 keys[TOTAL_KEYS];
 } keyboard_state;
 
 typedef struct mouse_state {
@@ -150,7 +150,6 @@ void fr_input_process_mouse_button(mouse_button button, b8 pressed) {
         // Dipatch button specific event
         fr_event_dispatch(button, 0, e);
     }
-
 }
 
 void fr_input_process_mouse_move(i16 x, i16 y) {

@@ -1,20 +1,18 @@
 /**
  * @file constructors.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-03-13
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
-#include "fracture/core/defines.h"
-#include "../mat4.h"
 #include "../vec3.h"
-#include "../simd/sse.h"
-
+#include "fracture/core/defines.h"
+#include "fracture/core/library/math/vec4.h"
 #include "operations.h"
 #include "translation.h"
 
@@ -90,16 +88,19 @@ FR_FORCE_INLINE void fr_affine_create_rotation_xyz(f32 x, f32 y, f32 z, mat4* ou
 }
 
 FR_FORCE_INLINE void fr_affine_create_pivot_rotation(const vec3* pivot, const vec3* axis, f32 angle, mat4* out) {
-    fr_affine_create_translation(pivot, out); // T to pivot
+    fr_affine_create_translation(pivot, out);  // T to pivot
     mat4 rotation;
-    fr_affine_create_rotation(axis, angle, &rotation); // R
-    fr_affine_mul_rot(out, &rotation, out); // T * R about axis
+    fr_affine_create_rotation(axis, angle, &rotation);  // R
+    fr_affine_mul_rot(out, &rotation, out);             // T * R about axis
     vec3 neg_pivot;
     fr_vec3_negative(pivot, &neg_pivot);
-    fr_affine_translate(out, &neg_pivot); // T * R * -T back to origianl position
+    fr_affine_translate(out, &neg_pivot);  // T * R * -T back to origianl position
 }
 
-FR_FORCE_INLINE void fr_affine_create(const vec3* translation, const vec3* euler_rotation, const vec3* scale, mat4* out) {
+FR_FORCE_INLINE void fr_affine_create(const vec3* translation,
+                                      const vec3* euler_rotation,
+                                      const vec3* scale,
+                                      mat4* out) {
     mat4 translation_mat, scale_mat, rotation_mat_x, rotation_mat_y, rotation_mat_z;
     fr_affine_create_translation(translation, &translation_mat);
     fr_affine_create_rotation_x(euler_rotation->x, &rotation_mat_x);

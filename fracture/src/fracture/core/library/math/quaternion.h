@@ -1,44 +1,31 @@
 /**
  * @file quaternion.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-03-20
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
 #include "fracture/core/defines.h"
-#include "vec4.h"
-#include "mat4.h"
 #include "simd/sse.h"
 #include "vec3.h"
+#include "vec4.h"
 
-FR_FORCE_INLINE void fr_quat_identity(quat *out) {
-    out->simd = _mm_setr_ps(0.0f, 0.0f, 0.0f, 1.0f);
-}
+FR_FORCE_INLINE void fr_quat_identity(quat* out) { out->simd = _mm_setr_ps(0.0f, 0.0f, 0.0f, 1.0f); }
 
-FR_FORCE_INLINE void fr_quat(f32 x, f32 y, f32 z, f32 w, quat *out) {
-    out->simd = _mm_setr_ps(x, y, z, w);
-}
+FR_FORCE_INLINE void fr_quat(f32 x, f32 y, f32 z, f32 w, quat* out) { out->simd = _mm_setr_ps(x, y, z, w); }
 
-FR_FORCE_INLINE void fr_quat_vec3(const vec3 *v, f32 w, quat *out) {
-    out->simd = _mm_setr_ps(v->x, v->y, v->z, w);
-}
+FR_FORCE_INLINE void fr_quat_vec3(const vec3* v, f32 w, quat* out) { out->simd = _mm_setr_ps(v->x, v->y, v->z, w); }
 
-FR_FORCE_INLINE f32 fr_quat_norm(const quat* q) {
-    return fr_vec4_norm(q);
-}
+FR_FORCE_INLINE f32 fr_quat_norm(const quat* q) { return fr_vec4_norm(q); }
 
-FR_FORCE_INLINE void fr_quat_normalize(const quat* q, quat* out) {
-    fr_vec4_normalize(q, out);
-}
+FR_FORCE_INLINE void fr_quat_normalize(const quat* q, quat* out) { fr_vec4_normalize(q, out); }
 
-FR_FORCE_INLINE void fr_quat_copy(const quat* q, quat* out) {
-    out->simd = q->simd;
-}
+FR_FORCE_INLINE void fr_quat_copy(const quat* q, quat* out) { out->simd = q->simd; }
 
 FR_FORCE_INLINE void fr_quat_conjugate(const quat* q, quat* out) {
     out->simd = _mm_mul_ps(q->simd, _mm_setr_ps(-1.0f, -1.0f, -1.0f, 1.0f));
@@ -50,13 +37,9 @@ FR_FORCE_INLINE void fr_quat_inverse(const quat* q, quat* out) {
     out->simd = _mm_mul_ps(out->simd, invnorm);
 }
 
-FR_FORCE_INLINE f32 fr_quat_real(const quat* q) {
-    return q->w;
-}
+FR_FORCE_INLINE f32 fr_quat_real(const quat* q) { return q->w; }
 
-FR_FORCE_INLINE void fr_quat_imag(const quat* q, vec3* out) {
-    fr_vec3_create(q->data, out);
-}
+FR_FORCE_INLINE void fr_quat_imag(const quat* q, vec3* out) { fr_vec3_create(q->data, out); }
 
 FR_FORCE_INLINE void fr_quat_mul(const quat* a, const quat* b, quat* out) {
     /*
@@ -89,9 +72,7 @@ FR_FORCE_INLINE void fr_quat_mul(const quat* a, const quat* b, quat* out) {
 #endif
 }
 
-FR_FORCE_INLINE f32 fr_quat_dot(const quat* a, const quat* b) {
-    return fr_vec4_dot(a, b);
-}
+FR_FORCE_INLINE f32 fr_quat_dot(const quat* a, const quat* b) { return fr_vec4_dot(a, b); }
 
 FR_FORCE_INLINE void fr_quat_to_mat4(const quat* q, mat4* out) {
     quat normq;

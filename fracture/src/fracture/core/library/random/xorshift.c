@@ -1,11 +1,9 @@
 #include "fr_random.h"
-#include "../math/simd/sse.h"
 
 typedef struct xorwow_state_t {
     u32 x[5];
     u32 counter;
 } xorwow_internal_state;
-
 
 b8 fr_random_xorwow_init(u32 seed, fr_rng_config* config, u32* memory_requirement) {
     if (!config) {
@@ -44,7 +42,7 @@ u32 fr_random_xorwow(void* config) {
 
 // u32 fr_random_xor128(rng_config* state) {
 //     u32 t  = state->x[3];
-    
+
 //     u32 s  = state->x[0];  /* Perform a contrived 32-bit shift. */
 // 	state->x[3] = state->x[2];
 // 	state->x[2] = state->x[1];
@@ -55,22 +53,16 @@ u32 fr_random_xorwow(void* config) {
 // 	return state->x[0] = t ^ s ^ (s >> 19);
 // }
 
-f32 fr_random_xorwowf(void* config) {
-    return (f32)fr_random_xorwow(config) / (f32)0xFFFFFFFF;
-}
+f32 fr_random_xorwowf(void* config) { return (f32)fr_random_xorwow(config) / (f32)0xFFFFFFFF; }
 
 // f32 fr_random_xorwowf_2(rng_config* state) {
 //     return (f32)fr_random_xorwow2(state) / (f32)0xFFFFFFFF;
 // }
 
-f32 fr_random_xorwow_range(void* config, f32 min, f32 max) {
-    return min + (max - min) * fr_random_xorwowf(config);
-}
+f32 fr_random_xorwow_range(void* config, f32 min, f32 max) { return min + (max - min) * fr_random_xorwowf(config); }
 
 i32 fr_random_xorwow_rangei(void* config, i32 min, i32 max) {
     return min + (fr_random_xorwow(config) >> 16) % (max - min);
 }
 
-i32 fr_random_xorwow_i0N(void* config, i32 n) {
-    return (fr_random_xorwow(config) >> 16) % n;
-}
+i32 fr_random_xorwow_i0N(void* config, i32 n) { return (fr_random_xorwow(config) >> 16) % n; }

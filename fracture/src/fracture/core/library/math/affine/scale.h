@@ -1,18 +1,18 @@
 /**
  * @file scale.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-03-13
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
-#include "fracture/core/defines.h"
-#include "../mat4.h"
 #include "../simd/sse.h"
+#include "fracture/core/defines.h"
+#include "fracture/core/library/math/detail/matrix.h"
 
 FR_FORCE_INLINE void fr_affine_scale(const vec3* scale, mat4* transform) {
     transform->simd[0] = _mm_mul_ps(transform->simd[0], _mm_set1_ps(scale->x));
