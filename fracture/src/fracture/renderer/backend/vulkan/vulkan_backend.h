@@ -1,12 +1,12 @@
 /**
  * @file vulkan_backend.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-02-19
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
@@ -14,42 +14,42 @@
 
 /**
  * @brief Initializes the Vulkan renderer backend
- * 
+ *
  * @param backend The renderer backend to initialize
  * @param app_name The name of the application
  * @param plat_state The platform state
- * @return b8 
+ * @return b8
  */
 b8 vulkan_backend_initialize(renderer_backend* backend, const char* app_name, struct platform_state* plat_state);
 
 /**
  * @brief Shuts down the Vulkan renderer backend
- * 
+ *
  * @param backend The renderer backend to shut down
  */
 void vulkan_backend_shutdown(renderer_backend* backend);
 
 /**
  * @brief Begins a frame in the Vulkan renderer backend
- * 
+ *
  * @param backend The renderer backend to begin the frame in
  * @param delta_time The time since the last frame
- * @return b8 
+ * @return b8
  */
 b8 vulkan_backend_begin_frame(renderer_backend* backend, f64 delta_time);
 
 /**
  * @brief Ends a frame in the Vulkan renderer backend
- * 
+ *
  * @param backend The renderer backend to end the frame in
  * @param delta_time The time since the last frame
- * @return b8 
+ * @return b8
  */
 b8 vulkan_backend_end_frame(renderer_backend* backend, f64 delta_time);
 
 /**
  * @brief Called when the window is resized
- * 
+ *
  * @param backend The renderer backend
  * @param width The new width of the window
  * @param height The new height of the window

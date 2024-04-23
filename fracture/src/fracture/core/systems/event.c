@@ -1,9 +1,8 @@
 #include "event.h"
 
+#include "fracture/core/containers/darrays.h"
 #include "fracture/core/systems/fracture_memory.h"
 #include "fracture/core/systems/logging.h"
-
-#include "fracture/core/containers/darrays.h"
 
 #define MAX_EVENT_CODES 16384
 #define INITIAL_EVENT_CALLBACK_SIZE 4
@@ -40,7 +39,7 @@ b8 fr_event_shutdown() {
     }
     for (u32 i = 0; i < MAX_EVENT_CODES; i++) {
         if (state.registered_callbacks[i].callbacks != NULL_PTR) {
-          darray_destroy(state.registered_callbacks[i].callbacks);
+            darray_destroy(state.registered_callbacks[i].callbacks);
         }
         state.registered_callbacks[i].callbacks = NULL_PTR;
     }
@@ -57,7 +56,7 @@ b8 fr_event_register_handler(u16 event_code, void* listener_instance, PFN_on_eve
         FR_CORE_ERROR("Event code: %d exceeds maximum event code: %d", event_code, MAX_EVENT_CODES);
         return FALSE;
     }
-    event_callback new_callback = { listener_instance, callback };
+    event_callback new_callback = {listener_instance, callback};
     event_callback* callbacks = state.registered_callbacks[event_code].callbacks;
     if (callbacks == NULL_PTR) {
         callbacks = darray_reserve(INITIAL_EVENT_CALLBACK_SIZE, event_callback);
@@ -69,9 +68,10 @@ b8 fr_event_register_handler(u16 event_code, void* listener_instance, PFN_on_eve
     for (u64 i = 0; i < length; i++) {
         event_callback* handler = &callbacks[i];
         if (handler->listener == listener_instance && handler->callback == callback) {
-            FR_CORE_WARN(
-                "Listener instance: %p with callback: %p already registered for event code: %d",
-                listener_instance, handler->callback, event_code);
+            FR_CORE_WARN("Listener instance: %p with callback: %p already registered for event code: %d",
+                         listener_instance,
+                         handler->callback,
+                         event_code);
             return FALSE;
         }
     }
@@ -101,9 +101,10 @@ b8 fr_event_deregister_handler(u16 event_code, void* listener_instance, PFN_on_e
             return TRUE;
         }
     }
-    FR_CORE_WARN(
-        "Listener instance: %p with callback: %p not found for event code: %d",
-        listener_instance, callback, event_code);
+    FR_CORE_WARN("Listener instance: %p with callback: %p not found for event code: %d",
+                 listener_instance,
+                 callback,
+                 event_code);
     return FALSE;
 }
 
@@ -122,7 +123,7 @@ b8 fr_event_dispatch(u16 event_code, void* sender, event_data data) {
     u32 length = darray_length(handlers);
     for (u32 i = 0; i < length; i++) {
         event_callback* handler = &handlers[i];
-        if(handler->callback(event_code, sender, handler->listener, data)) {
+        if (handler->callback(event_code, sender, handler->listener, data)) {
             // If the callback returns TRUE, the event has been handled and we can stop dispatching
             return TRUE;
         }

@@ -1,26 +1,14 @@
 #include "logging.h"
 
-#include "fracture/core/systems/fracture_memory.h"
-
 #include <platform.h>
-
 #include <stdarg.h>
 #include <stdio.h>
 
-static const char* log_level_strings[] = {
-    "FATAL",
-    "ERROR",
-    "WARN",
-    "INFO",
-    "TRACE",
-    "ASSERTION FAILED"
-};
+#include "fracture/core/systems/fracture_memory.h"
 
-static const char* log_source_strings[] = {
-    "CORE",
-    "ENGINE",
-    "GAME"
-};
+static const char* log_level_strings[] = {"FATAL", "ERROR", "WARN", "INFO", "TRACE", "ASSERTION FAILED"};
+
+static const char* log_source_strings[] = {"CORE", "ENGINE", "GAME"};
 
 static logging_config* state = NULL_PTR;
 
@@ -49,7 +37,6 @@ void fr_logging_shutdown() {
     state = NULL_PTR;
 }
 
- 
 void fr_log_message(log_level level, log_source source, const char* message, ...) {
     if (state == NULL_PTR) {
         return;
@@ -78,11 +65,10 @@ void fr_log_message(log_level level, log_source source, const char* message, ...
         }
     }
 
-
     // TODO: Write to file
 }
 
-void fr_log_message_detailed(log_level level, log_source source, const char *file, int line, const char *format, ...) {
+void fr_log_message_detailed(log_level level, log_source source, const char* file, int line, const char* format, ...) {
     if (state == NULL_PTR) {
         return;
     }
@@ -100,7 +86,14 @@ void fr_log_message_detailed(log_level level, log_source source, const char *fil
     va_end(vargs);
 
     char log_message[32000];
-    snprintf(log_message, 32000, "%s[%s] %s:%d %s\n", log_source_strings[source], log_level_strings[level], file, line, buffer);
+    snprintf(log_message,
+             32000,
+             "%s[%s] %s:%d %s\n",
+             log_source_strings[source],
+             log_level_strings[level],
+             file,
+             line,
+             buffer);
 
     if (state->enable_console) {
         if (is_error) {

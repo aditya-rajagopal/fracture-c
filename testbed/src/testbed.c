@@ -1,5 +1,6 @@
 #include "testbed.h"
 
+#include "fracture/core/systems/clock.h"
 #include "fracture/core/systems/event.h"
 #include "fracture/core/systems/input.h"
 
@@ -72,7 +73,7 @@ b8 testbed_initialize(application_handle* app_handle) {
         fr_quat_vec3_rot(&state->vec3s[i], &state->quaternions[i], &state->vec3s[i]);
     }
     fr_clock_update(&c1);
-    FR_INFO("Time to rotate %d vec3s with quaternions: %f", TEST_LEN, c1.elapsed_time);
+    FR_INFO("Time to rotate %d vec3s with quaternions: %f", TEST_LEN, fr_clock_get_elapsed_time_s(&c1));
 
     // quaternion unit test
     vec3 point = {1.0f, 2.0f, 3.0f};

@@ -1,12 +1,12 @@
 /**
  * @file vulkan_framebuffer.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-02-27
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
@@ -28,16 +28,16 @@
  */
 b8 vulkan_framebuffer_create(vulkan_context* context,
                              vulkan_renderpass* renderpass,
-                             u32 width, u32 height,
+                             u32 width,
+                             u32 height,
                              u32 attachment_count,
                              VkImageView* pAttachments,
                              vulkan_frame_buffer* out_framebuffer);
 
 /**
  * @brief Destroy the given vulkan framebuffer.
- * 
+ *
  * @param context The vulkan context.
  * @param framebuffer The vulkan framebuffer to be destroyed.
  */
-void vulkan_framer_buffer_destroy(vulkan_context* context,
-                                  vulkan_frame_buffer* framebuffer);
+void vulkan_framer_buffer_destroy(vulkan_context* context, vulkan_frame_buffer* framebuffer);

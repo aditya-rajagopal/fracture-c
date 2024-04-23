@@ -1,10 +1,10 @@
 #include "fracture_memory.h"
 
-#include "fracture/core/systems/logging.h"
-#include "fracture/core/library/fracture_string.h"
-
 #include <platform.h>
 #include <stdio.h>
+
+#include "fracture/core/library/fracture_string.h"
+#include "fracture/core/systems/logging.h"
 
 typedef struct memory_statictics {
     u64 current_allocated;
@@ -14,36 +14,12 @@ typedef struct memory_statictics {
 } memory_statictics;
 
 static const char* memory_type_strings[] = {
-    "UNKNOWN",
-    "ARRAY",
-    "DARRAY",
-    "LIST",
-    "RING_QUEUE",
-    "BST",
-    "HASH_TABLE",
-    "MATRIX",
-    "VECTOR",
-    "STRING",
-    "STACK",
-    "QUEUE",
-    "GRAPH",
-    "TREE",
-    "APPLICATION",
-    "JOB",
-    "THREAD",
-    "RENDERER",
-    "TEXTURE",
-    "MATERIAL_INSTANCE",
-    "MESH",
-    "TRANSFORM",
-    "ENTITY",
-    "COMPONENT",
-    "SYSTEM",
-    "SCENE",
-    "PHYSICS",
-    "AUDIO",
-    "PARTICLE",
-    "UI",
+    "UNKNOWN", "ARRAY",      "DARRAY",   "LIST",      "RING_QUEUE",
+    "BST",     "HASH_TABLE", "MATRIX",   "VECTOR",    "STRING",
+    "STACK",   "QUEUE",      "GRAPH",    "TREE",      "APPLICATION",
+    "JOB",     "THREAD",     "RENDERER", "TEXTURE",   "MATERIAL_INSTANCE",
+    "MESH",    "TRANSFORM",  "ENTITY",   "COMPONENT", "SYSTEM",
+    "SCENE",   "PHYSICS",    "AUDIO",    "PARTICLE",  "UI",
 };
 
 static memory_statictics stats = {0};
@@ -55,8 +31,7 @@ b8 fr_memory_initialize() {
 
 b8 fr_memory_shutdown() {
     if (stats.current_allocated != 0) {
-        FR_CORE_FATAL("Memory leak detected: %llu bytes still allocated",
-                      stats.current_allocated);
+        FR_CORE_FATAL("Memory leak detected: %llu bytes still allocated", stats.current_allocated);
         FR_CORE_FATAL("Memory statistics: ");
         FR_CORE_FATAL("%s", fr_memory_get_stats());
     }
@@ -79,7 +54,6 @@ void* fr_memory_allocate(u64 size, memory_types tag) {
 
     platform_zero_memory(ptr, size);
 
-
 #if defined(FR_DEBUG)
     stats.current_allocated += size;
     stats.current_allocated_per_type[tag] += size;
@@ -92,7 +66,7 @@ void* fr_memory_allocate(u64 size, memory_types tag) {
         stats.peak_allocated_per_type[tag] = stats.current_allocated_per_type[tag];
     }
 #endif
-    return ptr; 
+    return ptr;
 }
 
 void fr_memory_free(void* ptr, u64 size, memory_types tag) {
@@ -189,14 +163,12 @@ char* fr_memory_get_stats() {
             current_value_unit[1] = '\0';
         }
 
-        offset += snprintf(
-            buffer + offset,
-            10000 - offset,
-            "%-25.25s%.2f%s",
-            memory_type_strings[i],
-            current_value,
-            current_value_unit
-        );
+        offset += snprintf(buffer + offset,
+                           10000 - offset,
+                           "%-25.25s%.2f%s",
+                           memory_type_strings[i],
+                           current_value,
+                           current_value_unit);
 
         if (stats.peak_allocated_per_type[i] > gib) {
             peak_value = (f32)stats.peak_allocated_per_type[i] / (f32)gib;
@@ -212,7 +184,7 @@ char* fr_memory_get_stats() {
             peak_value_unit[1] = '\0';
             peak_value = (f32)stats.peak_allocated_per_type[i];
         }
-        
+
         offset += snprintf(buffer + offset, 10000 - offset, "\t\t(Peak: %.2f%s)\n", peak_value, peak_value_unit);
     }
 
@@ -236,14 +208,8 @@ char* fr_memory_get_stats() {
         current_value_unit[1] = '\0';
     }
 
-    offset += snprintf(
-        buffer + offset,
-        10000 - offset,
-        "%-25.25s%.2f%s",
-        "Total value:",
-        current_value,
-        current_value_unit
-    );
+    offset +=
+        snprintf(buffer + offset, 10000 - offset, "%-25.25s%.2f%s", "Total value:", current_value, current_value_unit);
 
     if (stats.peak_allocated > gib) {
         peak_value = (f32)stats.peak_allocated / (f32)gib;
@@ -271,18 +237,10 @@ void fr_memory_print_stats() {
     fr_memory_free(stats, fr_string_length(stats) + 1, MEMORY_TYPE_STRING);
 }
 
-u64 fr_memory_get_current_usage() {
-    return stats.current_allocated;
-}
+u64 fr_memory_get_current_usage() { return stats.current_allocated; }
 
-u64 fr_memory_get_peak_usage() {
-    return stats.peak_allocated;
-}
+u64 fr_memory_get_peak_usage() { return stats.peak_allocated; }
 
-u64 fr_memory_get_current_usage_per_type(memory_types type) {
-    return stats.current_allocated_per_type[type];
-}
+u64 fr_memory_get_current_usage_per_type(memory_types type) { return stats.current_allocated_per_type[type]; }
 
-u64 fr_memory_get_peak_usage_per_type(memory_types type) {
-    return stats.peak_allocated_per_type[type];
-}
+u64 fr_memory_get_peak_usage_per_type(memory_types type) { return stats.peak_allocated_per_type[type]; }

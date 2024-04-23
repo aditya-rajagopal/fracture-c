@@ -15,9 +15,8 @@
  */
 #pragma once
 
-#include "fracture/fracture_core.h"
+#include "fracture/core/defines.h"
 #include "fracture/core/includes/input_codes.h"
-
 
 /**
  * @brief Initializes the input system

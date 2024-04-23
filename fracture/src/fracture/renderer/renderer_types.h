@@ -18,7 +18,6 @@ typedef enum renderer_backend_return_codes {
 
 /**
  * @brief The renderer backend is the interface that the game engine uses to
- 
  */
 typedef struct renderer_backend {
     // Forward declare platform_state
@@ -38,8 +37,8 @@ typedef struct renderer_backend {
 } renderer_backend;
 
 /**
- * @brief Holds data that is passed to the renderer with all the information it needs to render a frame. 
- * 
+ * @brief Holds data that is passed to the renderer with all the information it needs to render a frame.
+ *
  */
 typedef struct renderer_packet {
     f64 delta_time;

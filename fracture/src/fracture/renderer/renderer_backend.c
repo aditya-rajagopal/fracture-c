@@ -1,11 +1,11 @@
 #include "renderer_backend.h"
 
 #include "fracture/core/systems/logging.h"
-#include "fracture/core/systems/fracture_memory.h"
-
 #include "fracture/renderer/backend/vulkan/vulkan_backend.h"
 
-b8 fr_renderer_backend_create(renderer_backend_type type, struct platform_state *plat_state, renderer_backend *out_renderer_backend) {
+b8 fr_renderer_backend_create(renderer_backend_type type,
+                              struct platform_state *plat_state,
+                              renderer_backend *out_renderer_backend) {
     if (!plat_state) {
         FR_CORE_FATAL("Platform state is NULL");
         return FALSE;

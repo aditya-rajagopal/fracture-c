@@ -13,6 +13,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include "fracture/core/library/math/detail/vec4.h"
 #include "fracture/core/systems/logging.h"
 #include "vulkan/vulkan_core.h"
 

@@ -15,8 +15,8 @@
  */
 #pragma once
 
-#include "fracture/fracture_core.h"
 #include "fracture/core/includes/system_event_codes.h"
+#include "fracture/fracture_core.h"
 
 typedef struct event_data {
     // 128 bytes of data
@@ -91,4 +91,3 @@ FR_API b8 fr_event_deregister_handler(u16 event_code, void* listener_instance, P
  * @return b8 True if the event was successfully dispatched, false otherwise.
  */
 FR_API b8 fr_event_dispatch(u16 event_code, void* sender, event_data data);
-

@@ -1,16 +1,14 @@
 /**
  * @file vulkan_platform.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-02-20
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
-
-#include "fracture/fracture_core.h"
 
 #include "fracture/renderer/backend/vulkan/vulkan_types.h"
 
@@ -32,4 +30,4 @@ void vulkan_platform_get_required_instance_extensions(const char*** required_ext
  * @param context The vulkan context
  * @return b8 Whether the surface was created successfully
  */
-b8 vulkan_platform_create_surface(struct vulkan_context *context);
+b8 vulkan_platform_create_surface(struct vulkan_context* context);

@@ -8,16 +8,14 @@ b8 vulkan_fence_create(vulkan_context* context, vulkan_fence* out_fence, b8 crea
     VkFenceCreateInfo fence_create_info = {VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
     fence_create_info.flags = create_singnaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
 
-    VK_CHECK_RESULT(vkCreateFence(context->device.logical_device,
-                                  &fence_create_info, context->allocator,
-                                  &out_fence->handle));
+    VK_CHECK_RESULT(
+        vkCreateFence(context->device.logical_device, &fence_create_info, context->allocator, &out_fence->handle));
     return TRUE;
 }
 
 void vulkan_fence_destroy(vulkan_context* context, vulkan_fence* fence) {
     if (fence && fence->handle != VK_NULL_HANDLE) {
-        vkDestroyFence(context->device.logical_device, fence->handle,
-                       context->allocator);
+        vkDestroyFence(context->device.logical_device, fence->handle, context->allocator);
         fence->handle = VK_NULL_HANDLE;
         fence->is_signaled = FALSE;
         return;
@@ -30,7 +28,7 @@ b8 vulkan_fence_wait(vulkan_context* context, vulkan_fence* fence, u64 timeout_n
         return TRUE;
     }
     VkResult result = vkWaitForFences(context->device.logical_device, 1, &fence->handle, VK_TRUE, timeout_ns);
-    switch(result) {
+    switch (result) {
         case VK_SUCCESS:
             fence->is_signaled = TRUE;
             return TRUE;

@@ -1,12 +1,12 @@
 /**
  * @file vulkan_fence.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-02-27
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
@@ -25,7 +25,7 @@ b8 vulkan_fence_create(vulkan_context* context, vulkan_fence* out_fence, b8 crea
 
 /**
  * @brief Destroy the given vulkan fence.
- * 
+ *
  * @param context The vulkan context.
  * @param fence The vulkan fence to be destroyed.
  */
@@ -43,7 +43,7 @@ b8 vulkan_fence_wait(vulkan_context* context, vulkan_fence* fence, u64 timeout_n
 
 /**
  * @brief Reset the given vulkan fence's signl state to false.
- * 
+ *
  * @param context The vulkan context.
  * @param fence The vulkan fence to be reset.
  */

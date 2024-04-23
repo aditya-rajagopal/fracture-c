@@ -1,11 +1,12 @@
 #include "vulkan_commandbuffer.h"
 
-#include "fracture/core/systems/logging.h"
 #include "fracture/core/systems/fracture_memory.h"
+#include "fracture/core/systems/logging.h"
 #include "vulkan/vulkan_core.h"
 
 b8 vulkan_command_buffer_allocate(vulkan_context* context,
-                                  VkCommandPool command_pool, b8 is_primary,
+                                  VkCommandPool command_pool,
+                                  b8 is_primary,
                                   vulkan_command_buffer* out_command_buffers) {
     fr_memory_zero(out_command_buffers, sizeof(vulkan_command_buffer));
     out_command_buffers->state = COMMAND_BUFFER_STATE_NOT_ALLOCATED;
@@ -17,14 +18,12 @@ b8 vulkan_command_buffer_allocate(vulkan_context* context,
     // If the command buffer is primary, it can be submitted to a queue for
     // execution If the command buffer is secondary, it can't be submitted
     // directly, but can be executed from a primary command buffer
-    alloc_info.level = is_primary ? VK_COMMAND_BUFFER_LEVEL_PRIMARY
-                                  : VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+    alloc_info.level = is_primary ? VK_COMMAND_BUFFER_LEVEL_PRIMARY : VK_COMMAND_BUFFER_LEVEL_SECONDARY;
     // Set the number of command buffers to allocate we are going to allocate 1 as a hard coded value
     alloc_info.commandBufferCount = 1;
     alloc_info.pNext = NULL;
-    VK_CHECK_RESULT(vkAllocateCommandBuffers(context->device.logical_device,
-                                             &alloc_info,
-                                             &out_command_buffers->handle));
+    VK_CHECK_RESULT(
+        vkAllocateCommandBuffers(context->device.logical_device, &alloc_info, &out_command_buffers->handle));
     out_command_buffers->state = COMMAND_BUFFER_STATE_READY;
     return TRUE;
 }
@@ -33,8 +32,7 @@ void vulkan_command_buffer_free(vulkan_context* context,
                                 VkCommandPool command_pool,
                                 vulkan_command_buffer* command_buffers) {
     if (command_buffers->handle != VK_NULL_HANDLE) {
-        vkFreeCommandBuffers(context->device.logical_device, command_pool, 1,
-                             &command_buffers->handle);
+        vkFreeCommandBuffers(context->device.logical_device, command_pool, 1, &command_buffers->handle);
         command_buffers->handle = VK_NULL_HANDLE;
         command_buffers->state = COMMAND_BUFFER_STATE_NOT_ALLOCATED;
         return;
@@ -43,9 +41,9 @@ void vulkan_command_buffer_free(vulkan_context* context,
 }
 
 b8 vulkan_command_buffer_begin(vulkan_command_buffer* command_buffer,
-                                 b8 is_single_use,
-                                 b8 is_renderpass_continuation,
-                                 b8 is_simultaneous_use) {
+                               b8 is_single_use,
+                               b8 is_renderpass_continuation,
+                               b8 is_simultaneous_use) {
     VkCommandBufferBeginInfo begin_info = {VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
     // We are not currently using the pInheritanceInfo and pNext fields
     begin_info.flags = 0;
@@ -98,10 +96,10 @@ void vulkan_command_buffer_allocate_and_begin_single_use(vulkan_context* context
 }
 
 b8 vulkan_command_buffer_end_single_use(vulkan_context* context,
-                                          VkCommandPool command_pool,
-                                          vulkan_command_buffer* command_buffer,
-                                          VkFence fence,
-                                          VkQueue queue) {
+                                        VkCommandPool command_pool,
+                                        vulkan_command_buffer* command_buffer,
+                                        VkFence fence,
+                                        VkQueue queue) {
     // End the command buffer
     vulkan_command_buffer_end(command_buffer);
 

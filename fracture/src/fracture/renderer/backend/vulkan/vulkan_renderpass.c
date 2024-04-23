@@ -6,13 +6,15 @@
 
 b8 vulkan_renderpass_create(vulkan_context* context,
                             vulkan_renderpass* out_renderpass,
-                            rect_2d render_area, colour clear_colour,
-                            f32 clear_depth, u32 clear_stencil) {
+                            rect_2d render_area,
+                            colour clear_colour,
+                            f32 clear_depth,
+                            u32 clear_stencil) {
     out_renderpass->render_area = render_area;
     out_renderpass->clear_colour = clear_colour;
     out_renderpass->clear_depth = clear_depth;
     out_renderpass->clear_stencil = clear_stencil;
-    
+
     // First create the subpassess
     // Main subpass
     VkSubpassDescription main_subpass = {0};
@@ -25,7 +27,7 @@ b8 vulkan_renderpass_create(vulkan_context* context,
     VkAttachmentDescription attachment_descriptions[attachment_count];
     // Colour attachment
     VkAttachmentDescription colour_attachment = {0};
-    colour_attachment.format = context->swapchain.format.format; // TODO: Make this configurable
+    colour_attachment.format = context->swapchain.format.format;  // TODO: Make this configurable
     colour_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
     // We are going to clear the colour attachment at the start of the renderpass
     // There are other options for this, but for now we are just going to clear it
@@ -48,7 +50,7 @@ b8 vulkan_renderpass_create(vulkan_context* context,
 
     // We need a reference to the attachment in the subpass as the actual description is stored in the renderpass
     VkAttachmentReference colour_attachment_ref = {0};
-    colour_attachment_ref.attachment = 0; // This is the index of the attachment in the attachment descriptions
+    colour_attachment_ref.attachment = 0;  // This is the index of the attachment in the attachment descriptions
     // We are going to set the layout to colour attachment optimal as we are going to use it as a colour attachment
     colour_attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
@@ -57,7 +59,7 @@ b8 vulkan_renderpass_create(vulkan_context* context,
 
     // Depth attachment
     VkAttachmentDescription depth_attachment = {0};
-    depth_attachment.format = context->device.depth_format; // TODO: Make this configurable
+    depth_attachment.format = context->device.depth_format;  // TODO: Make this configurable
     depth_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
     // We are going to clear the depth attachment at the start of the renderpass
     depth_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -70,7 +72,7 @@ b8 vulkan_renderpass_create(vulkan_context* context,
     attachment_descriptions[1] = depth_attachment;
 
     VkAttachmentReference depth_attachment_ref = {0};
-    depth_attachment_ref.attachment = 1; // This is the index of the attachment in the attachment descriptions
+    depth_attachment_ref.attachment = 1;  // This is the index of the attachment in the attachment descriptions
     // We are going to set the layout to depth attachment optimal as we are going to use it as a depth attachment
     depth_attachment_ref.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
@@ -86,7 +88,8 @@ b8 vulkan_renderpass_create(vulkan_context* context,
     // Resolve attachments are used for multisampling colour attachments
     main_subpass.pResolveAttachments = NULL;
 
-    // Preserve attachments are used to preserve the contents for the next subpass but are not used in the current subpass
+    // Preserve attachments are used to preserve the contents for the next subpass but are not used in the current
+    // subpass
     main_subpass.preserveAttachmentCount = 0;
     main_subpass.pPreserveAttachments = NULL;
 
@@ -102,7 +105,7 @@ b8 vulkan_renderpass_create(vulkan_context* context,
     // We want to be able to read and write to the colour attachment
     subpass_dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     subpass_dependency.dependencyFlags = 0;
-    
+
     VkRenderPassCreateInfo renderpass_create_info = {VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};
     renderpass_create_info.attachmentCount = attachment_count;
     renderpass_create_info.pAttachments = attachment_descriptions;
@@ -114,16 +117,14 @@ b8 vulkan_renderpass_create(vulkan_context* context,
     renderpass_create_info.flags = 0;
 
     VK_CHECK_RESULT(vkCreateRenderPass(
-        context->device.logical_device, &renderpass_create_info,
-        context->allocator, &out_renderpass->handle));
+        context->device.logical_device, &renderpass_create_info, context->allocator, &out_renderpass->handle));
     FR_CORE_INFO("Renderpass created successfully");
     return TRUE;
 }
 
 void vulkan_renderpass_destroy(vulkan_context* context, vulkan_renderpass* renderpass) {
-    if (renderpass && renderpass->handle != VK_NULL_HANDLE){
-        vkDestroyRenderPass(context->device.logical_device, renderpass->handle,
-                            context->allocator);
+    if (renderpass && renderpass->handle != VK_NULL_HANDLE) {
+        vkDestroyRenderPass(context->device.logical_device, renderpass->handle, context->allocator);
         renderpass->handle = VK_NULL_HANDLE;
         FR_CORE_INFO("Renderpass destroyed successfully");
         return;
@@ -146,7 +147,7 @@ void vulkan_renderpass_begin(vulkan_renderpass* renderpass,
     VkClearValue clear_values[2];
     // Just to be safe and make sure we are not writing garbage for the depth
     // and stencil if we are not clearing them
-    fr_memory_zero(clear_values, sizeof(VkClearValue) * 2); 
+    fr_memory_zero(clear_values, sizeof(VkClearValue) * 2);
     clear_values[0].color.float32[0] = renderpass->clear_colour.r;
     clear_values[0].color.float32[1] = renderpass->clear_colour.g;
     clear_values[0].color.float32[2] = renderpass->clear_colour.b;
@@ -161,8 +162,7 @@ void vulkan_renderpass_begin(vulkan_renderpass* renderpass,
     command_buffer->state = COMMAND_BUFFER_STATE_IN_RENDER_PASS;
 }
 
-void vulkan_renderpass_end(vulkan_renderpass *renderpass,
-                           vulkan_command_buffer *command_buffer) {
+void vulkan_renderpass_end(vulkan_renderpass* renderpass, vulkan_command_buffer* command_buffer) {
     vkCmdEndRenderPass(command_buffer->handle);
     command_buffer->state = COMMAND_BUFFER_STATE_RECORDING;
 }

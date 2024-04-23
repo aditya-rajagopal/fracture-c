@@ -1,10 +1,10 @@
 #include "renderer_frontend.h"
 
-#include "fracture/renderer/renderer_backend.h"
-#include "fracture/core/systems/logging.h"
 #include "fracture/core/systems/fracture_memory.h"
+#include "fracture/core/systems/logging.h"
+#include "fracture/renderer/renderer_backend.h"
 
-static renderer_backend* current_backend = NULL_PTR;
+static renderer_backend *current_backend = NULL_PTR;
 
 #define FR_DEFAULT_RENDERER_BACKEND FR_RENDERER_BACKEND_VULKAN
 
@@ -19,10 +19,10 @@ b8 fr_renderer_initialize(const char *app_name, struct platform_state *plat_stat
         return FALSE;
     }
 
-    current_backend = (renderer_backend*)fr_memory_allocate(sizeof(renderer_backend), MEMORY_TYPE_RENDERER);
+    current_backend = (renderer_backend *)fr_memory_allocate(sizeof(renderer_backend), MEMORY_TYPE_RENDERER);
 
     // TODO: Add ability to pass in a configuration structure to the renderer backend
-    if(!fr_renderer_backend_create(FR_DEFAULT_RENDERER_BACKEND, plat_state, current_backend)) {
+    if (!fr_renderer_backend_create(FR_DEFAULT_RENDERER_BACKEND, plat_state, current_backend)) {
         FR_CORE_FATAL("Failed to create renderer backend");
         return FALSE;
     }
@@ -31,7 +31,7 @@ b8 fr_renderer_initialize(const char *app_name, struct platform_state *plat_stat
         FR_CORE_FATAL("Failed to initialize renderer backend");
         return FALSE;
     }
-    
+
     return TRUE;
 }
 

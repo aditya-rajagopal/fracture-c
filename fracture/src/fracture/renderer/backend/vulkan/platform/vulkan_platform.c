@@ -1,10 +1,10 @@
 #include "vulkan_platform.h"
 
+#include <platform.h>
+
 #include "fracture/core/containers/darrays.h"
 #include "fracture/core/systems/fracture_memory.h"
 #include "vulkan/vulkan_core.h"
-
-#include <platform.h>
 
 #if defined(PLATFORM_WINDOWS)
 #include <Windows.h>
@@ -19,10 +19,10 @@ void vulkan_platform_get_required_instance_extensions(const char*** required_ext
     darray_push(*required_extensions, &"VK_KHR_win32_surface");
 }
 
-b8 vulkan_platform_create_surface(struct vulkan_context *context) {
+b8 vulkan_platform_create_surface(struct vulkan_context* context) {
     u64 platform_state_size = 0;
     platform_get_handle_info(&platform_state_size, 0);
-    void *mem_block = fr_memory_allocate(platform_state_size, MEMORY_TYPE_RENDERER);
+    void* mem_block = fr_memory_allocate(platform_state_size, MEMORY_TYPE_RENDERER);
     platform_get_handle_info(&platform_state_size, mem_block);
 
     internal_state* handle = (internal_state*)mem_block;

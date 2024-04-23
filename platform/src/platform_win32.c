@@ -1,17 +1,18 @@
-#include "platform.h"
 #include <excpt.h>
 #include <string.h>
+
+#include "platform.h"
 
 #if PLATFORM_WINDOWS
 
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <windowsx.h> // For GET_X_LPARAM and GET_Y_LPARAM
 #include <stdlib.h>
+#include <windows.h>
+#include <windowsx.h>  // For GET_X_LPARAM and GET_Y_LPARAM
 
 /**
- * @brief Internal state for windows platform layer 
- * 
+ * @brief Internal state for windows platform layer
+ *
  */
 typedef struct internal_state {
     /** @brief handle to the instance of the application */
@@ -29,50 +30,50 @@ static internal_state* state_ptr;
 
 LRESULT CALLBACK _win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param);
 
-b8 platform_startup(platform_state *platform_state, const char *window_title, u32 width, u32 height, u32 x_pos, u32 y_pos) {
+b8 platform_startup(
+    platform_state* platform_state, const char* window_title, u32 width, u32 height, u32 x_pos, u32 y_pos) {
     platform_state->internal_state = malloc(sizeof(internal_state));
     plat_state = platform_state;
     internal_state* state = (internal_state*)platform_state->internal_state;
     state_ptr = state;
 
-    if (platform_state->on_key_event == NULL_PTR ||
-        platform_state->on_mouse_move == NULL_PTR ||
-        platform_state->on_mouse_button_event == NULL_PTR ||
-        platform_state->on_mouse_scroll == NULL_PTR ||
+    if (platform_state->on_key_event == NULL_PTR || platform_state->on_mouse_move == NULL_PTR ||
+        platform_state->on_mouse_button_event == NULL_PTR || platform_state->on_mouse_scroll == NULL_PTR ||
         platform_state->on_window_resize == NULL_PTR) {
-      return FALSE;
+        return FALSE;
     }
 
-    // Get the handle of a module that is cuurently running. 0 here indicates that you are asking for the handle of the current application that is running.
+    // Get the handle of a module that is cuurently running. 0 here indicates that you are asking for the handle of the
+    // current application that is running.
     state->hInstance = GetModuleHandleA(0);
-    
+
     HICON icon = LoadIcon(state->hInstance, IDI_APPLICATION);
     WNDCLASSA wc;
     memset(&wc, 0, sizeof(WNDCLASSA));
     wc.style = CS_DBLCLKS;
-    wc.lpfnWndProc = _win32_process_message; // pointer to function that handles windows events
+    wc.lpfnWndProc = _win32_process_message;  // pointer to function that handles windows events
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
     wc.hInstance = state->hInstance;
     wc.hIcon = icon;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = NULL;
-    wc.lpszClassName = "fracture_window_class"; // class name we are registering
+    wc.lpszClassName = "fracture_window_class";  // class name we are registering
 
-    if(!RegisterClassA(&wc)) {
+    if (!RegisterClassA(&wc)) {
         MessageBoxA(0, "Window registration failed", "Error", MB_ICONEXCLAMATION | MB_OK);
         return FALSE;
     }
 
-    // A window has 2 sizes technically. The entire window which includes the header and options and the client window which is the area which is usually where
-    // we draw to.
+    // A window has 2 sizes technically. The entire window which includes the header and options and the client window
+    // which is the area which is usually where we draw to.
 
     // Client window sizes
     u32 client_x_pos = x_pos;
     u32 client_y_pos = y_pos;
     u32 client_width = width;
     u32 client_height = height;
-    
+
     // Final window sizes
     u32 window_x_pos = x_pos;
     u32 window_y_pos = y_pos;
@@ -86,7 +87,7 @@ b8 platform_startup(platform_state *platform_state, const char *window_title, u3
     window_style |= WS_THICKFRAME;
 
     u32 window_ex_style = WS_EX_APPWINDOW;
-    
+
     // Obtain the size of the borders based on the styles chosen
     RECT border_rect = {0, 0, 0, 0};
     AdjustWindowRectEx(&border_rect, window_style, 0, window_ex_style);
@@ -97,11 +98,18 @@ b8 platform_startup(platform_state *platform_state, const char *window_title, u3
     window_width += border_rect.right - border_rect.left;
     window_height += border_rect.bottom - border_rect.top;
 
-    HWND handle = CreateWindowExA(
-        window_ex_style, "fracture_window_class", window_title,
-        window_style, window_x_pos, window_y_pos, window_width,
-        window_height, 0, 0, state->hInstance, 0
-    );
+    HWND handle = CreateWindowExA(window_ex_style,
+                                  "fracture_window_class",
+                                  window_title,
+                                  window_style,
+                                  window_x_pos,
+                                  window_y_pos,
+                                  window_width,
+                                  window_height,
+                                  0,
+                                  0,
+                                  state->hInstance,
+                                  0);
 
     if (handle == NULL_PTR) {
         MessageBoxA(NULL, "Window Creation Failed", "Error!", MB_ICONEXCLAMATION | MB_OK);
@@ -111,7 +119,7 @@ b8 platform_startup(platform_state *platform_state, const char *window_title, u3
     }
 
     // Time to show the window
-    b32 should_activate = 1; // TODO: If the window does nto need to accept inputs this should be false;
+    b32 should_activate = 1;  // TODO: If the window does nto need to accept inputs this should be false;
     i32 show_window_commad_flags = should_activate ? SW_SHOW : SW_SHOWNOACTIVATE;
     // If initially minimized use SW_MINIMIZE : SW_SHOWMINNOACTIVE;
     // If initially maximized use SW_SHOWMAXIMIZED : SW_MAXIMIZE;
@@ -125,7 +133,7 @@ b8 platform_startup(platform_state *platform_state, const char *window_title, u3
     return TRUE;
 }
 
-void platform_shutdown(platform_state *platform_state) {
+void platform_shutdown(platform_state* platform_state) {
     internal_state* state = (internal_state*)platform_state->internal_state;
 
     if (state->hWnd) {
@@ -136,81 +144,75 @@ void platform_shutdown(platform_state *platform_state) {
     plat_state = NULL_PTR;
 }
 
-b8 platform_pump_messages(platform_state *platform_state) {
+b8 platform_pump_messages(platform_state* platform_state) {
     MSG message;
-    
+
     // We will be calling this function once every application loop. Windows has a stack of messages we need to handle.
     // We need to handle every message otherwise we will hand so we pass the PM_REMOVE flag.
     while (PeekMessageA(&message, NULL, 0, 0, PM_REMOVE)) {
         TranslateMessage(&message);
-        DispatchMessage(&message); // calls the lpfnWndPrc which for us is the _win32_process_message.
+        DispatchMessage(&message);  // calls the lpfnWndPrc which for us is the _win32_process_message.
     }
 
     return TRUE;
 }
 
 void* platform_allocate(u64 size, b8 aligned) {
-    return malloc(size); // TODO: Temporary
+    return malloc(size);  // TODO: Temporary
 }
 
-void platform_free(void *block, b8 aligned) {
-    free(block);
-}
+void platform_free(void* block, b8 aligned) { free(block); }
 
-void* platform_zero_memory(void* block, u64 size) {
-    return memset(block, 0, size);
-}
+void* platform_zero_memory(void* block, u64 size) { return memset(block, 0, size); }
 
+void* platform_set_memory(void* block, i32 value, u64 size) { return memset(block, value, size); }
 
-void* platform_set_memory(void* block, i32 value, u64 size) {
-    return memset(block, value, size);
-}
+void* platform_copy_memory(void* dest, const void* source, u64 size) { return memcpy(dest, source, size); }
 
-void* platform_copy_memory(void* dest, const void* source, u64 size) {
-    return memcpy(dest, source, size);
-}
-
-void platform_console_write(const char *message, u8 color) {
-    OutputDebugStringA(message); // Lets us output to the debug console in addition to the standard console.
+void platform_console_write(const char* message, u8 color) {
+    OutputDebugStringA(message);  // Lets us output to the debug console in addition to the standard console.
 
     HANDLE console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     // FATAL, ERROR, WARN, INFO, TRACE, ASSERTION
     static const u8 colors[] = {
-        FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | BACKGROUND_RED | FOREGROUND_INTENSITY, // FATAL - White text on red background
-        FOREGROUND_RED, // ERROR - Red
-        FOREGROUND_RED | FOREGROUND_GREEN, // WARN - Yellow
-        FOREGROUND_GREEN | FOREGROUND_BLUE, // INFO - Green
-        FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED, // TRACE - Grey
-        FOREGROUND_RED | FOREGROUND_BLUE | BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED // ASSERTION - Red text on white background
+        FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | BACKGROUND_RED |
+            FOREGROUND_INTENSITY,                             // FATAL - White text on red background
+        FOREGROUND_RED,                                       // ERROR - Red
+        FOREGROUND_RED | FOREGROUND_GREEN,                    // WARN - Yellow
+        FOREGROUND_GREEN | FOREGROUND_BLUE,                   // INFO - Green
+        FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED,  // TRACE - Grey
+        FOREGROUND_RED | FOREGROUND_BLUE | BACKGROUND_BLUE | BACKGROUND_GREEN |
+            BACKGROUND_RED  // ASSERTION - Red text on white background
     };
     SetConsoleTextAttribute(console_handle, colors[color]);
 
     u64 length = strlen(message);
     LPDWORD num_written = 0;
-    // Windows has a more powerful console API than the standard C library. We can use the WriteConsoleA function to write to the console.
+    // Windows has a more powerful console API than the standard C library. We can use the WriteConsoleA function to
+    // write to the console.
     WriteConsoleA(console_handle, message, (DWORD)length, num_written, 0);
-
-
 }
 
-void platform_console_write_error(const char *message, u8 color) {
-    OutputDebugStringA(message); // Lets us output to the debug console in addition to the standard console.
+void platform_console_write_error(const char* message, u8 color) {
+    OutputDebugStringA(message);  // Lets us output to the debug console in addition to the standard console.
 
     HANDLE console_handle = GetStdHandle(STD_ERROR_HANDLE);
     // FATAL, ERROR, WARN, INFO, TRACE, ASSERTION
     static const u8 colors[] = {
-        FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | BACKGROUND_RED, // FATAL - White text on red background
-        FOREGROUND_RED, // ERROR - Red
-        FOREGROUND_RED | FOREGROUND_GREEN, // WARN - Yellow
-        FOREGROUND_GREEN | FOREGROUND_BLUE, // INFO - Green
-        FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED, // TRACE - Grey
-        FOREGROUND_RED | BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED // ASSERTION - Red text on white background
+        FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | BACKGROUND_RED,  // FATAL - White text on red background
+        FOREGROUND_RED,                                                        // ERROR - Red
+        FOREGROUND_RED | FOREGROUND_GREEN,                                     // WARN - Yellow
+        FOREGROUND_GREEN | FOREGROUND_BLUE,                                    // INFO - Green
+        FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED,                   // TRACE - Grey
+        FOREGROUND_RED | BACKGROUND_BLUE | BACKGROUND_GREEN |
+            BACKGROUND_RED  // ASSERTION - Red text on white background
     };
     SetConsoleTextAttribute(console_handle, colors[color]);
 
     u64 length = strlen(message);
     LPDWORD num_written = 0;
-    // Windows has a more powerful console API than the standard C library. We can use the WriteConsoleA function to write to the console.
+    // Windows has a more powerful console API than the standard C library. We can use the WriteConsoleA function to
+    // write to the console.
     WriteConsoleA(console_handle, message, (DWORD)length, num_written, 0);
 }
 
@@ -220,11 +222,9 @@ f64 platform_get_absolute_time() {
     return (f64)current_time.QuadPart * clock_frequency;
 }
 
-void platform_sleep(u64 milliseconds) {
-    Sleep(milliseconds);
-}
+void platform_sleep(u64 milliseconds) { Sleep(milliseconds); }
 
-void platform_get_handle_info(u64* out_size, void *memory) {
+void platform_get_handle_info(u64* out_size, void* memory) {
     *out_size = sizeof(internal_state);
     if (!memory) {
         return;
@@ -233,7 +233,7 @@ void platform_get_handle_info(u64* out_size, void *memory) {
     memcpy(memory, state_ptr, *out_size);
 }
 
-void platform_get_framebuffer_size(u32 *width, u32 *height) {
+void platform_get_framebuffer_size(u32* width, u32* height) {
     RECT rect;
     GetClientRect(state_ptr->hWnd, &rect);
     *width = rect.right - rect.left;
@@ -288,7 +288,7 @@ LRESULT CALLBACK _win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPAR
             } else if (w_param == VK_CONTROL) {
                 key = is_extended ? KEY_RCONTROL : KEY_LCONTROL;
             }
-    
+
             if (key == VK_OEM_1) {
                 key = KEY_SEMICOLON;
             }
@@ -298,7 +298,7 @@ LRESULT CALLBACK _win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPAR
 
             // Return 0 to indicate that we have handled the message and it should not be processed further
             return 0;
-        }break;
+        } break;
         case WM_LBUTTONDOWN:
         case WM_LBUTTONUP:
         case WM_RBUTTONDOWN:
@@ -336,4 +336,4 @@ LRESULT CALLBACK _win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPAR
     return DefWindowProcA(hwnd, msg, w_param, l_param);
 }
 
-#endif // PLATFORM_WINDOWS
+#endif  // PLATFORM_WINDOWS

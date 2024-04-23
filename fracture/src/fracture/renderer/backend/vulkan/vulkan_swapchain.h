@@ -1,12 +1,12 @@
 /**
  * @file vulkan_swapchain.h
  * @author Aditya Rajagopal
- * @brief 
+ * @brief
  * @version 0.0.1
  * @date 2024-02-23
- * 
+ *
  * @copyright Fracture Game Engine is Copyright (c) Aditya Rajagopal 2024-2024
- * 
+ *
  */
 #pragma once
 
@@ -23,8 +23,7 @@
  * @param height The height of the swapchain image in pixels.
  * @param out_swapchain The vulkan swapchain struct to be created.
  */
-b8 vulkan_swapchain_create(vulkan_context* context, u32 width, u32 height,
-                             vulkan_swapchain* out_swapchain);
+b8 vulkan_swapchain_create(vulkan_context* context, u32 width, u32 height, vulkan_swapchain* out_swapchain);
 
 /**
  * @brief Destroy the given vulkan swapchain and recreate it with the given
@@ -37,14 +36,13 @@ b8 vulkan_swapchain_create(vulkan_context* context, u32 width, u32 height,
  * @param height The new height of the swapchain image in pixels.
  * @param swapchain The vulkan swapchain to be recreated.
  */
-b8 vulkan_swapchain_recreate(vulkan_context* context, u32 width, u32 height,
-                               vulkan_swapchain* swapchain);
+b8 vulkan_swapchain_recreate(vulkan_context* context, u32 width, u32 height, vulkan_swapchain* swapchain);
 
 /**
  * @brief Destroy the given vulkan swapchain.
- * 
+ *
  * @param context The vulkan context.
- * @param swapchain The vulkan swapchain to be destroyed. 
+ * @param swapchain The vulkan swapchain to be destroyed.
  */
 b8 vulkan_swapchain_destroy(vulkan_context* context, vulkan_swapchain* swapchain);
 

@@ -1,22 +1,21 @@
 #include "vulkan_backend.h"
 
-#include "fracture/renderer/backend/vulkan/vulkan_types.h"
-#include "fracture/renderer/backend/vulkan/platform/vulkan_platform.h"
-#include "fracture/renderer/backend/vulkan/vulkan_device.h"
-#include "fracture/renderer/backend/vulkan/vulkan_swapchain.h"
-#include "fracture/renderer/backend/vulkan/vulkan_renderpass.h"
-#include "fracture/renderer/backend/vulkan/vulkan_commandbuffer.h"
-#include "fracture/renderer/backend/vulkan/vulkan_framebuffer.h"
-#include "fracture/renderer/backend/vulkan/vulkan_fence.h"
-#include "fracture/renderer/backend/vulkan/vulkan_utils.h"
-
-#include "fracture/core/systems/logging.h"
-#include "fracture/core/containers/darrays.h"
-#include "fracture/core/systems/fracture_memory.h"
-#include "fracture/core/library/fracture_string.h"
-#include "vulkan/vulkan_core.h"
-
 #include <platform.h>
+
+#include "fracture/core/containers/darrays.h"
+#include "fracture/core/library/fracture_string.h"
+#include "fracture/core/systems/fracture_memory.h"
+#include "fracture/core/systems/logging.h"
+#include "fracture/renderer/backend/vulkan/platform/vulkan_platform.h"
+#include "fracture/renderer/backend/vulkan/vulkan_commandbuffer.h"
+#include "fracture/renderer/backend/vulkan/vulkan_device.h"
+#include "fracture/renderer/backend/vulkan/vulkan_fence.h"
+#include "fracture/renderer/backend/vulkan/vulkan_framebuffer.h"
+#include "fracture/renderer/backend/vulkan/vulkan_renderpass.h"
+#include "fracture/renderer/backend/vulkan/vulkan_swapchain.h"
+#include "fracture/renderer/backend/vulkan/vulkan_types.h"
+#include "fracture/renderer/backend/vulkan/vulkan_utils.h"
+#include "vulkan/vulkan_core.h"
 
 // HACK: This is a hack to get the window width and height
 #include "fracture/engine/engine.h"
@@ -31,10 +30,10 @@ b8 _backend_create_instance(const char* app_name);
 b8 _backend_create_debugger();
 void _backend_destroy_debugger();
 
-VKAPI_ATTR VkBool32 VKAPI_CALL _vulkan_debug_callback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
-    VkDebugUtilsMessageTypeFlagsEXT message_types,
-    const VkDebugUtilsMessengerCallbackDataEXT *callback_data, void *user_data);
+VKAPI_ATTR VkBool32 VKAPI_CALL _vulkan_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
+                                                      VkDebugUtilsMessageTypeFlagsEXT message_types,
+                                                      const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
+                                                      void* user_data);
 
 i32 _backend_find_memory_index(u32 type_filter, VkMemoryPropertyFlags flags);
 
@@ -105,19 +104,9 @@ b8 vulkan_backend_initialize(renderer_backend* backend, const char* app_name, st
         return FALSE;
     }
 
-    rect_2d render_aread = {
-        .x = 0,
-        .y = 0,
-        .width = context.framebuffer_width,
-        .height = context.framebuffer_height
-    };
+    rect_2d render_aread = {.x = 0, .y = 0, .width = context.framebuffer_width, .height = context.framebuffer_height};
 
-    colour clear_colour = {
-        .r = 0.8f,
-        .g = 0.0f,
-        .b = 0.8f,
-        .a = 1.0f
-    };
+    colour clear_colour = {.r = 0.8f, .g = 0.0f, .b = 0.8f, .a = 1.0f};
 
     // Create the renderpass
     if (!vulkan_renderpass_create(&context, &context.main_renderpass, render_aread, clear_colour, 1.0f, 0)) {
@@ -132,7 +121,7 @@ b8 vulkan_backend_initialize(renderer_backend* backend, const char* app_name, st
     }
 
     // Create the command buffers
-    if(!_backend_create_command_buffers(backend)) {
+    if (!_backend_create_command_buffers(backend)) {
         FR_CORE_ERROR("Failed to create vulkan command buffers");
         return FALSE;
     }
@@ -142,7 +131,7 @@ b8 vulkan_backend_initialize(renderer_backend* backend, const char* app_name, st
         FR_CORE_ERROR("Failed to create vulkan sync objects");
         return FALSE;
     }
-    
+
     backend->is_initialized = TRUE;
     FR_CORE_INFO("Vulkan backend initialized successfully");
     return TRUE;
@@ -178,8 +167,7 @@ void vulkan_backend_shutdown(renderer_backend* backend) {
     // Destroy the surface
     if (context.surface) {
         FR_CORE_INFO("Destroying Vulkan surface...");
-        vkDestroySurfaceKHR(context.instance, context.surface,
-                            context.allocator);
+        vkDestroySurfaceKHR(context.instance, context.surface, context.allocator);
         context.surface = 0;
     }
     // Destroy the debugger
@@ -200,7 +188,8 @@ b8 vulkan_backend_begin_frame(renderer_backend* backend, f64 delta_time) {
     if (context.recreating_swapchain) {
         VkResult result = vkDeviceWaitIdle(device->logical_device);
         if (!vulkan_result_is_success(result)) {
-            FR_CORE_ERROR("vulkan_backend_begin_frame: swapchain recreate vkDeviceWaitIdle failed '%s'", vulkan_result_string(result, TRUE));
+            FR_CORE_ERROR("vulkan_backend_begin_frame: swapchain recreate vkDeviceWaitIdle failed '%s'",
+                          vulkan_result_string(result, TRUE));
             return FALSE;
         }
         FR_CORE_TRACE("Recreating swapchain...");
@@ -210,7 +199,8 @@ b8 vulkan_backend_begin_frame(renderer_backend* backend, f64 delta_time) {
     if (context.framebuffer_size_generation != context.framebuffer_size_last_generation) {
         VkResult result = vkDeviceWaitIdle(device->logical_device);
         if (!vulkan_result_is_success(result)) {
-            FR_CORE_ERROR("vulkan_backend_begin_frame: framebuffer regeneration vkDeviceWaitIdle failed '%s'", vulkan_result_string(result, TRUE));
+            FR_CORE_ERROR("vulkan_backend_begin_frame: framebuffer regeneration vkDeviceWaitIdle failed '%s'",
+                          vulkan_result_string(result, TRUE));
             return FALSE;
         }
         // If the swapchain recreation failed because the window was minimized
@@ -233,12 +223,12 @@ b8 vulkan_backend_begin_frame(renderer_backend* backend, f64 delta_time) {
     // We will pass along the semaphore that will signal when this completes.
     // This same semaphore will be later waited on by the queue submission to
     // ensure this image is available
-    if (!vulkan_swapchain_get_next_image_index(
-            &context, &context.swapchain,
-            UINT64_MAX, // We will wait indefinitely for the next image
-            context.image_available_semaphores[context.current_frame_index],
-            0,
-            &context.current_image_index)) {
+    if (!vulkan_swapchain_get_next_image_index(&context,
+                                               &context.swapchain,
+                                               UINT64_MAX,  // We will wait indefinitely for the next image
+                                               context.image_available_semaphores[context.current_frame_index],
+                                               0,
+                                               &context.current_image_index)) {
         FR_CORE_WARN("vulkan_backend_begin_frame: failed to acquire next image in swapchain");
         return FALSE;
     }
@@ -252,8 +242,8 @@ b8 vulkan_backend_begin_frame(renderer_backend* backend, f64 delta_time) {
     // THe viewport is the area of the framebuffer that the image will be rendered to
     // The sissor defines what region fo the image is going to be clipped and what region is going to be rendered to
     VkViewport viewport = {0};
-    // Vulkan by default starts the viewport at the top left corner of the framebuffer. We want the convetion to be the bottom left corner
-    // Hence we will set the y value to the height of the framebuffer and the height to be negative
+    // Vulkan by default starts the viewport at the top left corner of the framebuffer. We want the convetion to be the
+    // bottom left corner Hence we will set the y value to the height of the framebuffer and the height to be negative
     // This is so when we implement an OpenGL backend we can use the same convention
     viewport.x = 0.0f;
     viewport.y = (f32)context.framebuffer_height;
@@ -276,9 +266,7 @@ b8 vulkan_backend_begin_frame(renderer_backend* backend, f64 delta_time) {
 
     // We will now begin the renderpass
     vulkan_renderpass_begin(
-        &context.main_renderpass, 
-        &context.swapchain.framebuffers[context.current_image_index],
-        command_buffer);
+        &context.main_renderpass, &context.swapchain.framebuffers[context.current_image_index], command_buffer);
 
     return TRUE;
 }
@@ -324,9 +312,10 @@ b8 vulkan_backend_end_frame(renderer_backend* backend, f64 delta_time) {
     submit_info.pWaitDstStageMask = flags;
 
     // We will submit the command buffer to the queue
-    VkResult result = vkQueueSubmit(
-        context.device.graphics_queue_handle, 1, &submit_info,
-        context.in_flight_fences[context.current_frame_index].handle);
+    VkResult result = vkQueueSubmit(context.device.graphics_queue_handle,
+                                    1,
+                                    &submit_info,
+                                    context.in_flight_fences[context.current_frame_index].handle);
     if (result != VK_SUCCESS) {
         FR_CORE_ERROR("vulkan_backend_end_frame: vkQueueSubmit failed '%s'", vulkan_result_string(result, TRUE));
         return FALSE;
@@ -335,10 +324,12 @@ b8 vulkan_backend_end_frame(renderer_backend* backend, f64 delta_time) {
     vulkan_command_buffer_update_submitted(command_buffer);
 
     // Present the image to the swapchain
-    vulkan_swapchain_present(
-        &context, &context.swapchain, context.device.graphics_queue_handle,
-        context.device.present_queue_handle, context.current_image_index,
-        context.queue_complete_semaphores[context.current_frame_index]);
+    vulkan_swapchain_present(&context,
+                             &context.swapchain,
+                             context.device.graphics_queue_handle,
+                             context.device.present_queue_handle,
+                             context.current_image_index,
+                             context.queue_complete_semaphores[context.current_frame_index]);
 
     return TRUE;
 }
@@ -350,9 +341,10 @@ void vulkan_backend_on_window_resize(renderer_backend* backend, u32 width, u32 h
     FR_CORE_TRACE(
         "Vulkan backend framebuffer size generation increased w/h/gen: "
         "%d/%d/%d",
-        width, height, context.framebuffer_size_generation);
+        width,
+        height,
+        context.framebuffer_size_generation);
 }
-
 
 // -------------------------------------------------------------------------------------------------
 // ----------------------------------- Private Functions -------------------------------------------
@@ -360,7 +352,7 @@ void vulkan_backend_on_window_resize(renderer_backend* backend, u32 width, u32 h
 
 void _vulkan_load_required_instance_extensions(const char*** required_extensions) {
     darray_push(*required_extensions,
-                &VK_KHR_SURFACE_EXTENSION_NAME); // General surface extension
+                &VK_KHR_SURFACE_EXTENSION_NAME);  // General surface extension
     vulkan_platform_get_required_instance_extensions(required_extensions);
 #if defined(_DEBUG)
     // Add the debug utils extension for debugging
@@ -389,7 +381,7 @@ b8 _vulkan_load_validation_layers(const char*** required_validation_layers, u32*
     VK_CHECK_RESULT(vkEnumerateInstanceLayerProperties(&available_layer_count, NULL));
     VkLayerProperties* available_layers = darray_reserve(available_layer_count, VkLayerProperties);
     VK_CHECK_RESULT(vkEnumerateInstanceLayerProperties(&available_layer_count, available_layers));
- 
+
     // Check if the required validation layers are available
     for (u32 i = 0; i < *required_validation_layer_count; ++i) {
         FR_CORE_TRACE("Searching for validation layer: %s", *required_validation_layers[i]);
@@ -435,7 +427,7 @@ b8 _backend_create_instance(const char* app_name) {
     // Get the required validation layers
     const char** required_validation_layers = 0;
     u32 required_validation_layer_count = 0;
-    if(!_vulkan_load_validation_layers(&required_validation_layers, &required_validation_layer_count)) {
+    if (!_vulkan_load_validation_layers(&required_validation_layers, &required_validation_layer_count)) {
         return FALSE;
     }
     instance_info.enabledLayerCount = required_validation_layer_count;
@@ -450,8 +442,8 @@ b8 _backend_create_instance(const char* app_name) {
 b8 _backend_create_debugger() {
 #if defined(_DEBUG)
     FR_CORE_INFO("Creating Vulkan debugger...");
-    u32 log_severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
-                       VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT; // |
+    u32 log_severity =
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;  // |
     // VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
     // VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
 
@@ -463,10 +455,10 @@ b8 _backend_create_debugger() {
     debug_info.pfnUserCallback = _vulkan_debug_callback;
     debug_info.pUserData = NULL;
 
-    // Since the debug messenger is an extension, we need to load it manually by getting the function pointer from the instance
+    // Since the debug messenger is an extension, we need to load it manually by getting the function pointer from the
+    // instance
     PFN_vkCreateDebugUtilsMessengerEXT debug_func =
-        (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-            context.instance, "vkCreateDebugUtilsMessengerEXT");
+        (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(context.instance, "vkCreateDebugUtilsMessengerEXT");
     FR_ASSERT(debug_func);
     VK_CHECK_RESULT(debug_func(context.instance, &debug_info, context.allocator, &context.debug_messenger));
 #endif
@@ -478,20 +470,18 @@ void _backend_destroy_debugger() {
     // Destroy the debugger
     if (context.debug_messenger) {
         FR_CORE_INFO("Destroying Vulkan debugger...");
-        PFN_vkDestroyDebugUtilsMessengerEXT debug_func =
-            (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-                context.instance, "vkDestroyDebugUtilsMessengerEXT");
+        PFN_vkDestroyDebugUtilsMessengerEXT debug_func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+            context.instance, "vkDestroyDebugUtilsMessengerEXT");
         FR_ASSERT(debug_func);
         debug_func(context.instance, context.debug_messenger, context.allocator);
     }
 #endif
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL _vulkan_debug_callback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
-    VkDebugUtilsMessageTypeFlagsEXT message_types,
-    const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
-    void* user_data) {
+VKAPI_ATTR VkBool32 VKAPI_CALL _vulkan_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
+                                                      VkDebugUtilsMessageTypeFlagsEXT message_types,
+                                                      const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
+                                                      void* user_data) {
     switch (message_severity) {
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
             FR_CORE_TRACE("Vulkan Validation Layer: %s", callback_data->pMessage);
@@ -515,9 +505,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL _vulkan_debug_callback(
 i32 _backend_find_memory_index(u32 type_filter, VkMemoryPropertyFlags flags) {
     VkPhysicalDeviceMemoryProperties mem_properties = context.device.memory_properties;
     for (u32 i = 0; i < mem_properties.memoryTypeCount; ++i) {
-        // Check each memory type to see if its bit is set to 1. 
-        if ((type_filter & (1 << i)) &&
-            (mem_properties.memoryTypes[i].propertyFlags & flags) == flags) {
+        // Check each memory type to see if its bit is set to 1.
+        if ((type_filter & (1 << i)) && (mem_properties.memoryTypes[i].propertyFlags & flags) == flags) {
             return i;
         }
     }
@@ -531,20 +520,17 @@ b8 _backend_create_command_buffers(renderer_backend* backend) {
     // that we can record commands for each image in the swapchain while the
     // other is being presented
     if (!context.graphics_command_buffers) {
-        context.graphics_command_buffers = darray_reserve(
-            context.swapchain.image_count, vulkan_command_buffer);
+        context.graphics_command_buffers = darray_reserve(context.swapchain.image_count, vulkan_command_buffer);
     }
 
     for (u32 i = 0; i < context.swapchain.image_count; ++i) {
         if (context.graphics_command_buffers[i].handle) {
-            vulkan_command_buffer_free(&context,
-                                       context.device.graphics_command_pool,
-                                       &context.graphics_command_buffers[i]);
+            vulkan_command_buffer_free(
+                &context, context.device.graphics_command_pool, &context.graphics_command_buffers[i]);
         }
         fr_memory_zero(&context.graphics_command_buffers[i], sizeof(vulkan_command_buffer));
         if (!vulkan_command_buffer_allocate(
-                &context, context.device.graphics_command_pool, TRUE,
-                &context.graphics_command_buffers[i])) {
+                &context, context.device.graphics_command_pool, TRUE, &context.graphics_command_buffers[i])) {
             FR_CORE_ERROR("Failed to allocate command buffer for index: %d", i);
             return FALSE;
         }
@@ -557,8 +543,8 @@ void _backed_destroy_command_buffers() {
     if (context.graphics_command_buffers) {
         u64 length = darray_length(context.graphics_command_buffers);
         for (u32 i = 0; i < length; ++i) {
-            vulkan_command_buffer_free(&context, context.device.graphics_command_pool,
-                                       &context.graphics_command_buffers[i]);
+            vulkan_command_buffer_free(
+                &context, context.device.graphics_command_pool, &context.graphics_command_buffers[i]);
             context.graphics_command_buffers[i].handle = VK_NULL_HANDLE;
         }
         darray_destroy(context.graphics_command_buffers);
@@ -579,10 +565,13 @@ b8 _backend_regenerate_framebuffers(renderer_backend* backend,
         // TODO: We might have more attachments in the future make this dynamic
         u32 attachment_count = 2;
         VkImageView attachments[] = {swapchain->image_views[i], swapchain->depth_attachment.image_view};
-        if (!vulkan_framebuffer_create(
-                &context, renderpass, context.framebuffer_width,
-                context.framebuffer_height, attachment_count, attachments,
-                &swapchain->framebuffers[i])) {
+        if (!vulkan_framebuffer_create(&context,
+                                       renderpass,
+                                       context.framebuffer_width,
+                                       context.framebuffer_height,
+                                       attachment_count,
+                                       attachments,
+                                       &swapchain->framebuffers[i])) {
             FR_CORE_ERROR("Failed to create framebuffer for swapchain image index: %d", i);
             return FALSE;
         }
@@ -603,28 +592,23 @@ void _backend_destroy_framebuffers(vulkan_swapchain* swapchain) {
 }
 
 b8 _backend_create_sync_objects() {
-    context.image_available_semaphores =
-        darray_reserve(context.swapchain.max_frames_in_flight, VkSemaphore);
-    context.queue_complete_semaphores =
-        darray_reserve(context.swapchain.max_frames_in_flight, VkSemaphore);
-    context.in_flight_fences =
-        darray_reserve(context.swapchain.max_frames_in_flight, vulkan_fence);
+    context.image_available_semaphores = darray_reserve(context.swapchain.max_frames_in_flight, VkSemaphore);
+    context.queue_complete_semaphores = darray_reserve(context.swapchain.max_frames_in_flight, VkSemaphore);
+    context.in_flight_fences = darray_reserve(context.swapchain.max_frames_in_flight, vulkan_fence);
     context.in_flight_fence_count = context.swapchain.max_frames_in_flight;
-    
+
     for (u32 i = 0; i < context.swapchain.max_frames_in_flight; ++i) {
         VkSemaphoreCreateInfo semaphore_info = {VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
         VK_CHECK_RESULT(vkCreateSemaphore(
-            context.device.logical_device, &semaphore_info, context.allocator,
-            &context.image_available_semaphores[i]));
+            context.device.logical_device, &semaphore_info, context.allocator, &context.image_available_semaphores[i]));
         VK_CHECK_RESULT(vkCreateSemaphore(
-            context.device.logical_device, &semaphore_info, context.allocator,
-            &context.queue_complete_semaphores[i]));
+            context.device.logical_device, &semaphore_info, context.allocator, &context.queue_complete_semaphores[i]));
         // When we create the fence we will set the is_signaled to true which
         // essentianlly means that the first frame has finished rendering
         // This will stop the application from waiting forever for the first
         // frame to render because it will have to wait for the frame before it
         // to finish rendering(which is not possible)
-        if(!vulkan_fence_create(&context, &context.in_flight_fences[i], VK_FENCE_CREATE_SIGNALED_BIT)) {
+        if (!vulkan_fence_create(&context, &context.in_flight_fences[i], VK_FENCE_CREATE_SIGNALED_BIT)) {
             FR_CORE_ERROR("Failed to create in flight fence for index: %d", i);
             return FALSE;
         }
@@ -647,9 +631,7 @@ b8 _backend_create_sync_objects() {
 void _backend_destroy_sync_objects() {
     if (context.image_available_semaphores) {
         for (u32 i = 0; i < context.swapchain.max_frames_in_flight; ++i) {
-            vkDestroySemaphore(context.device.logical_device,
-                               context.image_available_semaphores[i],
-                               context.allocator);
+            vkDestroySemaphore(context.device.logical_device, context.image_available_semaphores[i], context.allocator);
         }
         darray_destroy(context.image_available_semaphores);
         context.image_available_semaphores = NULL;
@@ -662,9 +644,7 @@ void _backend_destroy_sync_objects() {
     }
     if (context.queue_complete_semaphores) {
         for (u32 i = 0; i < context.swapchain.max_frames_in_flight; ++i) {
-            vkDestroySemaphore(context.device.logical_device,
-                               context.queue_complete_semaphores[i],
-                               context.allocator);
+            vkDestroySemaphore(context.device.logical_device, context.queue_complete_semaphores[i], context.allocator);
         }
         darray_destroy(context.queue_complete_semaphores);
         context.queue_complete_semaphores = NULL;
@@ -689,7 +669,8 @@ b8 _backend_recreate_swapchain(renderer_backend* backend) {
     }
 
     if (context.framebuffer_width == 0 || context.framebuffer_height == 0) {
-        FR_CORE_WARN("_backend_recreate_swapchain: Swapchain recreation failed because framebuffer width or height is 0");
+        FR_CORE_WARN(
+            "_backend_recreate_swapchain: Swapchain recreation failed because framebuffer width or height is 0");
         return FALSE;
     }
 
@@ -703,9 +684,8 @@ b8 _backend_recreate_swapchain(renderer_backend* backend) {
     }
 
     // requery the swapchain support
-    if(!vulkan_device_query_swapchain_support(context.device.physical_device,
-                                          context.surface,
-                                          &context.device.swapchain_support)) {
+    if (!vulkan_device_query_swapchain_support(
+            context.device.physical_device, context.surface, &context.device.swapchain_support)) {
         FR_CORE_ERROR("_backend_recreate_swapchain: Failed to query swapchain support");
         context.recreating_swapchain = FALSE;
         return FALSE;
@@ -731,8 +711,8 @@ b8 _backend_recreate_swapchain(renderer_backend* backend) {
 
     // Clean up the commmand buffers
     for (u32 i = 0; i < context.swapchain.image_count; ++i) {
-        vulkan_command_buffer_free(&context, context.device.graphics_command_pool,
-                                   &context.graphics_command_buffers[i]);
+        vulkan_command_buffer_free(
+            &context, context.device.graphics_command_pool, &context.graphics_command_buffers[i]);
     }
 
     for (u32 i = 0; i < context.swapchain.image_count; ++i) {
