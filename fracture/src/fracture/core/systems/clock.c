@@ -37,27 +37,27 @@ void fr_clock_stop(clock* clock) {
     clock->elapsed_time = 0.0F;
 }
 
-f64 fr_clock_get_elapsed_time_s(clock* c) {
+f64 fr_clock_get_elapsed_time_s(const clock* c) {
     if (!c) {
-        FR_CORE_FATAL("Clock is NULL");
+        FR_CORE_ERROR("Clock is NULL");
         return 0.0F;
     }
 
     return c->elapsed_time;
 }
 
-FR_API f64 fr_clock_get_elapsed_time_ms(clock* c) {
+FR_API f64 fr_clock_get_elapsed_time_ms(const clock* c) {
     if (!c) {
-        FR_CORE_FATAL("Clock is NULL");
+        FR_CORE_ERROR("Clock is NULL");
         return 0.0F;
     }
 
     return c->elapsed_time * 1000.0F;
 }
 
-FR_API f64 fr_clock_get_elapsed_time_us(clock* c) {
+FR_API f64 fr_clock_get_elapsed_time_us(const clock* c) {
     if (!c) {
-        FR_CORE_FATAL("Clock is NULL");
+        FR_CORE_ERROR("Clock is NULL");
         return 0.0F;
     }
 

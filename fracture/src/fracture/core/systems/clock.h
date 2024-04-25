@@ -52,7 +52,7 @@ FR_API void fr_clock_stop(clock* c);
  * @param c The clock
  * @return f64 the elapsed time in seconds
  */
-FR_API f64 fr_clock_get_elapsed_time_s(clock* c);
+FR_API f64 fr_clock_get_elapsed_time_s(const clock* c);
 
 /**
  * @brief Get the elapsed time of provided clock
@@ -60,7 +60,7 @@ FR_API f64 fr_clock_get_elapsed_time_s(clock* c);
  * @param c The clock
  * @return f64 the elapsed time in milli-seconds
  */
-FR_API f64 fr_clock_get_elapsed_time_ms(clock* c);
+FR_API f64 fr_clock_get_elapsed_time_ms(const clock* c);
 
 /**
  * @brief Get the elapsed time of provided clock
@@ -68,7 +68,7 @@ FR_API f64 fr_clock_get_elapsed_time_ms(clock* c);
  * @param c The clock
  * @return f64 the elapsed time in micro-seconds
  */
-FR_API f64 fr_clock_get_elapsed_time_us(clock* c);
+FR_API f64 fr_clock_get_elapsed_time_us(const clock* c);
 
 /**
  * @brief Get the elapsed time of provided clock

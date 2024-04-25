@@ -13,6 +13,7 @@
 #include "detail/vec2.h"
 #include "detail/vec3.h"
 #include "detail/vec4.h"
+#include "fracture/core/defines.h"
 #include "fracture/core/library/random/fr_random.h"
 #include "math_constants.h"
 #include "utils.h"
@@ -219,6 +220,17 @@ FR_FORCE_INLINE void fr_vec4_random_uniform_range(vec4* dest, void* config, f32 
     dest->y = fr_random_uniform_range(config, min, max);
     dest->z = fr_random_uniform_range(config, min, max);
     dest->w = fr_random_uniform_range(config, min, max);
+#endif
+}
+
+FR_FORCE_INLINE void fr_vec4_copy(const vec4* restrict src, vec4* dest) {
+#if FR_SIMD == 1
+    dest->simd = src->simd;
+#else
+    dest->x = src->x;
+    dest->y = src->y;
+    dest->z = src->z;
+    dest->w = src->w;
 #endif
 }
 

@@ -16,8 +16,13 @@
 #include "fracture/core/library/math/simd/sse.h"
 #endif
 
-typedef union vec3_u {
+typedef FR_ALIGN(16) union vec3_u {
+#if FR_VEC3_SIMD == 1
+    f32 data[4];
+    __m128 simd;
+#else
     f32 data[3];
+#endif
     struct {
         union {
             f32 x;
@@ -38,14 +43,9 @@ typedef union vec3_u {
         union {
             f32 padding;
         };
-    };
-    f32 data[4];
-    __m128 simd;
-} __attribute__((aligned(16))) vec3;
-#else
+#endif
     };
 } vec3;
-#endif
 
 typedef union ivec3_u {
     struct {

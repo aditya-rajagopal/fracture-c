@@ -1,5 +1,6 @@
 #include "testbed.h"
 
+#include "fracture/core/library/math/vec3.h"
 #include "fracture/core/library/random/fr_random.h"
 #include "fracture/core/systems/clock.h"
 #include "fracture/core/systems/event.h"
@@ -10,6 +11,8 @@
 typedef struct testbed_internal_state {
     i32 test;
     vec3 vec3s[TEST_LEN];
+    vec3 dots[TEST_LEN];
+    vec3 dots2[TEST_LEN];
     quat quaternions[TEST_LEN];
     fr_rng_config rng_state;
 } testbed_internal_state;
@@ -47,19 +50,35 @@ b8 testbed_initialize(application_handle* app_handle) {
                 fr_random_uniform(&state->rng_state),
                 fr_random_uniform(&state->rng_state),
                 &state->vec3s[i]);
-        fr_quat(fr_random_uniform(&state->rng_state),
-                fr_random_uniform(&state->rng_state),
-                fr_random_uniform(&state->rng_state),
-                fr_random_uniform(&state->rng_state),
-                &state->quaternions[i]);
+        // fr_quat(fr_random_uniform(&state->rng_state),
+        //         fr_random_uniform(&state->rng_state),
+        //         fr_random_uniform(&state->rng_state),
+        //         fr_random_uniform(&state->rng_state),
+        //         &state->quaternions[i]);
     }
 
     fr_clock_start(&c);
     for (u32 i = 0; i < TEST_LEN; i++) {
-        fr_quat_vec3_rot(&state->vec3s[i], &state->quaternions[i], &state->vec3s[i]);
+        // fr_quat_vec3_rot(&state->vec3s[i], &state->quaternions[i], &state->vec3s[i]);
+        fr_vec3_cross(&state->vec3s[i], &state->vec3s[i], &state->dots[i]);
     }
     fr_clock_update(&c);
     FR_INFO("Time to rotate %d vec3s with quaternions: %f", TEST_LEN, fr_clock_get_elapsed_time_s(&c));
+
+    for (u32 i = 0; i < TEST_LEN; i++) {
+        fr_vec3(fr_random_uniform(&state->rng_state),
+                fr_random_uniform(&state->rng_state),
+                fr_random_uniform(&state->rng_state),
+                &state->vec3s[i]);
+    }
+
+    fr_clock_start(&c);
+    for (u32 i = 0; i < TEST_LEN; i++) {
+        // fr_quat_vec3_rot(&state->vec3s[i], &state->quaternions[i], &state->vec3s[i]);
+        fr_vec3_cross(&state->vec3s[i], &state->vec3s[i], &state->dots2[i]);
+    }
+    fr_clock_update(&c);
+    FR_INFO("Time to rotate %d vec3s SIMD with quaternions: %f", TEST_LEN, fr_clock_get_elapsed_time_s(&c));
 
     // quaternion unit test
     vec3 point = {1.0f, 2.0f, 3.0f};
