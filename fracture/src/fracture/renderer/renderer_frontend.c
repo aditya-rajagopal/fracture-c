@@ -8,6 +8,9 @@ static renderer_backend *current_backend = NULL_PTR;
 
 #define FR_DEFAULT_RENDERER_BACKEND FR_RENDERER_BACKEND_VULKAN
 
+b8 _renderer_begin_frame(renderer_packet *package);
+b8 _renderer_end_frame(renderer_packet *package);
+
 b8 fr_renderer_initialize(const char *app_name, struct platform_state *plat_state) {
     if (current_backend) {
         FR_CORE_WARN("Renderer already initialized");
@@ -56,16 +59,6 @@ void fr_renderer_on_window_resize(u32 width, u32 height) {
     current_backend->PFN_on_window_resize(current_backend, width, height);
 }
 
-b8 _renderer_begin_frame(renderer_packet *package) {
-    return current_backend->PFN_begin_frame(current_backend, package->delta_time);
-}
-
-b8 _renderer_end_frame(renderer_packet *package) {
-    b8 result = current_backend->PFN_end_frame(current_backend, package->delta_time);
-    current_backend->frame_number++;
-    return result;
-}
-
 b8 fr_renderer_draw_frame(renderer_packet *package) {
     if (!current_backend) {
         FR_CORE_FATAL("Renderer not initialized");
@@ -80,4 +73,18 @@ b8 fr_renderer_draw_frame(renderer_packet *package) {
         }
     }
     return TRUE;
+}
+
+// -----------------------------------------------------------------------
+// PRIVATE FUNCTIONS
+// -----------------------------------------------------------------------
+
+b8 _renderer_begin_frame(renderer_packet *package) {
+    return current_backend->PFN_begin_frame(current_backend, package->delta_time);
+}
+
+b8 _renderer_end_frame(renderer_packet *package) {
+    b8 result = current_backend->PFN_end_frame(current_backend, package->delta_time);
+    current_backend->frame_number++;
+    return result;
 }

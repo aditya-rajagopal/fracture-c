@@ -1,6 +1,7 @@
 #include "vulkan_device.h"
 
 #include "fracture/core/containers/darrays.h"
+#include "fracture/core/defines.h"
 #include "fracture/core/library/fracture_string.h"
 #include "fracture/core/systems/fracture_memory.h"
 #include "fracture/core/systems/logging.h"
@@ -352,10 +353,10 @@ b8 _device_physical_device_meets_requirements(VkPhysicalDevice device,
 
     // Check if we found a queue family for each type of queue that we need else return false
     if ((!requirements->graphics ||
-         (requirements->graphics && out_queue_families->graphics_family_index != UINT32_MAX) ||
-         !requirements->present || (requirements->present && out_queue_families->present_family_index != UINT32_MAX) ||
-         !requirements->compute || (requirements->compute && out_queue_families->compute_family_index != UINT32_MAX) ||
-         !requirements->transfer ||
+         (requirements->graphics && out_queue_families->graphics_family_index != UINT32_MAX)) &&
+        (!requirements->present || (requirements->present && out_queue_families->present_family_index != UINT32_MAX)) &&
+        (!requirements->compute || (requirements->compute && out_queue_families->compute_family_index != UINT32_MAX)) &&
+        (!requirements->transfer ||
          (requirements->transfer && out_queue_families->transfer_family_index != UINT32_MAX))) {
         FR_CORE_INFO("Device meets all queue requirements");
         FR_CORE_TRACE("Queue family indices: G: %d, P: %d, C: %d, T: %d",

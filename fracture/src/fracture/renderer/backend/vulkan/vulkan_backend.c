@@ -65,13 +65,16 @@ b8 vulkan_backend_initialize(renderer_backend* backend, const char* app_name, st
     }
     // TODO: Add a cutom allocator and pass it to the context
     context.allocator = NULL;
+
     engine_get_framebuffer_size(&cached_framebuffer_width, &cached_framebuffer_height);
+
     context.framebuffer_width = cached_framebuffer_width ? cached_framebuffer_width : 800;
     context.framebuffer_height = cached_framebuffer_height ? cached_framebuffer_height : 600;
     cached_framebuffer_height = 0;
     cached_framebuffer_width = 0;
 
     context.PFN_find_memory_type = _backend_find_memory_index;
+
     // Create the Vulkan instance
     if (!_backend_create_instance(app_name)) {
         FR_CORE_ERROR("Failed to create Vulkan instance");

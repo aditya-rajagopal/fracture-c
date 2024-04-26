@@ -223,6 +223,12 @@ FR_FORCE_INLINE void fr_vec4_random_uniform_range(vec4* dest, void* config, f32 
 #endif
 }
 
+/**
+ * @brief Copy the contents of one vec4 to another distinct one
+ *
+ * @param src the source vec4 object
+ * @param dest the destinaion to copy the data to
+ */
 FR_FORCE_INLINE void fr_vec4_copy(const vec4* restrict src, vec4* dest) {
 #if FR_SIMD == 1
     dest->simd = src->simd;
