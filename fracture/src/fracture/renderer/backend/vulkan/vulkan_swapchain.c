@@ -97,7 +97,7 @@ void vulkan_swapchain_present(vulkan_context* context,
 
 b8 _swapchain_create(vulkan_context* context, u32 width, u32 height, vulkan_swapchain* out_swapchain) {
     VkExtent2D extent = {width, height};
-    out_swapchain->max_frames_in_flight = 2;  // TODO: Make this configurable
+    out_swapchain->max_frames_in_flight = context->settings.max_frames_in_flight;
 
     // Choose a swap surface format. We want to use the sRGB color space and 8bit per channel format and RGBA.
     // Most modern graphics cards should support this format.
@@ -124,14 +124,19 @@ b8 _swapchain_create(vulkan_context* context, u32 width, u32 height, vulkan_swap
     // Choose the presentation mode. We want to use the mailbox mode if it is available, as it is the lowest latency
     // mode available. If it is not available, we will use the FIFO mode, which is guaranteed to be available.
     // We could also use the immediate mode, but it is not guaranteed to be available and it has no vsync.
-    // TODO: Make the presentation mode configurable
     VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
+    u32 required_present_mode = (u32)context->settings.swapchain_present_mode;
     for (u32 i = 0; i < context->device.swapchain_support.present_mode_count; ++i) {
-        if (context->device.swapchain_support.present_modes[i] == VK_PRESENT_MODE_MAILBOX_KHR) {
-            present_mode = VK_PRESENT_MODE_MAILBOX_KHR;
+        if (context->device.swapchain_support.present_modes[i] == required_present_mode) {
+            present_mode = required_present_mode;
             break;
         }
     }
+
+    if (required_present_mode != present_mode) {
+        FR_CORE_FATAL("Required present mode %d not available", required_present_mode);
+    }
+    FR_CORE_TRACE("Selected present mode %d", present_mode);
 
     // We will requery the swapchain capabilities just in case there was a
     // change in the surface properties like a new window size or monitor change

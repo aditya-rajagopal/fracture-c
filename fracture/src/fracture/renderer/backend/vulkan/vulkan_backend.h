@@ -55,3 +55,11 @@ b8 vulkan_backend_end_frame(renderer_backend* backend, f64 delta_time);
  * @param height The new height of the window
  */
 void vulkan_backend_on_window_resize(renderer_backend* backend, u32 width, u32 height);
+
+/**
+ * @brief Callback for providing the renderer_settings to the backend
+ *
+ * @param settings a pointer to the struct containing the settings for the renderer
+ * @return b8 TRUE if the settings were applied FALSE if there is an issue with the settings
+ */
+b8 vulkan_backend_settings_callback(renderer_backend* backend);

@@ -5,6 +5,8 @@
 #include "fracture/core/systems/clock.h"
 #include "fracture/core/systems/event.h"
 #include "fracture/core/systems/input.h"
+#include "fracture/engine/application_types.h"
+#include "fracture/renderer/renderer_types.h"
 
 #define TEST_LEN 10000000
 
@@ -31,8 +33,8 @@ b8 testbed_initialize(application_handle* app_handle) {
     state = fr_memory_allocate(sizeof(testbed_internal_state), MEMORY_TYPE_APPLICATION);
 
     // Event test
-    fr_event_register_handler(EVENT_CODE_KEY_PRESS, NULL_PTR, testbed_on_key_pressed);
-    fr_event_register_handler(EVENT_CODE_KEY_RELEASE, NULL_PTR, testbed_on_key_pressed);
+    fr_event_register_handler(EVENT_CODE_KEY_PRESS, app_handle, testbed_on_key_pressed);
+    fr_event_register_handler(EVENT_CODE_KEY_RELEASE, app_handle, testbed_on_key_pressed);
     fr_event_register_handler(EVENT_CODE_KEY_B, NULL_PTR, testbed_on_key_B);
     fr_event_register_handler(EVENT_CODE_MOUSE_BUTTON_LEFT, NULL_PTR, testbed_on_mouse_button1);
 
@@ -94,8 +96,8 @@ b8 testbed_shutdown(application_handle* app_handle) {
     testbed_state* app_state = (testbed_state*)app_handle->application_data;
     app_state->is_running = FALSE;
     fr_memory_free(state, sizeof(testbed_internal_state), MEMORY_TYPE_APPLICATION);
-    fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, NULL_PTR, testbed_on_key_pressed);
-    fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, NULL_PTR, testbed_on_key_pressed);
+    fr_event_deregister_handler(EVENT_CODE_KEY_PRESS, app_handle, testbed_on_key_pressed);
+    fr_event_deregister_handler(EVENT_CODE_KEY_RELEASE, app_handle, testbed_on_key_pressed);
     fr_event_deregister_handler(EVENT_CODE_KEY_B, NULL_PTR, testbed_on_key_B);
     fr_event_deregister_handler(EVENT_CODE_MOUSE_BUTTON_LEFT, NULL_PTR, testbed_on_mouse_button1);
 
@@ -106,6 +108,8 @@ b8 testbed_shutdown(application_handle* app_handle) {
 b8 testbed_update(application_handle* app_handle, f64 delta_time) {
     if (fr_input_is_key_pressed_this_frame(KEY_G)) {
         FR_INFO("G key was pressed this frame");
+        FR_INFO("Current frame rate is %f", app_handle->current_frame_rate);
+        FR_INFO("Current delta time is %f", delta_time);
     }
 
     if (fr_input_is_key_released_this_frame(KEY_G)) {
@@ -120,6 +124,7 @@ b8 testbed_render(application_handle* app_handle, f64 delta_time) { return TRUE;
 b8 testbed_on_resize(application_handle* app_handle, u32 width, u32 height) { return TRUE; }
 
 b8 testbed_on_key_pressed(u16 event_code, void* sender, void* listener_instance, event_data data) {
+    application_handle* handle = (application_handle*)listener_instance;
     if (event_code == EVENT_CODE_KEY_PRESS) {
         keys key = (keys)data.data.du16[0];
         b8 is_repeated = (b8)data.data.du16[1];
@@ -131,10 +136,14 @@ b8 testbed_on_key_pressed(u16 event_code, void* sender, void* listener_instance,
                         mouse_x,
                         mouse_y,
                         is_repeated ? "" : "not");
+                handle->app_config.settings.swapchain_present_mode = RENDERER_BACKEND_PRESENT_MODE_MAILBOX;
+                handle->renderer_settings_modified = TRUE;
                 return FALSE;
             case KEY_R:
                 FR_INFO("R key was pressed this frame %d", fr_input_is_key_pressed_this_frame(KEY_R));
                 FR_INFO("R key pressed at position: (%d, %d)", mouse_x, mouse_y);
+                handle->app_config.settings.swapchain_present_mode = RENDERER_BACKEND_PRESENT_MODE_FIFO;
+                handle->renderer_settings_modified = TRUE;
                 return FALSE;
             case KEY_LCONTROL:
             case KEY_RCONTROL:

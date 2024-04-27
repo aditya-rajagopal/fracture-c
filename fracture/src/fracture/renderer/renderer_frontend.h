@@ -23,7 +23,7 @@
  * @param plat_state The platform state
  * @return b8 TRUE if the renderer was initialized successfully
  */
-b8 fr_renderer_initialize(const char* app_name, struct platform_state* plat_state);
+b8 fr_renderer_initialize(const char* app_name, struct platform_state* plat_state, const renderer_settings* settings);
 
 /**
  * @brief Shuts down the renderer backend
@@ -46,3 +46,11 @@ b8 fr_renderer_draw_frame(renderer_packet* package);
  * @return b8 TRUE if the frame was ended successfully
  */
 void fr_renderer_on_window_resize(u32 width, u32 height);
+
+/**
+ * @brief Update the renderer's settings
+ *
+ * @param settings a pointer to the struct containing the settings for the renderer
+ * @return b8 TRUE if the settings were applied FALSE if there is an issue with the settings
+ */
+b8 fr_renderer_update_renderer_config(const renderer_settings* settings);

@@ -8,8 +8,11 @@
 #include "fracture/core/systems/fracture_memory.h"
 #include "fracture/core/systems/input.h"
 #include "fracture/core/systems/logging.h"
+#include "fracture/engine/application_types.h"
 #include "fracture/engine/engine_events.h"
 #include "fracture/renderer/renderer_frontend.h"
+
+#define FRAME_RATE_CALC_INTERVAL 200
 
 typedef struct engine_state {
     application_handle* app_handle;
@@ -21,6 +24,7 @@ typedef struct engine_state {
     platform_state plat_state;
     clock app_clock;
     f64 last_frame_time;
+    u64 frame_count;
     const char* name;
 } engine_state;
 
@@ -45,6 +49,7 @@ b8 engine_initialize(application_handle* app_handle) {
     state.is_minimized = FALSE;
     state.is_supended = FALSE;
     state.last_frame_time = 0.0;
+    state.frame_count = 0.0;
     state.app_handle = app_handle;
     state.current_width = app_handle->app_config.start_width;
     state.current_height = app_handle->app_config.start_height;
@@ -95,7 +100,7 @@ b8 engine_initialize(application_handle* app_handle) {
     fr_event_register_handler(EVENT_CODE_WINDOW_RESIZE, 0, _engine_on_event);
 
     // Intialize the renderer
-    if (!fr_renderer_initialize(app_handle->app_config.name, &state.plat_state)) {
+    if (!fr_renderer_initialize(app_handle->app_config.name, &state.plat_state, &app_handle->app_config.settings)) {
         FR_CORE_FATAL("Failed to initialize renderer");
         return FALSE;
     }
@@ -156,9 +161,17 @@ b8 engine_run(application_handle* app_handle) {
 
     fr_memory_print_stats();
 
+    f64 frame_rate_time = 0.0F;
+    u64 last_frame_count = 0;
+
     while (state.is_running) {
         if (!platform_pump_messages(&state.plat_state)) {
             state.is_running = FALSE;
+        }
+
+        if (app_handle->renderer_settings_modified) {
+            fr_renderer_update_renderer_config(&app_handle->app_config.settings);
+            app_handle->renderer_settings_modified = FALSE;
         }
 
         if (!state.is_supended) {
@@ -202,6 +215,13 @@ b8 engine_run(application_handle* app_handle) {
             fr_input_update(delta_time);
             // frame_count++;
             state.last_frame_time = fr_clock_get_elapsed_time_s(&state.app_clock);
+            state.frame_count++;
+            frame_rate_time += delta_time;
+            if (frame_rate_time > 1.0F) {
+                app_handle->current_frame_rate = (state.frame_count - last_frame_count) / frame_rate_time;
+                frame_rate_time = 0.0F;
+                last_frame_count = state.frame_count;
+            }
         }
     }
 

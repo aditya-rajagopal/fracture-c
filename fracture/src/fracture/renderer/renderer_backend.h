@@ -22,7 +22,7 @@ struct platform_state;
  * @param out_renderer_backend The renderer backend to create.
  * @return b8 True if the renderer backend was created successfully, false otherwise.
  */
-b8 fr_renderer_backend_create(renderer_backend_type type,
+b8 fr_renderer_backend_create(const renderer_settings* settings,
                               struct platform_state* plat_state,
                               renderer_backend* out_renderer_backend);
 

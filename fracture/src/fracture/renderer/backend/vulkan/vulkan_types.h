@@ -15,6 +15,7 @@
 
 #include "fracture/core/library/math/detail/vec4.h"
 #include "fracture/core/systems/logging.h"
+#include "fracture/renderer/renderer_types.h"
 #include "vulkan/vulkan_core.h"
 
 #define VK_CHECK_RESULT(f)                                  \
@@ -253,4 +254,5 @@ typedef struct vulkan_context {
     vulkan_fence** images_in_flight;
 
     i32 (*PFN_find_memory_type)(u32 type_filter, VkMemoryPropertyFlags properties);
+    renderer_settings settings;
 } vulkan_context;

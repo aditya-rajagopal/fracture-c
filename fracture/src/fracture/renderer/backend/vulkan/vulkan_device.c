@@ -180,16 +180,16 @@ b8 _device_select_physical_device(vulkan_context* context) {
     }
     VkPhysicalDevice physical_devices[physical_device_count];
     VK_CHECK_RESULT(vkEnumeratePhysicalDevices(context->instance, &physical_device_count, physical_devices));
-    // TODO: Get requirements from the engine/application
+
     vulkan_physical_device_requriements requirements = {};
-    requirements.graphics = TRUE;
-    requirements.present = TRUE;
-    requirements.compute = TRUE;
-    requirements.transfer = TRUE;
+    requirements.graphics = context->settings.require_graphics_queue;
+    requirements.present = context->settings.require_present_queue;
+    requirements.compute = context->settings.require_compute_queue;
+    requirements.transfer = context->settings.require_transfer_queue;
     requirements.device_extension_names = darray_create(const char*);
     darray_push(requirements.device_extension_names, &VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-    requirements.sampler_anisotropy = TRUE;
-    requirements.discrete_gpu = TRUE;
+    requirements.sampler_anisotropy = context->settings.sample_anisotropy;
+    requirements.discrete_gpu = context->settings.use_discrete_gpu;
 
     for (u32 i = 0; i < physical_device_count; ++i) {
         VkPhysicalDeviceProperties properties;
@@ -242,11 +242,12 @@ b8 _device_select_physical_device(vulkan_context* context) {
                           VK_VERSION_PATCH(properties.apiVersion));
 
             for (u32 j = 0; j < memory.memoryTypeCount; ++j) {
-                f32 memory_size_gb = (f32)memory.memoryHeaps[j].size / (1024.0f * 1024.0f * 1024.0f);
                 if (memory.memoryTypes[j].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
-                    FR_CORE_TRACE("Device local memory: %.2f GB", memory_size_gb);
+                    FR_CORE_TRACE("Device local memory: %.2f GB",
+                                  (f32)memory.memoryHeaps[j].size / (1024.0f * 1024.0f * 1024.0f));
                 } else {
-                    FR_CORE_TRACE("Shared System memory: %.2f GB", memory_size_gb);
+                    FR_CORE_TRACE("Shared System memory: %.2f GB",
+                                  (f32)memory.memoryHeaps[j].size / (1024.0f * 1024.0f * 1024.0f));
                 }
             }
 
@@ -474,6 +475,7 @@ b8 _device_create_logical_device(vulkan_context* context) {
 
     // Create the queue create info
     VkDeviceQueueCreateInfo queue_create_infos[index_count];
+    f32 queue_priority = 1.0f;
     for (i = 0; i < index_count; ++i) {
         queue_create_infos[i].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queue_create_infos[i].queueFamilyIndex = unique_queue_family_indices[i];
@@ -486,7 +488,6 @@ b8 _device_create_logical_device(vulkan_context* context) {
         // }
         queue_create_infos[i].flags = 0;
         queue_create_infos[i].pNext = 0;
-        f32 queue_priority = 1.0f;
         queue_create_infos[i].pQueuePriorities = &queue_priority;
 
         FR_CORE_TRACE("Queue family index: %d, Queue count: %d",
@@ -496,7 +497,7 @@ b8 _device_create_logical_device(vulkan_context* context) {
     // Required device features
     // TODO: Get the required features from the engine/application
     VkPhysicalDeviceFeatures device_features = {};
-    device_features.samplerAnisotropy = VK_TRUE;
+    device_features.samplerAnisotropy = context->settings.sample_anisotropy;
 
     VkDeviceCreateInfo device_create_info = {VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO};
     device_create_info.queueCreateInfoCount = index_count;

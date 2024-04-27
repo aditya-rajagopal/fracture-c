@@ -15,6 +15,7 @@
 #include "fracture/renderer/backend/vulkan/vulkan_swapchain.h"
 #include "fracture/renderer/backend/vulkan/vulkan_types.h"
 #include "fracture/renderer/backend/vulkan/vulkan_utils.h"
+#include "fracture/renderer/renderer_types.h"
 #include "vulkan/vulkan_core.h"
 
 // HACK: This is a hack to get the window width and height
@@ -49,6 +50,7 @@ b8 _backend_create_sync_objects();
 void _backend_destroy_sync_objects();
 
 b8 _backend_recreate_swapchain(renderer_backend* backend);
+b8 _backend_update_config(const renderer_settings* settings);
 
 b8 vulkan_backend_initialize(renderer_backend* backend, const char* app_name, struct platform_state* plat_state) {
     if (!backend) {
@@ -74,6 +76,10 @@ b8 vulkan_backend_initialize(renderer_backend* backend, const char* app_name, st
     cached_framebuffer_width = 0;
 
     context.PFN_find_memory_type = _backend_find_memory_index;
+    if (!_backend_update_config(&backend->settings)) {
+        FR_CORE_ERROR("Invalid renderer settings. Failed to create vulkan backend");
+        return FALSE;
+    }
 
     // Create the Vulkan instance
     if (!_backend_create_instance(app_name)) {
@@ -349,6 +355,17 @@ void vulkan_backend_on_window_resize(renderer_backend* backend, u32 width, u32 h
         context.framebuffer_size_generation);
 }
 
+b8 vulkan_backend_settings_callback(renderer_backend* backend) {
+    if (context.settings.swapchain_present_mode != backend->settings.swapchain_present_mode) {
+        context.framebuffer_size_generation++;
+    }
+    if (context.settings.max_frames_in_flight != backend->settings.max_frames_in_flight) {
+        context.framebuffer_size_generation++;
+    }
+    _backend_update_config(&backend->settings);
+    return TRUE;
+}
+
 // -------------------------------------------------------------------------------------------------
 // ----------------------------------- Private Functions -------------------------------------------
 // -------------------------------------------------------------------------------------------------
@@ -563,6 +580,7 @@ b8 _backend_regenerate_framebuffers(renderer_backend* backend,
         swapchain->framebuffers = darray_reserve(swapchain->image_count, vulkan_frame_buffer);
     }
     FR_CORE_TRACE("Regenerating framebuffers for swapchain images...");
+    FR_CORE_TRACE("Framebuffer width: %d, height; %d", context.framebuffer_width, context.framebuffer_height);
     // Anytime we change the window size we need to recreate the framebuffers and the swapchain
     for (u32 i = 0; i < swapchain->image_count; ++i) {
         // TODO: We might have more attachments in the future make this dynamic
@@ -703,8 +721,10 @@ b8 _backend_recreate_swapchain(renderer_backend* backend) {
         return FALSE;
     }
     // Update the framebuffer size
-    context.framebuffer_width = cached_framebuffer_width;
-    context.framebuffer_height = cached_framebuffer_height;
+    if (cached_framebuffer_width != 0 && cached_framebuffer_height != 0) {
+        context.framebuffer_width = cached_framebuffer_width;
+        context.framebuffer_height = cached_framebuffer_height;
+    }
     context.main_renderpass.render_area.width = context.framebuffer_width;
     context.main_renderpass.render_area.height = context.framebuffer_height;
     cached_framebuffer_height = 0;
@@ -741,5 +761,10 @@ b8 _backend_recreate_swapchain(renderer_backend* backend) {
     }
 
     context.recreating_swapchain = FALSE;
+    return TRUE;
+}
+
+b8 _backend_update_config(const renderer_settings* settings) {
+    context.settings = *settings;
     return TRUE;
 }

@@ -1,6 +1,7 @@
 #include <fracture/engine/entry.h>
 #include <string.h>
 
+#include "fracture/renderer/renderer_types.h"
 #include "testbed.h"
 
 b8 create_client_application(application_handle* app_handle) {
@@ -18,6 +19,16 @@ b8 create_client_application(application_handle* app_handle) {
     config.logging_flags = FR_LOG_LEVEL_ALL;
     config.filename = NULL_PTR;
     app_handle->app_config.logging_config = config;
+
+    app_handle->app_config.settings.backend_type = FR_RENDERER_BACKEND_VULKAN;
+    app_handle->app_config.settings.require_graphics_queue = TRUE;
+    app_handle->app_config.settings.require_transfer_queue = TRUE;
+    app_handle->app_config.settings.require_present_queue = TRUE;
+    app_handle->app_config.settings.require_compute_queue = TRUE;
+    app_handle->app_config.settings.sample_anisotropy = TRUE;
+    app_handle->app_config.settings.use_discrete_gpu = TRUE;
+    app_handle->app_config.settings.max_frames_in_flight = 2;
+    app_handle->app_config.settings.swapchain_present_mode = RENDERER_BACKEND_PRESENT_MODE_MAILBOX;
 
     app_handle->initialize = testbed_initialize;
     app_handle->shutdown = testbed_shutdown;

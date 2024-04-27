@@ -6,12 +6,10 @@
 
 static renderer_backend *current_backend = NULL_PTR;
 
-#define FR_DEFAULT_RENDERER_BACKEND FR_RENDERER_BACKEND_VULKAN
-
 b8 _renderer_begin_frame(renderer_packet *package);
 b8 _renderer_end_frame(renderer_packet *package);
 
-b8 fr_renderer_initialize(const char *app_name, struct platform_state *plat_state) {
+b8 fr_renderer_initialize(const char *app_name, struct platform_state *plat_state, const renderer_settings *settings) {
     if (current_backend) {
         FR_CORE_WARN("Renderer already initialized");
         return TRUE;
@@ -25,7 +23,7 @@ b8 fr_renderer_initialize(const char *app_name, struct platform_state *plat_stat
     current_backend = (renderer_backend *)fr_memory_allocate(sizeof(renderer_backend), MEMORY_TYPE_RENDERER);
 
     // TODO: Add ability to pass in a configuration structure to the renderer backend
-    if (!fr_renderer_backend_create(FR_DEFAULT_RENDERER_BACKEND, plat_state, current_backend)) {
+    if (!fr_renderer_backend_create(settings, plat_state, current_backend)) {
         FR_CORE_FATAL("Failed to create renderer backend");
         return FALSE;
     }
@@ -72,6 +70,24 @@ b8 fr_renderer_draw_frame(renderer_packet *package) {
             return FALSE;
         }
     }
+    return TRUE;
+}
+
+b8 fr_renderer_update_renderer_config(const renderer_settings *settings) {
+    if (!current_backend) {
+        FR_CORE_FATAL("Renderer has not been initialised");
+        return FALSE;
+    }
+    if (settings->backend_type != current_backend->settings.backend_type) {
+        FR_CORE_WARN("Attempting to change the renderer backend type");
+        FR_CORE_FATAL("Changing renderer backend type is currently not supported");
+        // TODO: If we implement multiple backends here is where we would hotswap renderers if the application requests
+        // a new renderer backend
+        return FALSE;
+    }
+
+    current_backend->settings = *settings;
+    current_backend->PFN_renderer_settings_update_callback(current_backend);
     return TRUE;
 }
 

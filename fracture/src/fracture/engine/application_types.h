@@ -12,6 +12,7 @@
 
 #include "fracture/core/defines.h"
 #include "fracture/core/systems/logging.h"
+#include "fracture/renderer/renderer_types.h"
 
 /**
  * @brief Application configuration struct
@@ -41,6 +42,9 @@ typedef struct application_config {
 
     /** @brief Lock frame rate*/
     b8 lock_frame_rate;
+
+    /** @brief renderer settings*/
+    renderer_settings settings;
 } application_config;
 
 /**
@@ -50,6 +54,12 @@ typedef struct application_config {
 typedef struct application_handle {
     /** @brief Application configuration */
     application_config app_config;
+
+    /** @brief Application configuration */
+    b8 renderer_settings_modified;
+
+    /** @brief Current frame rate of the engine*/
+    f64 current_frame_rate;
 
     /** @brief Function pointer to initialize the application */
     b8 (*initialize)(struct application_handle* app_config);
