@@ -12,7 +12,7 @@
 #include "fracture/engine/engine_events.h"
 #include "fracture/renderer/renderer_frontend.h"
 
-#define FRAME_RATE_CALC_INTERVAL 200
+#define FRAME_RATE_CALC_INTERVAL 2.0F
 
 typedef struct engine_state {
     application_handle* app_handle;
@@ -217,7 +217,7 @@ b8 engine_run(application_handle* app_handle) {
             state.last_frame_time = fr_clock_get_elapsed_time_s(&state.app_clock);
             state.frame_count++;
             frame_rate_time += delta_time;
-            if (frame_rate_time > 1.0F) {
+            if (frame_rate_time > FRAME_RATE_CALC_INTERVAL) {
                 app_handle->current_frame_rate = (state.frame_count - last_frame_count) / frame_rate_time;
                 frame_rate_time = 0.0F;
                 last_frame_count = state.frame_count;

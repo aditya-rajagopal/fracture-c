@@ -714,16 +714,17 @@ b8 _backend_recreate_swapchain(renderer_backend* backend) {
     // Check if the depth format has changed
     vulkan_device_detect_depth_format(&context.device);
 
-    // Recreate the swapchain
-    if (!vulkan_swapchain_recreate(&context, cached_framebuffer_width, cached_framebuffer_height, &context.swapchain)) {
-        FR_CORE_ERROR("_backend_recreate_swapchain: Failed to recreate swapchain");
-        context.recreating_swapchain = FALSE;
-        return FALSE;
-    }
     // Update the framebuffer size
     if (cached_framebuffer_width != 0 && cached_framebuffer_height != 0) {
         context.framebuffer_width = cached_framebuffer_width;
         context.framebuffer_height = cached_framebuffer_height;
+    }
+    // Recreate the swapchain
+    if (!vulkan_swapchain_recreate(
+            &context, context.framebuffer_width, context.framebuffer_height, &context.swapchain)) {
+        FR_CORE_ERROR("_backend_recreate_swapchain: Failed to recreate swapchain");
+        context.recreating_swapchain = FALSE;
+        return FALSE;
     }
     context.main_renderpass.render_area.width = context.framebuffer_width;
     context.main_renderpass.render_area.height = context.framebuffer_height;
