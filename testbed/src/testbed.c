@@ -1,26 +1,35 @@
 #include "testbed.h"
 
-#include "fracture/core/library/math/vec3.h"
+#include "fracture/core/containers/llist.h"
 #include "fracture/core/library/random/fr_random.h"
 #include "fracture/core/systems/clock.h"
 #include "fracture/core/systems/event.h"
+#include "fracture/core/systems/fracture_memory.h"
 #include "fracture/core/systems/input.h"
 #include "fracture/engine/application_types.h"
 #include "fracture/renderer/renderer_types.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #define TEST_LEN 10000000
+
+typedef struct test_node {
+    struct llist_node* node;
+    u32 data;
+} test_node;
 
 typedef struct testbed_internal_state {
     i32 test;
-    vec3 vec3s[TEST_LEN];
-    vec3 dots[TEST_LEN];
-    vec3 dots2[TEST_LEN];
-    quat quaternions[TEST_LEN];
+    struct llist_head* test_llist_head;
+    struct llist_head* test_llist_head_2;
     fr_rng_config rng_state;
 } testbed_internal_state;
 
 static testbed_internal_state* state = NULL_PTR;
 static u32* transform_array = NULL_PTR;
+
+static inline b8 testbed_add_test_node(struct llist_head* head, u32 data);
 
 b8 testbed_on_key_pressed(u16 event_code, void* sender, void* listener_instance, event_data data);
 
@@ -46,49 +55,50 @@ b8 testbed_initialize(application_handle* app_handle) {
     fr_random_xorwow_init(current_time, &state->rng_state, NULL_PTR);
 
     // mat3 print test
-    clock c;
-    for (u32 i = 0; i < TEST_LEN; i++) {
-        fr_vec3(fr_random_uniform(&state->rng_state),
-                fr_random_uniform(&state->rng_state),
-                fr_random_uniform(&state->rng_state),
-                &state->vec3s[i]);
-        // fr_quat(fr_random_uniform(&state->rng_state),
-        //         fr_random_uniform(&state->rng_state),
-        //         fr_random_uniform(&state->rng_state),
-        //         fr_random_uniform(&state->rng_state),
-        //         &state->quaternions[i]);
+    // llist unit test
+    state->test_llist_head = fr_memory_allocate(sizeof(struct llist_head), MEMORY_TYPE_LLIST);
+    state->test_llist_head_2 = fr_memory_allocate(sizeof(struct llist_head), MEMORY_TYPE_LLIST);
+
+    testbed_add_test_node(state->test_llist_head, 5);
+    testbed_add_test_node(state->test_llist_head, 10);
+
+    for (u32 i = 0; i < 10; i++) {
+        testbed_add_test_node(state->test_llist_head_2, i);
     }
 
-    fr_clock_start(&c);
-    for (u32 i = 0; i < TEST_LEN; i++) {
-        // fr_quat_vec3_rot(&state->vec3s[i], &state->quaternions[i], &state->vec3s[i]);
-        fr_vec3_cross(&state->vec3s[i], &state->vec3s[i], &state->dots[i]);
-    }
-    fr_clock_update(&c);
-    FR_INFO("Time to rotate %d vec3s with quaternions: %f", TEST_LEN, fr_clock_get_elapsed_time_s(&c));
+    fr_llist_for_each(pos, state->test_llist_head->head) { FR_INFO("LLIST: %d", ((test_node*)pos)->data); }
 
-    for (u32 i = 0; i < TEST_LEN; i++) {
-        fr_vec3(fr_random_uniform(&state->rng_state),
-                fr_random_uniform(&state->rng_state),
-                fr_random_uniform(&state->rng_state),
-                &state->vec3s[i]);
+    fr_llist_for_each(pos, state->test_llist_head_2->head) { FR_INFO("LLIST2: %d", ((test_node*)pos)->data); }
+
+    fr_core_llist_push(state->test_llist_head_2->head, state->test_llist_head);
+
+    fr_llist_for_each(pos, state->test_llist_head->head) { FR_INFO("LLIST AFTER MERGE: %d", ((test_node*)pos)->data); }
+
+    fr_llist_for_each(pos, state->test_llist_head_2->head) {
+        FR_INFO("LLIST 2 AFTER MERGE: %d", ((test_node*)pos)->data);
     }
 
-    fr_clock_start(&c);
-    for (u32 i = 0; i < TEST_LEN; i++) {
-        // fr_quat_vec3_rot(&state->vec3s[i], &state->quaternions[i], &state->vec3s[i]);
-        fr_vec3_cross(&state->vec3s[i], &state->vec3s[i], &state->dots2[i]);
-    }
-    fr_clock_update(&c);
-    FR_INFO("Time to rotate %d vec3s SIMD with quaternions: %f", TEST_LEN, fr_clock_get_elapsed_time_s(&c));
+    testbed_add_test_node(state->test_llist_head, 12);
+    testbed_add_test_node(state->test_llist_head_2, 9);
 
-    // quaternion unit test
-    vec3 point = {1.0f, 2.0f, 3.0f};
-    quat q;
-    fr_quat_from_eulers321(PI_2, 0.0f, 0.0f, &q);
-    fr_quat_vec3_rot(&point, &q, &point);
-    FR_INFO("Rotated point: (%f, %f, %f)", point.x, point.y, point.z);
-    FR_INFO("Client Application initialized: %s", app_handle->app_config.name);
+    fr_llist_for_each(pos, state->test_llist_head->head) { FR_INFO("LLIST AFTER MERGE: %d", ((test_node*)pos)->data); }
+    fr_llist_for_each(pos, state->test_llist_head_2->head) {
+        FR_INFO("LLIST 2 AFTER MERGE: %d", ((test_node*)pos)->data);
+    }
+
+    clock clock;
+    fr_clock_start(&clock);
+
+
+    int width, height, channels;
+    u8* output = stbi_load("test2.png", &width, &height, &channels, 4);
+    fr_clock_update(&clock);
+    const f64 time_seconds = fr_clock_get_elapsed_time_ms(&clock);
+    if (output == NULL) {
+        FR_FATAL("Failed to load image");
+    }
+    FR_INFO("Time to load image: %f", time_seconds);
+
     return TRUE;
 }
 
@@ -188,5 +198,13 @@ b8 testbed_on_mouse_button1(u16 event_code, void* sender, void* listener_instanc
     } else {
         FR_INFO("Mouse button 1 released at position: (%d, %d)", mouse_x, mouse_y);
     }
+    return TRUE;
+}
+
+static inline b8 testbed_add_test_node(struct llist_head* llist, u32 data) {
+    struct test_node* node;
+    node = fr_memory_allocate(sizeof(*node), MEMORY_TYPE_LLIST);
+    node->data = data;
+    fr_core_llist_push((struct llist_node*)node, llist);
     return TRUE;
 }

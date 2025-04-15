@@ -16,7 +16,7 @@
  * @brief Structure to hold information about a clock
  *
  */
-typedef struct clock {
+typedef struct clock_t {
     /** @brief The clock start time in seconds */
     f64 start_time;
     /** @brief The time elapsed since the start of the clock to when the last update was called */

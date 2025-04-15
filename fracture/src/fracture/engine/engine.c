@@ -155,7 +155,7 @@ b8 engine_run(application_handle* app_handle) {
     state.last_frame_time = fr_clock_get_elapsed_time_s(&state.app_clock);
     // f64 total_run_time = 0.0;
     // u64 frame_count = 0;
-    f64 target_frame_seconds = 1.0F / app_handle->app_config.target_frame_rate;
+    // f64 target_frame_seconds = 1.0F / app_handle->app_config.target_frame_rate;
 
     FR_CORE_INFO("Running application: %s", app_handle->app_config.name);
 
@@ -177,7 +177,7 @@ b8 engine_run(application_handle* app_handle) {
         if (!state.is_supended) {
             fr_clock_update(&state.app_clock);
             f64 delta_time = fr_clock_get_elapsed_time_s(&state.app_clock) - state.last_frame_time;
-            f64 frame_start_time = platform_get_absolute_time();
+            // f64 frame_start_time = platform_get_absolute_time();
 
             if (!app_handle->update(app_handle, delta_time)) {
                 FR_CORE_FATAL("Failed to update client application");
@@ -201,16 +201,16 @@ b8 engine_run(application_handle* app_handle) {
                 }
             }
 
-            f64 frame_end_time = platform_get_absolute_time();
-            f64 frame_time = frame_end_time - frame_start_time;
+            // f64 frame_end_time = platform_get_absolute_time();
+            // f64 frame_time = frame_end_time - frame_start_time;
             // total_run_time += frame_time;
-            f64 sleep_time = target_frame_seconds - frame_time;
+            // f64 sleep_time = target_frame_seconds - frame_time;
 
-            if (sleep_time > 0.0 && app_handle->app_config.lock_frame_rate) {
-                u64 sleep_time_ms = (u64)(sleep_time * 1000);
+            // if (sleep_time > 0.0 && app_handle->app_config.lock_frame_rate) {
+            //     u64 sleep_time_ms = (u64)(sleep_time * 1000);
 
-                platform_sleep(sleep_time_ms - 1);
-            }
+            //     platform_sleep(sleep_time_ms - 1);
+            // }
 
             fr_input_update(delta_time);
             // frame_count++;
@@ -221,6 +221,10 @@ b8 engine_run(application_handle* app_handle) {
                 app_handle->current_frame_rate = (state.frame_count - last_frame_count) / frame_rate_time;
                 frame_rate_time = 0.0F;
                 last_frame_count = state.frame_count;
+            }
+
+            if (fr_input_is_key_down(KEY_2)) {
+                FR_INFO("Frame rate: %f", app_handle->current_frame_rate);
             }
         }
     }

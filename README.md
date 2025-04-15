@@ -1,8 +1,17 @@
 # fracture-c
+NOTE: This project is mostly abandoned in favour of a zig implementation from scratch: [zfracture](https://github.com/aditya-rajagopal/zfracture)
+
 Game engine in C for learning
 
 <img src="https://github.com/aditya-rajagopal/fracture-c/blob/master/fracture_logo/fracture_logo_small.png" alt="Fracture Engine" width="256" height="256"/>
 
-The purpose of this project is to learn game engine programming as well as C. It will be loosly (sometimes tightly) following the amazing  [Tutorial Videos](https://www.youtube.com/playlist?list=PLv8Ddw9K0JPg1BEO-RS-0MYs423cvLVtj) by [Travis Vroman](https://travisvroman.com/).
+The purpose of this project is to learn game engine programming as well as C.
 
-[TODO](TODO.md)
+Currently only supports windows.
+
+You can build the project with
+```
+./build_all.bat
+```
+
+This assumes you have clang

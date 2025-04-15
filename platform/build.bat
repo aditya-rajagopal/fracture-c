@@ -10,7 +10,7 @@ FOR /R %%f in (*.c) do (
 
 REM echo "Files: " %cFileNames%
 SET assembly=platform
-SET compilerFlags=-g
+SET compilerFlags=-g -O3
 REM -Wall -Werror
 SET includeFlags=-I..\platform\src -I..\fracture\src\
 SET linkerFlags=

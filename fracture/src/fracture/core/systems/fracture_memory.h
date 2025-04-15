@@ -17,7 +17,7 @@ typedef enum memory_types {
     // Memory types for core data structures
     MEMORY_TYPE_ARRAY,
     MEMORY_TYPE_DARRAY,
-    MEMORY_TYPE_LIST,
+    MEMORY_TYPE_LLIST,
     MEMORY_TYPE_RING_QUEUE,
     MEMORY_TYPE_BST,
     MEMORY_TYPE_HASH_TABLE,
